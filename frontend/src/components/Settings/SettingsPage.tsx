@@ -441,9 +441,10 @@ export default function SettingsPage() {
               >
                 {t("settings.data.conflictSkip")}
               </button>
+              {/* Updated cancel button with border and consistent styling */}
               <button
                 onClick={() => setConflictModalOpen(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-blue-600 mt-2"
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 mt-2"
               >
                 {t("settings.data.cancel")}
               </button>

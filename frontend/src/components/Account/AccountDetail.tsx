@@ -213,9 +213,10 @@ export default function AccountDetail() {
           )}
         </div>
 
+        {/* Updated back button with border and consistent styling */}
         <button
           onClick={() => navigate("/accounts")}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="px-4 py-2 mt-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors inline-block"
         >
           {t("accounts.detail.back")}
         </button>
