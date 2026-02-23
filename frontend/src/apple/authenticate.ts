@@ -1,7 +1,7 @@
 import type { Account, Cookie } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
-import { mergeCookies, parseCookieHeaders } from "./cookies";
+import { extractAndMergeCookies } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
 import i18n from "../i18n";
 
@@ -68,16 +68,7 @@ export async function authenticate(
         cookies,
       });
 
-      // Parse Set-Cookie headers from rawHeaders (preserves duplicates)
-      const setCookies: string[] = [];
-      for (const [key, value] of response.rawHeaders) {
-        if (key.toLowerCase() === "set-cookie") {
-          setCookies.push(value);
-        }
-      }
-      if (setCookies.length > 0) {
-        cookies = mergeCookies(cookies, parseCookieHeaders(setCookies));
-      }
+      cookies = extractAndMergeCookies(response.rawHeaders, cookies);
 
       // Read store front
       const storeHeader = response.headers["x-set-apple-store-front"];

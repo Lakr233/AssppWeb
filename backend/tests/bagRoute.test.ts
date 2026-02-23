@@ -63,6 +63,6 @@ describe("Bag Route", () => {
     const res = await request(app).get("/api/bag?guid=aabbccddeeff");
 
     expect(res.status).toBe(502);
-    expect(res.body.error).toContain("HTTP 403");
+    expect(res.body.error).toBe("Bag request failed");
   });
 });

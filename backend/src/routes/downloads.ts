@@ -11,37 +11,13 @@ import {
   sanitizeTaskForResponse,
   validateDownloadURL,
 } from "../services/downloadManager.js";
+import {
+  getIdParam,
+  requireAccountHash,
+  verifyTaskOwnership,
+} from "../utils/route.js";
 
 const router = Router();
-
-function getIdParam(req: Request): string {
-  const id = req.params.id;
-  return Array.isArray(id) ? id[0] : id;
-}
-
-// Extract and validate accountHash from query or body
-function requireAccountHash(req: Request, res: Response): string | null {
-  const hash =
-    (req.query.accountHash as string) || (req.body && req.body.accountHash);
-  if (!hash || typeof hash !== "string" || hash.length < 8) {
-    res.status(400).json({ error: "Missing or invalid accountHash parameter" });
-    return null;
-  }
-  return hash;
-}
-
-// Verify task belongs to the given accountHash
-function verifyTaskOwnership(
-  task: { accountHash: string },
-  accountHash: string,
-  res: Response,
-): boolean {
-  if (task.accountHash !== accountHash) {
-    res.status(403).json({ error: "Access denied" });
-    return false;
-  }
-  return true;
-}
 
 // Start a new download
 router.post("/downloads", (req: Request, res: Response) => {

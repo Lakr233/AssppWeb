@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import Alert from "../common/Alert";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { listVersions } from "../../apple/versionFinder";
@@ -10,6 +11,7 @@ import { getVersionMetadata } from "../../apple/versionLookup";
 import { getDownloadInfo } from "../../apple/download";
 import { apiPost } from "../../api/client";
 import { accountHash } from "../../utils/account";
+import { getErrorMessage } from "../../utils/error";
 import type { Software, VersionMetadata } from "../../types";
 
 export default function VersionHistory() {
@@ -56,9 +58,7 @@ export default function VersionHistory() {
       setVersions(result.versions);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("search.versions.loadFailed"),
-      );
+      setError(getErrorMessage(e, t("search.versions.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -104,9 +104,7 @@ export default function VersionHistory() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("search.versions.downloadFailed"),
-      );
+      setError(getErrorMessage(e, t("search.versions.downloadFailed")));
     } finally {
       setDownloadingVersion(null);
     }
@@ -131,16 +129,8 @@ export default function VersionHistory() {
           </div>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-            {success}
-          </div>
-        )}
+        {error && <Alert type="error">{error}</Alert>}
+        {success && <Alert type="success">{success}</Alert>}
 
         {accounts.length > 0 && (
           <div className="flex items-end gap-3">

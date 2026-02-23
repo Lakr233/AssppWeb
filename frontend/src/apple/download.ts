@@ -1,7 +1,7 @@
 import type { Account, Software, DownloadOutput, Sinf } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
-import { mergeCookies, parseCookieHeaders } from "./cookies";
+import { extractAndMergeCookies } from "./cookies";
 import { storeAPIHost } from "./config";
 import i18n from "../i18n";
 
@@ -55,15 +55,7 @@ export async function getDownloadInfo(
       cookies,
     });
 
-    const setCookies: string[] = [];
-    for (const [key, value] of response.rawHeaders) {
-      if (key.toLowerCase() === "set-cookie") {
-        setCookies.push(value);
-      }
-    }
-    if (setCookies.length > 0) {
-      cookies = mergeCookies(cookies, parseCookieHeaders(setCookies));
-    }
+    cookies = extractAndMergeCookies(response.rawHeaders, cookies);
 
     if (response.status === 302) {
       const location = response.headers["location"];

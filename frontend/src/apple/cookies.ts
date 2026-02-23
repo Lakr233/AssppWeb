@@ -1,5 +1,21 @@
 import type { Cookie } from "../types";
 
+export function extractAndMergeCookies(
+  rawHeaders: Iterable<[string, string]>,
+  existingCookies: Cookie[],
+): Cookie[] {
+  const setCookies: string[] = [];
+  for (const [key, value] of rawHeaders) {
+    if (key.toLowerCase() === "set-cookie") {
+      setCookies.push(value);
+    }
+  }
+  if (setCookies.length > 0) {
+    return mergeCookies(existingCookies, parseCookieHeaders(setCookies));
+  }
+  return existingCookies;
+}
+
 export function mergeCookies(
   existing: Cookie[],
   newCookies: Cookie[],

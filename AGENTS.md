@@ -124,6 +124,11 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - SINF injector also handles optional `iTunesMetadata.plist` injection at IPA root
 - Bag proxy for `init.itunes.apple.com`
 
+### Backend Shared Utilities
+
+- `backend/src/utils/route.ts` — shared Express route helpers (`getIdParam`, `requireAccountHash`, `verifyTaskOwnership`)
+- `backend/src/config.ts` — centralized constants (`MAX_DOWNLOAD_SIZE`, `DOWNLOAD_TIMEOUT_MS`, `BAG_TIMEOUT_MS`, `BAG_MAX_BYTES`, `MIN_ACCOUNT_HASH_LENGTH`)
+
 ## Frontend
 
 - React 19, React Router 7, Zustand for state
@@ -135,6 +140,34 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - Bag endpoint (`frontend/src/apple/bag.ts`) uses backend proxy (`/api/bag`) and falls back to `https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate` when `authenticateAccount` is missing or bag fetch fails
 - Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters
 - Plist build/parse (`frontend/src/apple/plist.ts`) uses native XML builder and browser-native `DOMParser`
+- Cookie helper (`frontend/src/apple/cookies.ts`) — `extractAndMergeCookies(rawHeaders, existingCookies)` replaces the repeated extract-and-merge pattern across all Apple protocol files
+
+### Frontend Shared Components (`components/common/`)
+
+- **Alert** — `<Alert type="error|success|warning">` for status messages (replaces inline alert divs)
+- **Modal** — `<Modal open={bool} onClose={fn} title={string}>` for dialog overlays
+- **Spinner** — inline SVG loading spinner for buttons
+- **CountrySelect** — optgroup-based country dropdown with "Available Regions" + "All Regions"
+- **AppIcon** — 3 sizes (40/56/80px), rounded corners, letter fallback
+- **Badge** — color-coded status pill
+- **ProgressBar** — gray track, blue fill, percentage label
+
+### Frontend Shared Utilities (`utils/`)
+
+- `utils/error.ts` — `getErrorMessage(e, fallback)` for standardized catch-block error extraction
+- `utils/crypto.ts` — AES-GCM encrypt/decrypt for account export/import
+- `utils/account.ts` — `accountHash()`, `accountStoreCountry()`, `firstAccountCountry()`
+
+### Import Ordering Convention
+
+1. React / library imports (`useState`, `useNavigate`, `useTranslation`)
+2. Layout components (`PageContainer`)
+3. Common components (`AppIcon`, `Alert`, `Spinner`, `Modal`, `CountrySelect`)
+4. Hooks / stores (`useAccounts`, `useSettingsStore`)
+5. Apple protocol / API modules (`authenticate`, `purchaseApp`, `apiPost`)
+6. Utilities (`accountHash`, `getErrorMessage`)
+7. Config (`countryCodeMap`, `storeIdToCountry`)
+8. Types (`type Software`)
 
 ## Error Handling
 

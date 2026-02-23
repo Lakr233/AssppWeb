@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
+import Modal from "../common/Modal";
 import { countryCodeMap } from "../../apple/config";
 import { useAccountsStore } from "../../store/accounts";
 import { encryptData, decryptData } from "../../utils/crypto";
@@ -344,134 +345,121 @@ export default function SettingsPage() {
         </section>
       </div>
 
-      {exportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-            <h3 className="text-lg font-bold mb-4">
-              {t("settings.data.exportBtn")}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("settings.data.passwordPrompt")}
-                </label>
-                <input
-                  type="password"
-                  value={exportPassword}
-                  onChange={(e) => setExportPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("settings.data.passwordConfirm")}
-                </label>
-                <input
-                  type="password"
-                  value={exportConfirmPassword}
-                  onChange={(e) => setExportConfirmPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              {exportError && (
-                <p className="text-sm text-red-600">{exportError}</p>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setExportModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                {t("settings.data.cancel")}
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={!exportPassword || !exportConfirmPassword}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {t("settings.data.confirmBtn")}
-              </button>
-            </div>
+      <Modal
+        open={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        title={t("settings.data.exportBtn")}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("settings.data.passwordPrompt")}
+            </label>
+            <input
+              type="password"
+              value={exportPassword}
+              onChange={(e) => setExportPassword(e.target.value)}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("settings.data.passwordConfirm")}
+            </label>
+            <input
+              type="password"
+              value={exportConfirmPassword}
+              onChange={(e) => setExportConfirmPassword(e.target.value)}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          {exportError && <p className="text-sm text-red-600">{exportError}</p>}
         </div>
-      )}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={() => setExportModalOpen(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            {t("settings.data.cancel")}
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={!exportPassword || !exportConfirmPassword}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {t("settings.data.confirmBtn")}
+          </button>
+        </div>
+      </Modal>
 
-      {importModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-            <h3 className="text-lg font-bold mb-4">
-              {t("settings.data.importBtn")}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("settings.data.passwordPrompt")}
-                </label>
-                <input
-                  type="password"
-                  value={importPassword}
-                  onChange={(e) => setImportPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              {importError && (
-                <p className="text-sm text-red-600">{importError}</p>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setImportModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                {t("settings.data.cancel")}
-              </button>
-              <button
-                onClick={handleImport}
-                disabled={!importPassword}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {t("settings.data.confirmBtn")}
-              </button>
-            </div>
+      <Modal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        title={t("settings.data.importBtn")}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("settings.data.passwordPrompt")}
+            </label>
+            <input
+              type="password"
+              value={importPassword}
+              onChange={(e) => setImportPassword(e.target.value)}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
           </div>
+          {importError && <p className="text-sm text-red-600">{importError}</p>}
         </div>
-      )}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={() => setImportModalOpen(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            {t("settings.data.cancel")}
+          </button>
+          <button
+            onClick={handleImport}
+            disabled={!importPassword}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {t("settings.data.confirmBtn")}
+          </button>
+        </div>
+      </Modal>
 
-      {conflictModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-            <h3 className="text-lg font-bold mb-4">
-              {t("settings.data.conflictTitle")}
-            </h3>
-            <p className="text-sm text-gray-700 mb-6">
-              {t("settings.data.conflictDesc", {
-                conflict: conflictStats.conflict,
-                new: conflictStats.new,
-              })}
-            </p>
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => handleResolveConflict(true)}
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
-              >
-                {t("settings.data.conflictOverwrite")}
-              </button>
-              <button
-                onClick={() => handleResolveConflict(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                {t("settings.data.conflictSkip")}
-              </button>
-              <button
-                onClick={() => setConflictModalOpen(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 mt-2"
-              >
-                {t("settings.data.cancel")}
-              </button>
-            </div>
-          </div>
+      <Modal
+        open={conflictModalOpen}
+        onClose={() => setConflictModalOpen(false)}
+        title={t("settings.data.conflictTitle")}
+      >
+        <p className="text-sm text-gray-700 mb-6">
+          {t("settings.data.conflictDesc", {
+            conflict: conflictStats.conflict,
+            new: conflictStats.new,
+          })}
+        </p>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => handleResolveConflict(true)}
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+          >
+            {t("settings.data.conflictOverwrite")}
+          </button>
+          <button
+            onClick={() => handleResolveConflict(false)}
+            className="w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            {t("settings.data.conflictSkip")}
+          </button>
+          <button
+            onClick={() => setConflictModalOpen(false)}
+            className="w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 mt-2"
+          >
+            {t("settings.data.cancel")}
+          </button>
         </div>
-      )}
+      </Modal>
     </PageContainer>
   );
 }

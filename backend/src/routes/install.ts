@@ -4,13 +4,9 @@ import path from "path";
 import { config } from "../config.js";
 import { getAllTasks } from "../services/downloadManager.js";
 import { buildManifest, getWhitePng } from "../services/manifestBuilder.js";
+import { getIdParam } from "../utils/route.js";
 
 const router = Router();
-
-function getIdParam(req: Request): string {
-  const id = req.params.id;
-  return Array.isArray(id) ? id[0] : id;
-}
 
 function getBaseUrl(req: Request): string {
   const configured = normalizeBaseUrl(config.publicBaseUrl);

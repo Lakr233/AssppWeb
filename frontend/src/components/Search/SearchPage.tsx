@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import Alert from "../common/Alert";
+import CountrySelect from "../common/CountrySelect";
 import { useSearch } from "../../hooks/useSearch";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
@@ -59,30 +61,12 @@ export default function SearchPage() {
           </button>
         </div>
         <div className="flex gap-3">
-          <select
+          <CountrySelect
             value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          >
-            {/* Group 1: Available Regions (only shows if there are valid accounts) */}
-            {availableCountryCodes.length > 0 && (
-              <optgroup label={t("regions.available")}>
-                {availableCountryCodes.map((c) => (
-                  <option key={`avail-${c}`} value={c}>
-                    {t(`countries.${c}`, c)} ({c})
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {/* Group 2: All Regions */}
-            <optgroup label={t("regions.all")}>
-              {allCountryCodes.map((c) => (
-                <option key={`all-${c}`} value={c}>
-                  {t(`countries.${c}`, c)} ({c})
-                </option>
-              ))}
-            </optgroup>
-          </select>
+            onChange={setCountry}
+            availableCountryCodes={availableCountryCodes}
+            allCountryCodes={allCountryCodes}
+          />
           <select
             value={entity}
             onChange={(e) => setEntity(e.target.value)}
@@ -95,9 +79,9 @@ export default function SearchPage() {
       </form>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <Alert type="error" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
       {results.length === 0 && !loading && !error && (

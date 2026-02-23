@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
+import Spinner from "../common/Spinner";
+import Alert from "../common/Alert";
 import { useAccounts } from "../../hooks/useAccounts";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { storeIdToCountry } from "../../apple/config";
+import { getErrorMessage } from "../../utils/error";
 
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
@@ -78,11 +81,7 @@ export default function AccountDetail() {
         setNeedsCode(true);
         setError(err.message);
       } else {
-        setError(
-          err instanceof Error
-            ? err.message
-            : t("accounts.detail.reauthFailed"),
-        );
+        setError(getErrorMessage(err, t("accounts.detail.reauthFailed")));
       }
     } finally {
       setReauthing(false);
@@ -170,15 +169,15 @@ export default function AccountDetail() {
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
+          <Alert type="error" className="p-4">
+            {error}
+          </Alert>
         )}
 
         {success && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="text-sm text-green-700">{success}</p>
-          </div>
+          <Alert type="success" className="p-4">
+            {success}
+          </Alert>
         )}
 
         <div className="flex flex-wrap items-center gap-3">
@@ -239,29 +238,5 @@ function DetailRow({ label, value }: { label: string; value: string }) {
         {value || "--"}
       </dd>
     </div>
-  );
-}
-
-function Spinner() {
-  return (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
-    </svg>
   );
 }

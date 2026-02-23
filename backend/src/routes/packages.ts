@@ -2,15 +2,12 @@ import { Router, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import { config } from "../config.js";
+import { MIN_ACCOUNT_HASH_LENGTH } from "../config.js";
 import { getAllTasks } from "../services/downloadManager.js";
+import { getIdParam } from "../utils/route.js";
 import type { PackageInfo } from "../types/index.js";
 
 const router = Router();
-
-function getIdParam(req: Request): string {
-  const id = req.params.id;
-  return Array.isArray(id) ? id[0] : id;
-}
 
 // Sanitize filename for Content-Disposition to prevent header injection
 function sanitizeFilename(name: string): string {
@@ -59,7 +56,7 @@ router.get("/packages", (req: Request, res: Response) => {
 // Stream IPA file (requires accountHash)
 router.get("/packages/:id/file", (req: Request, res: Response) => {
   const accountHash = req.query.accountHash as string;
-  if (!accountHash || accountHash.length < 8) {
+  if (!accountHash || accountHash.length < MIN_ACCOUNT_HASH_LENGTH) {
     res.status(400).json({ error: "Missing or invalid accountHash" });
     return;
   }
@@ -103,7 +100,7 @@ router.get("/packages/:id/file", (req: Request, res: Response) => {
 // Delete a package (requires accountHash)
 router.delete("/packages/:id", (req: Request, res: Response) => {
   const accountHash = req.query.accountHash as string;
-  if (!accountHash || accountHash.length < 8) {
+  if (!accountHash || accountHash.length < MIN_ACCOUNT_HASH_LENGTH) {
     res.status(400).json({ error: "Missing or invalid accountHash" });
     return;
   }

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import Alert from "../common/Alert";
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
 import { useDownloads } from "../../hooks/useDownloads";
@@ -71,11 +72,7 @@ export default function PackageDetail() {
           </div>
         )}
 
-        {task.error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            {task.error}
-          </div>
-        )}
+        {task.error && <Alert type="error">{task.error}</Alert>}
 
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <dl className="space-y-3 text-sm">

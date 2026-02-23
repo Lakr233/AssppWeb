@@ -1,7 +1,7 @@
 import type { Account, Software } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
-import { mergeCookies, parseCookieHeaders } from "./cookies";
+import { extractAndMergeCookies } from "./cookies";
 import { storeAPIHost } from "./config";
 
 export async function listVersions(
@@ -39,15 +39,7 @@ export async function listVersions(
       cookies,
     });
 
-    const setCookies: string[] = [];
-    for (const [key, value] of response.rawHeaders) {
-      if (key.toLowerCase() === "set-cookie") {
-        setCookies.push(value);
-      }
-    }
-    if (setCookies.length > 0) {
-      cookies = mergeCookies(cookies, parseCookieHeaders(setCookies));
-    }
+    cookies = extractAndMergeCookies(response.rawHeaders, cookies);
 
     if (response.status === 302) {
       const location = response.headers["location"];

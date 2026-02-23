@@ -3,6 +3,7 @@ import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import Alert from "../common/Alert";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { lookupApp } from "../../api/search";
@@ -15,6 +16,7 @@ import {
   firstAccountCountry,
 } from "../../utils/account";
 import { storeIdToCountry } from "../../apple/config";
+import { getErrorMessage } from "../../utils/error";
 import type { Software } from "../../types";
 
 export default function ProductDetail() {
@@ -94,9 +96,7 @@ export default function ProductDetail() {
       await updateAccount({ ...account, cookies: result.updatedCookies });
       setSuccess(t("search.product.licenseSuccess"));
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("search.product.purchaseFailed"),
-      );
+      setError(getErrorMessage(e, t("search.product.purchaseFailed")));
     } finally {
       setActionLoading(false);
     }
@@ -124,9 +124,7 @@ export default function ProductDetail() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("search.product.downloadFailed"),
-      );
+      setError(getErrorMessage(e, t("search.product.downloadFailed")));
     } finally {
       setActionLoading(false);
     }
@@ -152,16 +150,8 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-            {success}
-          </div>
-        )}
+        {error && <Alert type="error">{error}</Alert>}
+        {success && <Alert type="success">{success}</Alert>}
 
         {accounts.length === 0 ? (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">

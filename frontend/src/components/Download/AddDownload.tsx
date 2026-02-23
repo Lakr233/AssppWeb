@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import Alert from "../common/Alert";
+import CountrySelect from "../common/CountrySelect";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { lookupApp } from "../../api/search";
@@ -16,6 +18,7 @@ import {
   accountStoreCountry,
   firstAccountCountry,
 } from "../../utils/account";
+import { getErrorMessage } from "../../utils/error";
 import type { Software } from "../../types";
 
 export default function AddDownload() {
@@ -94,9 +97,7 @@ export default function AddDownload() {
       setApp(result);
       setStep("ready");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("downloads.add.lookupFailed"),
-      );
+      setError(getErrorMessage(e, t("downloads.add.lookupFailed")));
     } finally {
       setLoading(false);
     }
@@ -110,9 +111,7 @@ export default function AddDownload() {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("downloads.add.licenseFailed"),
-      );
+      setError(getErrorMessage(e, t("downloads.add.licenseFailed")));
     } finally {
       setLoading(false);
     }
@@ -128,9 +127,7 @@ export default function AddDownload() {
       await updateAccount({ ...account, cookies: result.updatedCookies });
       setStep("versions");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("downloads.add.versionsFailed"),
-      );
+      setError(getErrorMessage(e, t("downloads.add.versionsFailed")));
     } finally {
       setLoading(false);
     }
@@ -157,9 +154,7 @@ export default function AddDownload() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("downloads.add.downloadFailed"),
-      );
+      setError(getErrorMessage(e, t("downloads.add.downloadFailed")));
     } finally {
       setLoading(false);
     }
@@ -168,11 +163,7 @@ export default function AddDownload() {
   return (
     <PageContainer title={t("downloads.add.title")}>
       <div className="max-w-lg space-y-6">
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="error">{error}</Alert>}
 
         <form onSubmit={handleLookup} className="space-y-4">
           <div>
@@ -190,34 +181,17 @@ export default function AddDownload() {
           </div>
           {/* Constrained dropdown width to prevent stretching */}
           <div className="flex w-full gap-3 overflow-hidden">
-            <select
+            <CountrySelect
               value={country}
-              onChange={(e) => {
-                setCountry(e.target.value);
+              onChange={(v) => {
+                setCountry(v);
                 setCountryTouched(true);
               }}
-              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+              availableCountryCodes={availableCountryCodes}
+              allCountryCodes={allCountryCodes}
               disabled={loading}
-            >
-              {/* Group 1: Available Regions (only shows if there are valid accounts) */}
-              {availableCountryCodes.length > 0 && (
-                <optgroup label={t("regions.available")}>
-                  {availableCountryCodes.map((c) => (
-                    <option key={`avail-${c}`} value={c}>
-                      {t(`countries.${c}`, c)} ({c})
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-              {/* Group 2: All Regions */}
-              <optgroup label={t("regions.all")}>
-                {allCountryCodes.map((c) => (
-                  <option key={`all-${c}`} value={c}>
-                    {t(`countries.${c}`, c)} ({c})
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+              className="w-1/2 truncate disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+            />
             {accounts.length > 0 && (
               <select
                 value={selectedAccount}

@@ -4,14 +4,16 @@ import { useAccounts } from "./useAccounts";
 import { accountHash } from "../utils/account";
 
 export function useDownloads() {
-  const tasks = useDownloadsStore((s) => s.tasks);
-  const loading = useDownloadsStore((s) => s.loading);
-  const setAccountHashes = useDownloadsStore((s) => s.setAccountHashes);
-  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
-  const startDownload = useDownloadsStore((s) => s.startDownload);
-  const pauseDownload = useDownloadsStore((s) => s.pauseDownload);
-  const resumeDownload = useDownloadsStore((s) => s.resumeDownload);
-  const deleteDownload = useDownloadsStore((s) => s.deleteDownload);
+  const {
+    tasks,
+    loading,
+    setAccountHashes,
+    fetchTasks,
+    startDownload,
+    pauseDownload,
+    resumeDownload,
+    deleteDownload,
+  } = useDownloadsStore();
   const { accounts } = useAccounts();
   const hashesRef = useRef("");
   const [hashToEmail, setHashToEmail] = useState<Record<string, string>>({});

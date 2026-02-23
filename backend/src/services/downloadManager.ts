@@ -3,7 +3,7 @@ import path from "path";
 import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import { v4 as uuidv4 } from "uuid";
-import { config } from "../config.js";
+import { config, MAX_DOWNLOAD_SIZE, DOWNLOAD_TIMEOUT_MS } from "../config.js";
 import { inject } from "./sinfInjector.js";
 import type { DownloadTask, Software, Sinf } from "../types/index.js";
 
@@ -19,29 +19,21 @@ const LEGACY_DOWNLOADS_FILE = path.join(config.dataDir, "downloads.json");
 // --- Security: path segment validation ---
 const SAFE_SEGMENT_RE = /^[a-zA-Z0-9._-]+$/;
 
-function sanitizePathSegment(value: string): string {
+/** Validate and sanitize a path segment. Rejects traversal, replaces unsafe chars. */
+function safePathSegment(value: string, label: string): string {
+  if (!value || value === "." || value === "..") {
+    throw new Error(`Invalid ${label}`);
+  }
+  if (SAFE_SEGMENT_RE.test(value)) return value;
   const cleaned = value.replace(/[^a-zA-Z0-9._-]/g, "_");
   if (!cleaned || cleaned === "." || cleaned === "..") {
-    throw new Error("Invalid path segment");
+    throw new Error(`Invalid ${label}`);
   }
   return cleaned;
 }
 
-function validatePathSegment(value: string, label: string): void {
-  if (!value || !SAFE_SEGMENT_RE.test(value)) {
-    throw new Error(
-      `Invalid ${label}: must contain only alphanumeric characters, dots, dashes, or underscores`,
-    );
-  }
-  if (value === "." || value === "..") {
-    throw new Error(`Invalid ${label}`);
-  }
-}
-
 // --- Security: download URL allowlist ---
 const ALLOWED_DOWNLOAD_HOSTS_RE = /\.apple\.com$/i;
-const MAX_DOWNLOAD_SIZE = 4 * 1024 * 1024 * 1024; // 4 GB
-const DOWNLOAD_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 export function validateDownloadURL(url: string): void {
   let parsed: URL;
@@ -298,9 +290,9 @@ export function createTask(
   validateDownloadURL(downloadURL);
 
   // Validate path segments
-  validatePathSegment(accountHash, "accountHash");
-  validatePathSegment(software.bundleID, "bundleID");
-  validatePathSegment(software.version, "version");
+  safePathSegment(accountHash, "accountHash");
+  safePathSegment(software.bundleID, "bundleID");
+  safePathSegment(software.version, "version");
 
   const task: DownloadTask = {
     id: uuidv4(),
@@ -334,9 +326,9 @@ async function startDownload(task: DownloadTask) {
   notifyProgress(task);
 
   // Sanitize path segments
-  const safeAccountHash = sanitizePathSegment(task.accountHash);
-  const safeBundleID = sanitizePathSegment(task.software.bundleID);
-  const safeVersion = sanitizePathSegment(task.software.version);
+  const safeAccountHash = safePathSegment(task.accountHash, "accountHash");
+  const safeBundleID = safePathSegment(task.software.bundleID, "bundleID");
+  const safeVersion = safePathSegment(task.software.version, "version");
 
   const dir = path.join(
     PACKAGES_DIR,

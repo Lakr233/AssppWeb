@@ -3,31 +3,31 @@
   "main": "cloudflare/src/index.ts",
   "compatibility_date": "2026-02-23",
   "build": {
-    "command": "npm install --no-save --no-package-lock @cloudflare/containers@0.1.0"
+    "command": "npm install --no-save --no-package-lock @cloudflare/containers@0.1.0",
   },
   "containers": [
     {
       "class_name": "AssppContainer",
       "image": "ghcr.io/lakr233/assppweb:latest",
       "instance_type": "standard-1",
-      "max_instances": 1
-    }
+      "max_instances": 1,
+    },
   ],
   "durable_objects": {
     "bindings": [
       {
         "name": "ASPP_CONTAINER",
-        "class_name": "AssppContainer"
-      }
-    ]
+        "class_name": "AssppContainer",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["AssppContainer"]
-    }
+      "new_sqlite_classes": ["AssppContainer"],
+    },
   ],
   "vars": {
-    "CONTAINER_INSTANCE_NAME": "main"
-  }
+    "CONTAINER_INSTANCE_NAME": "main",
+  },
 }

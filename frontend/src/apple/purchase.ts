@@ -1,7 +1,7 @@
 import type { Account, Software } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
-import { mergeCookies, parseCookieHeaders } from "./cookies";
+import { extractAndMergeCookies } from "./cookies";
 import { purchaseAPIHost } from "./config";
 import i18n from "../i18n";
 
@@ -77,19 +77,10 @@ async function purchaseWithParams(
     cookies: account.cookies,
   });
 
-  let updatedCookies = account.cookies;
-  const setCookies: string[] = [];
-  for (const [key, value] of response.rawHeaders) {
-    if (key.toLowerCase() === "set-cookie") {
-      setCookies.push(value);
-    }
-  }
-  if (setCookies.length > 0) {
-    updatedCookies = mergeCookies(
-      updatedCookies,
-      parseCookieHeaders(setCookies),
-    );
-  }
+  const updatedCookies = extractAndMergeCookies(
+    response.rawHeaders,
+    account.cookies,
+  );
 
   const dict = parsePlist(response.body) as Record<string, any>;
 

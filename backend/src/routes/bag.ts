@@ -1,11 +1,10 @@
 import { Router, Request, Response } from "express";
 import https from "https";
+import { BAG_TIMEOUT_MS, BAG_MAX_BYTES } from "../config.js";
 
 const router = Router();
 const userAgent =
   "Configurator/2.17 (Macintosh; OS X 15.2; 24C5089c) AppleWebKit/0620.1.16.11.6";
-
-const BAG_TIMEOUT_MS = 15000; // 15 seconds
 
 // Proxy for Apple's bag endpoint.
 // The bag response is public data (Apple service URLs, no credentials).
@@ -40,11 +39,10 @@ router.get("/bag", async (req: Request, res: Response) => {
         (resp) => {
           let data = "";
           let totalBytes = 0;
-          const maxBytes = 1024 * 1024; // 1 MB max response
 
           resp.on("data", (chunk: Buffer) => {
             totalBytes += chunk.length;
-            if (totalBytes > maxBytes) {
+            if (totalBytes > BAG_MAX_BYTES) {
               request.destroy();
               reject(new Error("Bag response too large"));
               return;
