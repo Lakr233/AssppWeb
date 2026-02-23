@@ -3,6 +3,8 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { mergeCookies, parseCookieHeaders } from "./cookies";
 import { purchaseAPIHost } from "./config";
+// Import i18n to support translations in raw TS files
+import i18n from "../i18n";
 
 export class PurchaseError extends Error {
   constructor(
@@ -19,16 +21,14 @@ export async function purchaseApp(
   app: Software,
 ): Promise<{ updatedCookies: typeof account.cookies }> {
   if ((app.price ?? 0) > 0) {
-    throw new PurchaseError("Purchasing paid apps is not supported");
+    throw new PurchaseError(i18n.t("errors.purchase.paidNotSupported"));
   }
 
   try {
     return await purchaseWithParams(account, app, "STDQ");
   } catch (e) {
-    if (
-      e instanceof Error &&
-      e.message.includes("item is temporarily unavailable")
-    ) {
+    // Rely on error code instead of translated message string to prevent matching issues
+    if (e instanceof PurchaseError && e.code === "2059") {
       return await purchaseWithParams(account, app, "GAME");
     }
     throw e;
@@ -99,16 +99,16 @@ async function purchaseWithParams(
     const customerMessage = dict.customerMessage as string | undefined;
     switch (failureType) {
       case "2059":
-        throw new PurchaseError("Item is temporarily unavailable", "2059");
+        throw new PurchaseError(i18n.t("errors.purchase.unavailable"), "2059");
       case "2034":
       case "2042":
-        throw new PurchaseError("Password token is expired", failureType);
+        throw new PurchaseError(i18n.t("errors.purchase.passwordExpired"), failureType);
       default: {
         if (customerMessage === "Your password has changed.") {
-          throw new PurchaseError("Password token is expired", failureType);
+          throw new PurchaseError(i18n.t("errors.purchase.passwordExpired"), failureType);
         }
         if (customerMessage === "Subscription Required") {
-          throw new PurchaseError("Subscription required", failureType);
+          throw new PurchaseError(i18n.t("errors.purchase.subscriptionRequired"), failureType);
         }
         // Check for terms page action
         const action = dict.action as Record<string, any> | undefined;
@@ -116,13 +116,20 @@ async function purchaseWithParams(
           const actionUrl = (action.url || action.URL) as string | undefined;
           if (actionUrl && actionUrl.endsWith("termsPage")) {
             throw new PurchaseError(
-              `You must accept the Terms & Conditions: ${actionUrl}`,
+              i18n.t("errors.purchase.termsRequired", { url: actionUrl }),
               failureType,
             );
           }
         }
+
+        // Handle unknown error specific fallback mappings
+        let msg = customerMessage;
+        if (msg === "An unknown error has occurred" || msg === "An unknown error has occurred.") {
+          msg = i18n.t("errors.purchase.unknownError");
+        }
+
         throw new PurchaseError(
-          customerMessage ?? `Purchase failed: ${failureType}`,
+          msg ?? i18n.t("errors.purchase.failed", { failureType }),
           failureType,
         );
       }
@@ -133,7 +140,7 @@ async function purchaseWithParams(
   const status = dict.status as number | undefined;
 
   if (jingleDocType !== "purchaseSuccess" || status !== 0) {
-    throw new PurchaseError("Failed to purchase app");
+    throw new PurchaseError(i18n.t("errors.purchase.failedGeneral"));
   }
 
   return { updatedCookies };

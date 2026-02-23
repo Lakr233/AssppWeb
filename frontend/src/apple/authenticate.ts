@@ -3,6 +3,8 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { mergeCookies, parseCookieHeaders } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
+// Import i18n for error translations
+import i18n from "../i18n";
 
 export class AuthenticationError extends Error {
   constructor(
@@ -95,7 +97,7 @@ export async function authenticate(
       if (response.status === 302) {
         const location = response.headers["location"];
         if (!location) {
-          throw new Error("Failed to retrieve redirect location");
+          throw new Error(i18n.t("errors.auth.redirectLocation"));
         }
         const url = new URL(location);
         requestHost = url.hostname;
@@ -108,7 +110,7 @@ export async function authenticate(
       // Handle non-plist responses (e.g. 403 with empty body)
       if (!response.body.trim()) {
         throw new Error(
-          `Authentication failed: server returned HTTP ${response.status} with empty body`,
+          i18n.t("errors.auth.emptyBody", { status: response.status })
         );
       }
 
@@ -121,7 +123,7 @@ export async function authenticate(
         dict.customerMessage === "MZFinance.BadLogin.Configurator_message"
       ) {
         throw new AuthenticationError(
-          "Authentication requires verification code. If no verification code was prompted, try logging in at https://account.apple.com to trigger the alert and fill the code in the 2FA Code field.",
+          i18n.t("errors.auth.requiresVerification"),
           true,
         );
       }
@@ -132,12 +134,12 @@ export async function authenticate(
 
       const accountInfo = dict.accountInfo as Record<string, any>;
       if (!accountInfo) {
-        throw new Error(failureMessage ?? "Missing accountInfo in response");
+        throw new Error(failureMessage ?? i18n.t("errors.auth.missingAccountInfo"));
       }
 
       const address = accountInfo.address as Record<string, any>;
       if (!address) {
-        throw new Error(failureMessage ?? "Missing address in response");
+        throw new Error(failureMessage ?? i18n.t("errors.auth.missingAddress"));
       }
 
       const account: Account = {
@@ -161,5 +163,5 @@ export async function authenticate(
     }
   }
 
-  throw lastError ?? new Error("Authentication failed for an unknown reason");
+  throw lastError ?? new Error(i18n.t("errors.auth.unknownReason"));
 }

@@ -365,6 +365,24 @@
       "invalidSinf": "Invalid sinf item",
       "noSinf": "No sinf found in response",
       "tooManyRedirects": "Too many redirects"
+    },
+    "purchase": {
+      "paidNotSupported": "Purchasing paid apps is not supported",
+      "unavailable": "Item is temporarily unavailable",
+      "passwordExpired": "Password token is expired",
+      "subscriptionRequired": "Subscription required",
+      "termsRequired": "You must accept the Terms & Conditions: {{url}}",
+      "failed": "Purchase failed: {{failureType}}",
+      "failedGeneral": "Failed to purchase app",
+      "unknownError": "An unknown error has occurred"
+    },
+    "auth": {
+      "requiresVerification": "Authentication requires verification code. If no verification code was prompted, try logging in at https://account.apple.com to trigger the alert and fill the code in the 2FA Code field.",
+      "redirectLocation": "Failed to retrieve redirect location",
+      "emptyBody": "Authentication failed: server returned HTTP {{status}} with empty body",
+      "missingAccountInfo": "Missing accountInfo in response",
+      "missingAddress": "Missing address in response",
+      "unknownReason": "Authentication failed for an unknown reason"
     }
   }
 }
