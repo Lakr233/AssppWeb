@@ -179,14 +179,15 @@ export default function AddDownload() {
               disabled={loading}
             />
           </div>
-          <div className="flex gap-3">
+          {/* Constrained dropdown width to prevent stretching */}
+          <div className="flex w-full gap-3 overflow-hidden">
             <select
               value={country}
               onChange={(e) => {
                 setCountry(e.target.value);
                 setCountryTouched(true);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
               disabled={loading}
             >
               {/* Group 1: Available Regions (only shows if there are valid accounts) */}
@@ -212,7 +213,7 @@ export default function AddDownload() {
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
                 disabled={loading || filteredAccounts.length === 0}
               >
                 {filteredAccounts.length > 0 ? (
@@ -257,7 +258,7 @@ export default function AddDownload() {
                 <select
                   value={selectedVersion}
                   onChange={(e) => setSelectedVersion(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
                 >
                   <option value="">{t("downloads.add.latest")}</option>
                   {versions.map((v) => (
