@@ -10,8 +10,6 @@ import { useSettingsStore } from "../../store/settings";
 import { countryCodeMap } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
 
-const sortedCountries = Object.keys(countryCodeMap).sort();
-
 export default function SearchPage() {
   // Initialize translation hook
   const { t } = useTranslation();
@@ -22,6 +20,11 @@ export default function SearchPage() {
   const [country, setCountry] = useState(initialCountry);
   const [entity, setEntity] = useState<string>(defaultEntity);
   const { results, loading, error, search } = useSearch();
+
+  // Dynamically sort countries inside component to access the translation function
+  const sortedCountries = Object.keys(countryCodeMap).sort((a, b) =>
+    t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,7 +59,7 @@ export default function SearchPage() {
           >
             {sortedCountries.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(`countries.${c}`, c)} ({c})
               </option>
             ))}
           </select>

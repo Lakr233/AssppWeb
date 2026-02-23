@@ -95,7 +95,11 @@ export default function AccountDetail() {
     navigate("/accounts");
   }
 
-  const country = storeIdToCountry(account.store);
+  const countryCode = storeIdToCountry(account.store);
+  // Prepare localized region string
+  const displayRegion = countryCode 
+    ? `${t(`countries.${countryCode}`, countryCode)} (${account.store})` 
+    : account.store;
 
   return (
     <PageContainer title={t("accounts.detail.title")}>
@@ -113,7 +117,7 @@ export default function AccountDetail() {
             />
             <DetailRow
               label={t("accounts.detail.storeRegion")}
-              value={country ? `${country} (${account.store})` : account.store}
+              value={displayRegion}
             />
             <DetailRow
               label={t("accounts.detail.dsid")}

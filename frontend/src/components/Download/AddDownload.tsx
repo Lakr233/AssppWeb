@@ -19,8 +19,6 @@ import {
 } from "../../utils/account";
 import type { Software } from "../../types";
 
-const sortedCountries = Object.keys(countryCodeMap).sort();
-
 export default function AddDownload() {
   const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
@@ -38,6 +36,11 @@ export default function AddDownload() {
   const [step, setStep] = useState<"lookup" | "ready" | "versions">("lookup");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Dynamically sort countries inside component to access the translation function
+  const sortedCountries = Object.keys(countryCodeMap).sort((a, b) =>
+    t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
+  );
 
   useEffect(() => {
     if (accounts.length > 0 && !selectedAccount) {
@@ -169,7 +172,7 @@ export default function AddDownload() {
             >
               {sortedCountries.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {t(`countries.${c}`, c)} ({c})
                 </option>
               ))}
             </select>

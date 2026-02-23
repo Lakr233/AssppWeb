@@ -10,151 +10,10 @@ interface ServerInfo {
   dataDir?: string;
 }
 
-const countryNames: Record<string, string> = {
-  AE: "United Arab Emirates",
-  AG: "Antigua and Barbuda",
-  AI: "Anguilla",
-  AL: "Albania",
-  AM: "Armenia",
-  AO: "Angola",
-  AR: "Argentina",
-  AT: "Austria",
-  AU: "Australia",
-  AZ: "Azerbaijan",
-  BB: "Barbados",
-  BD: "Bangladesh",
-  BE: "Belgium",
-  BG: "Bulgaria",
-  BH: "Bahrain",
-  BM: "Bermuda",
-  BN: "Brunei",
-  BO: "Bolivia",
-  BR: "Brazil",
-  BS: "Bahamas",
-  BW: "Botswana",
-  BY: "Belarus",
-  BZ: "Belize",
-  CA: "Canada",
-  CH: "Switzerland",
-  CI: "Côte d'Ivoire",
-  CL: "Chile",
-  CN: "China",
-  CO: "Colombia",
-  CR: "Costa Rica",
-  CY: "Cyprus",
-  CZ: "Czech Republic",
-  DE: "Germany",
-  DK: "Denmark",
-  DM: "Dominica",
-  DO: "Dominican Republic",
-  DZ: "Algeria",
-  EC: "Ecuador",
-  EE: "Estonia",
-  EG: "Egypt",
-  ES: "Spain",
-  FI: "Finland",
-  FR: "France",
-  GB: "United Kingdom",
-  GD: "Grenada",
-  GE: "Georgia",
-  GH: "Ghana",
-  GR: "Greece",
-  GT: "Guatemala",
-  GY: "Guyana",
-  HK: "Hong Kong",
-  HN: "Honduras",
-  HR: "Croatia",
-  HU: "Hungary",
-  ID: "Indonesia",
-  IE: "Ireland",
-  IL: "Israel",
-  IN: "India",
-  IS: "Iceland",
-  IT: "Italy",
-  IQ: "Iraq",
-  JM: "Jamaica",
-  JO: "Jordan",
-  JP: "Japan",
-  KE: "Kenya",
-  KN: "St. Kitts and Nevis",
-  KR: "South Korea",
-  KW: "Kuwait",
-  KY: "Cayman Islands",
-  KZ: "Kazakhstan",
-  LB: "Lebanon",
-  LC: "St. Lucia",
-  LI: "Liechtenstein",
-  LK: "Sri Lanka",
-  LT: "Lithuania",
-  LU: "Luxembourg",
-  LV: "Latvia",
-  MD: "Moldova",
-  MG: "Madagascar",
-  MK: "North Macedonia",
-  ML: "Mali",
-  MN: "Mongolia",
-  MO: "Macau",
-  MS: "Montserrat",
-  MT: "Malta",
-  MU: "Mauritius",
-  MV: "Maldives",
-  MX: "Mexico",
-  MY: "Malaysia",
-  NE: "Niger",
-  NG: "Nigeria",
-  NI: "Nicaragua",
-  NL: "Netherlands",
-  NO: "Norway",
-  NP: "Nepal",
-  NZ: "New Zealand",
-  OM: "Oman",
-  PA: "Panama",
-  PE: "Peru",
-  PH: "Philippines",
-  PK: "Pakistan",
-  PL: "Poland",
-  PT: "Portugal",
-  PY: "Paraguay",
-  QA: "Qatar",
-  RO: "Romania",
-  RS: "Serbia",
-  RU: "Russia",
-  SA: "Saudi Arabia",
-  SE: "Sweden",
-  SG: "Singapore",
-  SI: "Slovenia",
-  SK: "Slovakia",
-  SN: "Senegal",
-  SR: "Suriname",
-  SV: "El Salvador",
-  TC: "Turks and Caicos",
-  TH: "Thailand",
-  TN: "Tunisia",
-  TR: "Turkey",
-  TT: "Trinidad and Tobago",
-  TW: "Taiwan",
-  TZ: "Tanzania",
-  UA: "Ukraine",
-  UG: "Uganda",
-  US: "United States",
-  UY: "Uruguay",
-  UZ: "Uzbekistan",
-  VC: "St. Vincent and the Grenadines",
-  VE: "Venezuela",
-  VG: "British Virgin Islands",
-  VN: "Vietnam",
-  YE: "Yemen",
-  ZA: "South Africa",
-};
-
 const entityTypes = [
   { value: "software", label: "iPhone" },
   { value: "iPadSoftware", label: "iPad" },
 ];
-
-function getCountryLabel(code: string): string {
-  return countryNames[code] || code;
-}
 
 export default function SettingsPage() {
   // Initialize translation hook and i18n instance
@@ -183,8 +42,9 @@ export default function SettingsPage() {
       .catch(() => setServerInfo(null));
   }, []);
 
+  // Sort countries dynamically based on the translated names of the current language
   const sortedCountries = Object.keys(countryCodeMap).sort((a, b) =>
-    getCountryLabel(a).localeCompare(getCountryLabel(b)),
+    t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
   );
 
   return (
@@ -233,7 +93,7 @@ export default function SettingsPage() {
               >
                 {sortedCountries.map((code) => (
                   <option key={code} value={code}>
-                    {getCountryLabel(code)} ({code})
+                    {t(`countries.${code}`, code)} ({code})
                   </option>
                 ))}
               </select>

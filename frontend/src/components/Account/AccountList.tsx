@@ -43,31 +43,36 @@ export default function AccountList() {
         </div>
       ) : (
         <div className="space-y-2">
-          {accounts.map((account) => (
-            <NavLink
-              key={account.email}
-              to={`/accounts/${encodeURIComponent(account.email)}`}
-              className={({ isActive }) =>
-                `block bg-white rounded-lg border p-4 transition-colors ${
-                  isActive
-                    ? "border-blue-300 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`
-              }
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {account.firstName} {account.lastName}
-                  </p>
-                  <p className="text-sm text-gray-500">{account.email}</p>
+          {accounts.map((account) => {
+            const countryCode = storeIdToCountry(account.store) || account.store;
+            
+            return (
+              <NavLink
+                key={account.email}
+                to={`/accounts/${encodeURIComponent(account.email)}`}
+                className={({ isActive }) =>
+                  `block bg-white rounded-lg border p-4 transition-colors ${
+                    isActive
+                      ? "border-blue-300 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`
+                }
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {account.firstName} {account.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">{account.email}</p>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    {/* Translate country code to localized name */}
+                    {t(`countries.${countryCode}`, countryCode)}
+                  </div>
                 </div>
-                <div className="text-sm text-gray-400">
-                  {storeIdToCountry(account.store) || account.store}
-                </div>
-              </div>
-            </NavLink>
-          ))}
+              </NavLink>
+            );
+          })}
         </div>
       )}
     </PageContainer>
