@@ -1,6 +1,3 @@
-use regex::Regex;
-use std::sync::LazyLock;
-
 /// Wisp protocol packet types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -127,14 +124,25 @@ pub fn make_close_packet(stream_id: u32, reason: CloseReason) -> Vec<u8> {
 
 // --- Host validation ---
 
-static HOSTNAME_WHITELIST: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-  vec![
-    Regex::new(r"^auth\.itunes\.apple\.com$").unwrap(),
-    Regex::new(r"^buy\.itunes\.apple\.com$").unwrap(),
-    Regex::new(r"^init\.itunes\.apple\.com$").unwrap(),
-    Regex::new(r"^p\d+-buy\.itunes\.apple\.com$").unwrap(),
-  ]
-});
+const STATIC_WHITELIST: &[&str] = &[
+  "auth.itunes.apple.com",
+  "buy.itunes.apple.com",
+  "init.itunes.apple.com",
+];
+
+/// Check if hostname matches the pod-based pattern `p{digits}-buy.itunes.apple.com`.
+fn is_pod_host(hostname: &str) -> bool {
+  let Some(rest) = hostname.strip_prefix('p') else {
+    return false;
+  };
+  let Some(idx) = rest.find('-') else {
+    return false;
+  };
+  let digits = &rest[..idx];
+  !digits.is_empty()
+    && digits.chars().all(|c| c.is_ascii_digit())
+    && rest[idx..] == *"-buy.itunes.apple.com"
+}
 
 /// Validate a Wisp CONNECT target against the security policy.
 /// Returns an error message if the target is not allowed.
@@ -155,8 +163,7 @@ pub fn validate_wisp_target(hostname: &str, port: u16) -> Result<(), String> {
   }
 
   // Check hostname whitelist
-  let matches_whitelist = HOSTNAME_WHITELIST.iter().any(|re| re.is_match(hostname));
-  if !matches_whitelist {
+  if !STATIC_WHITELIST.contains(&hostname) && !is_pod_host(hostname) {
     return Err(format!("Hostname {} is not in the whitelist", hostname));
   }
 

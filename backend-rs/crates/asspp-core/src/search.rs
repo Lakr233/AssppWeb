@@ -1,6 +1,20 @@
 use crate::types::Software;
 use serde_json::Value;
 
+/// Extract a string field from a JSON value, returning an empty string if missing.
+fn str_or_default(item: &Value, key: &str) -> String {
+  item
+    .get(key)
+    .and_then(|v| v.as_str())
+    .unwrap_or("")
+    .to_string()
+}
+
+/// Extract an optional string field from a JSON value.
+fn opt_str(item: &Value, key: &str) -> Option<String> {
+  item.get(key).and_then(|v| v.as_str()).map(String::from)
+}
+
 /// Map an iTunes API result item to our Software type.
 /// Matches Swift CodingKeys in the reference implementation.
 pub fn map_software(item: &Value) -> Option<Software> {
@@ -8,27 +22,11 @@ pub fn map_software(item: &Value) -> Option<Software> {
     id: item.get("trackId")?.as_i64()?,
     bundle_id: item.get("bundleId")?.as_str()?.to_string(),
     name: item.get("trackName")?.as_str()?.to_string(),
-    version: item
-      .get("version")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
+    version: str_or_default(item, "version"),
     price: item.get("price").and_then(|v| v.as_f64()),
-    artist_name: item
-      .get("artistName")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
-    seller_name: item
-      .get("sellerName")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
-    description: item
-      .get("description")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
+    artist_name: str_or_default(item, "artistName"),
+    seller_name: str_or_default(item, "sellerName"),
+    description: str_or_default(item, "description"),
     average_user_rating: item
       .get("averageUserRating")
       .and_then(|v| v.as_f64())
@@ -37,11 +35,7 @@ pub fn map_software(item: &Value) -> Option<Software> {
       .get("userRatingCount")
       .and_then(|v| v.as_i64())
       .unwrap_or(0),
-    artwork_url: item
-      .get("artworkUrl512")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
+    artwork_url: str_or_default(item, "artworkUrl512"),
     screenshot_urls: item
       .get("screenshotUrls")
       .and_then(|v| v.as_array())
@@ -52,33 +46,17 @@ pub fn map_software(item: &Value) -> Option<Software> {
           .collect()
       })
       .unwrap_or_default(),
-    minimum_os_version: item
-      .get("minimumOsVersion")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
-    file_size_bytes: item
-      .get("fileSizeBytes")
-      .and_then(|v| v.as_str().map(String::from)),
+    minimum_os_version: str_or_default(item, "minimumOsVersion"),
+    file_size_bytes: opt_str(item, "fileSizeBytes"),
     release_date: item
       .get("currentVersionReleaseDate")
       .or_else(|| item.get("releaseDate"))
       .and_then(|v| v.as_str())
       .unwrap_or("")
       .to_string(),
-    release_notes: item
-      .get("releaseNotes")
-      .and_then(|v| v.as_str())
-      .map(String::from),
-    formatted_price: item
-      .get("formattedPrice")
-      .and_then(|v| v.as_str())
-      .map(String::from),
-    primary_genre_name: item
-      .get("primaryGenreName")
-      .and_then(|v| v.as_str())
-      .unwrap_or("")
-      .to_string(),
+    release_notes: opt_str(item, "releaseNotes"),
+    formatted_price: opt_str(item, "formattedPrice"),
+    primary_genre_name: str_or_default(item, "primaryGenreName"),
   })
 }
 

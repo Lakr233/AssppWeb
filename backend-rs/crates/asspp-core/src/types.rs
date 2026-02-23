@@ -107,20 +107,6 @@ pub struct CreateDownloadRequest {
   pub itunes_metadata: Option<String>,
 }
 
-/// Persisted task metadata (no secrets)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PersistedTask {
-  pub id: String,
-  pub software: Software,
-  pub account_hash: String,
-  pub status: TaskStatus,
-  pub progress: u8,
-  pub speed: String,
-  pub file_path: Option<String>,
-  pub created_at: String,
-}
-
 impl DownloadTask {
   pub fn sanitize(&self, file_exists: bool) -> SanitizedTask {
     SanitizedTask {
@@ -132,19 +118,6 @@ impl DownloadTask {
       speed: self.speed.clone(),
       error: self.error.clone(),
       has_file: if file_exists { Some(true) } else { None },
-      created_at: self.created_at.clone(),
-    }
-  }
-
-  pub fn to_persisted(&self) -> PersistedTask {
-    PersistedTask {
-      id: self.id.clone(),
-      software: self.software.clone(),
-      account_hash: self.account_hash.clone(),
-      status: self.status,
-      progress: self.progress,
-      speed: self.speed.clone(),
-      file_path: self.file_path.clone(),
       created_at: self.created_at.clone(),
     }
   }

@@ -2,18 +2,8 @@ use plist::Value;
 
 /// Parse a plist from binary or XML data.
 pub fn parse_plist(data: &[u8]) -> Option<Value> {
-  // Try binary plist first
-  if let Ok(val) = plist::from_bytes::<Value>(data) {
-    return Some(val);
-  }
-
-  // Try XML plist
-  let xml = std::str::from_utf8(data).ok()?;
-  if xml.contains("<?xml") || xml.contains("<plist") {
-    return plist::from_bytes::<Value>(data).ok();
-  }
-
-  None
+  // plist::from_bytes handles both binary and XML formats
+  plist::from_bytes::<Value>(data).ok()
 }
 
 /// Extract a string value from a plist dictionary.

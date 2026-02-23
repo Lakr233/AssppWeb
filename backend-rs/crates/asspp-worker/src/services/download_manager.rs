@@ -50,32 +50,33 @@ async fn download_and_store(
   }
 
   let bytes = resp.bytes().await?;
-  let _file_size = bytes.len() as u64;
 
-  // Store IPA in R2 with task ID as key
+  // SINF injection on Workers: done in-memory before storing
   let r2_key = format!("packages/{}/{}/{}/{}.ipa",
     task.account_hash,
     task.software.bundle_id,
     task.software.version,
     task.id,
   );
-  r2.put(&r2_key, bytes.clone()).await?;
-  task.file_path = Some(r2_key.clone());
 
-  // SINF injection on Workers: done in-memory
-  if !task.sinfs.is_empty() {
+  let final_bytes = if !task.sinfs.is_empty() {
     task.status = TaskStatus::Injecting;
     kv.put_task(task).await?;
 
     match inject_sinfs_in_memory(&bytes, &task.sinfs, task.itunes_metadata.as_deref()) {
-      Ok(modified) => {
-        r2.put(&r2_key, modified).await?;
-      }
+      Ok(modified) => modified,
       Err(e) => {
         console_warn!("SINF injection failed: {}, storing without SINFs", e);
+        bytes
       }
     }
-  }
+  } else {
+    bytes
+  };
+
+  // Store IPA in R2 (single write)
+  r2.put(&r2_key, final_bytes).await?;
+  task.file_path = Some(r2_key);
 
   // Mark completed and strip secrets
   task.status = TaskStatus::Completed;

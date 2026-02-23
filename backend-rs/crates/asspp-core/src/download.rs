@@ -129,7 +129,6 @@ fn is_leap(year: u64) -> bool {
 /// Validate accountHash format (hex string, >= 8 chars).
 pub fn validate_account_hash(hash: &str) -> bool {
   hash.len() >= 8
-    && !hash.is_empty()
     && hash.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_' || c == '-')
 }
 

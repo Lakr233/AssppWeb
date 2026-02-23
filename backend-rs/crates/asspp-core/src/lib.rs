@@ -1,12 +1,10 @@
 pub mod bag;
 pub mod config;
 pub mod download;
-pub mod error;
 pub mod manifest;
 pub mod plist_util;
 pub mod search;
 pub mod security;
 pub mod sinf;
-pub mod storage;
 pub mod types;
 pub mod wisp;

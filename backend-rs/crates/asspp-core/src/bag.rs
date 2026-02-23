@@ -1,11 +1,6 @@
-use regex::Regex;
-use std::sync::LazyLock;
-
-static HEX_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[a-fA-F0-9]+$").unwrap());
-
 /// Validate that a GUID is a hex string.
 pub fn validate_guid(guid: &str) -> bool {
-  !guid.is_empty() && HEX_RE.is_match(guid)
+  !guid.is_empty() && guid.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 /// Build the bag URL for the given GUID.

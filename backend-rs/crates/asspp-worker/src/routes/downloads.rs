@@ -3,24 +3,8 @@ use asspp_core::security::validate_download_url;
 use asspp_core::types::{CreateDownloadRequest, TaskStatus};
 use worker::*;
 
+use super::{get_kv, get_query_param, get_r2};
 use crate::services::download_manager;
-use crate::services::kv_metadata::KvMetadata;
-use crate::services::r2_storage::R2Storage;
-
-fn get_kv(ctx: &RouteContext<()>) -> Result<KvMetadata> {
-  Ok(KvMetadata::new(ctx.kv("TASK_KV")?))
-}
-
-fn get_r2(ctx: &RouteContext<()>) -> Result<R2Storage> {
-  Ok(R2Storage::new(ctx.bucket("IPA_BUCKET")?))
-}
-
-fn get_query_param(url: &url::Url, key: &str) -> Option<String> {
-  url
-    .query_pairs()
-    .find(|(k, _)| k == key)
-    .map(|(_, v)| v.to_string())
-}
 
 pub async fn create_download(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
   let body: CreateDownloadRequest = req.json().await?;

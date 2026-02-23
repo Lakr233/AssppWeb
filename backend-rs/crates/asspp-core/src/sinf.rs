@@ -28,12 +28,9 @@ pub fn plan_injection(
 
   match source {
     InjectionSource::Manifest { sinf_paths } => {
-      for (i, sinf_path) in sinf_paths.iter().enumerate() {
-        if i >= sinfs.len() {
-          break;
-        }
+      for (sinf_path, (_id, data)) in sinf_paths.iter().zip(sinfs.iter()) {
         let full_path = format!("Payload/{}.app/{}", bundle_name, sinf_path);
-        files.push((full_path, sinfs[i].1.clone()));
+        files.push((full_path, data.clone()));
       }
     }
     InjectionSource::Info { bundle_executable } => {

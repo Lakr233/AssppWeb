@@ -1,15 +1,13 @@
-use regex::Regex;
-use std::sync::LazyLock;
-
 // --- Path segment validation ---
 
-static SAFE_SEGMENT_RE: LazyLock<Regex> =
-  LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9._-]+$").unwrap());
+fn is_safe_segment_char(c: char) -> bool {
+  c.is_ascii_alphanumeric() || c == '.' || c == '_' || c == '-'
+}
 
 /// Validate a path segment (accountHash, bundleID, version).
 /// Must contain only alphanumeric, dots, dashes, or underscores.
 pub fn validate_path_segment(value: &str, label: &str) -> Result<(), String> {
-  if value.is_empty() || !SAFE_SEGMENT_RE.is_match(value) {
+  if value.is_empty() || !value.chars().all(is_safe_segment_char) {
     return Err(format!(
       "Invalid {label}: must contain only alphanumeric characters, dots, dashes, or underscores"
     ));
@@ -24,13 +22,7 @@ pub fn validate_path_segment(value: &str, label: &str) -> Result<(), String> {
 pub fn sanitize_path_segment(value: &str) -> Result<String, String> {
   let cleaned: String = value
     .chars()
-    .map(|c| {
-      if c.is_ascii_alphanumeric() || c == '.' || c == '_' || c == '-' {
-        c
-      } else {
-        '_'
-      }
-    })
+    .map(|c| if is_safe_segment_char(c) { c } else { '_' })
     .collect();
   if cleaned.is_empty() || cleaned == "." || cleaned == ".." {
     return Err("Invalid path segment".into());
@@ -40,8 +32,11 @@ pub fn sanitize_path_segment(value: &str) -> Result<String, String> {
 
 // --- Download URL validation ---
 
-static ALLOWED_DOWNLOAD_HOSTS_RE: LazyLock<Regex> =
-  LazyLock::new(|| Regex::new(r"(?i)\.apple\.com$").unwrap());
+/// Check if a hostname ends with `.apple.com` (case-insensitive).
+fn is_apple_domain(host: &str) -> bool {
+  let lower = host.to_ascii_lowercase();
+  lower.ends_with(".apple.com")
+}
 
 /// Maximum download file size (4 GB).
 pub const MAX_DOWNLOAD_SIZE: u64 = 4 * 1024 * 1024 * 1024;
@@ -64,7 +59,7 @@ pub fn validate_download_url(url: &str) -> Result<(), String> {
     return Err("Download URL must not use IP addresses".into());
   }
 
-  if !ALLOWED_DOWNLOAD_HOSTS_RE.is_match(host) {
+  if !is_apple_domain(host) {
     return Err("Download URL must be from an Apple domain (*.apple.com)".into());
   }
 
@@ -72,19 +67,9 @@ pub fn validate_download_url(url: &str) -> Result<(), String> {
 }
 
 fn is_ip_address(host: &str) -> bool {
-  // IPv4 pattern
-  if host
-    .chars()
-    .all(|c| c.is_ascii_digit() || c == '.')
-    && host.contains('.')
-  {
-    return true;
-  }
-  // IPv6 pattern
-  if host.starts_with('[') {
-    return true;
-  }
-  false
+  host.parse::<std::net::Ipv4Addr>().is_ok()
+    || host.parse::<std::net::Ipv6Addr>().is_ok()
+    || host.starts_with('[') // bracketed IPv6
 }
 
 // --- Host header sanitization ---
@@ -103,14 +88,11 @@ pub fn sanitize_host(host: &str) -> String {
 pub fn sanitize_filename(name: &str) -> String {
   let cleaned: String = name
     .chars()
-    .filter(|c| (*c as u32) >= 0x20 && (*c as u32) <= 0x7E && *c != '"' && *c != '\\')
-    .filter(|c| *c != '\r' && *c != '\n')
+    .filter(|&c| c.is_ascii_graphic() || c == ' ')
+    .filter(|&c| c != '"' && c != '\\')
+    .take(200)
     .collect();
-  if cleaned.len() > 200 {
-    cleaned[..200].to_string()
-  } else {
-    cleaned
-  }
+  cleaned
 }
 
 /// Format download speed in human-readable form.

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/asspp-core", "crates/asspp-standalone"]
+members = ["crates/asspp-core"]
 exclude = ["crates/asspp-worker"]
 
 [workspace.package]
@@ -12,7 +12,5 @@ license = "MIT"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "0.22"
-thiserror = "2"
 uuid = { version = "1", features = ["v4"] }
-regex = "1"
 plist = "1"

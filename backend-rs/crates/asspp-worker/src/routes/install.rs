@@ -2,16 +2,7 @@ use asspp_core::manifest::{build_manifest, WHITE_PNG};
 use asspp_core::types::TaskStatus;
 use worker::*;
 
-use crate::services::kv_metadata::KvMetadata;
-use crate::services::r2_storage::R2Storage;
-
-fn get_kv(ctx: &RouteContext<()>) -> Result<KvMetadata> {
-  Ok(KvMetadata::new(ctx.kv("TASK_KV")?))
-}
-
-fn get_r2(ctx: &RouteContext<()>) -> Result<R2Storage> {
-  Ok(R2Storage::new(ctx.bucket("IPA_BUCKET")?))
-}
+use super::{get_kv, get_r2};
 
 fn get_base_url(req: &Request) -> String {
   let url = req.url().ok();
@@ -90,16 +81,17 @@ pub async fn payload(_req: Request, ctx: RouteContext<()>) -> Result<Response> {
   Ok(Response::from_bytes(data)?.with_headers(headers))
 }
 
-pub async fn icon_small(_req: Request, _ctx: RouteContext<()>) -> Result<Response> {
+fn white_png_response() -> Result<Response> {
   let headers = Headers::new();
   headers.set("Content-Type", "image/png")?;
   headers.set("Content-Length", &WHITE_PNG.len().to_string())?;
   Ok(Response::from_bytes(WHITE_PNG.to_vec())?.with_headers(headers))
 }
 
+pub async fn icon_small(_req: Request, _ctx: RouteContext<()>) -> Result<Response> {
+  white_png_response()
+}
+
 pub async fn icon_large(_req: Request, _ctx: RouteContext<()>) -> Result<Response> {
-  let headers = Headers::new();
-  headers.set("Content-Type", "image/png")?;
-  headers.set("Content-Length", &WHITE_PNG.len().to_string())?;
-  Ok(Response::from_bytes(WHITE_PNG.to_vec())?.with_headers(headers))
+  white_png_response()
 }
