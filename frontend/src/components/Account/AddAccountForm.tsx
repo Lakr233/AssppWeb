@@ -109,13 +109,15 @@ export default function AddAccountForm() {
                   value={deviceId}
                   onChange={(e) => setDeviceId(e.target.value)}
                   disabled={loading || needsCode}
-                  className="block flex-1 rounded-md border border-gray-300 px-3 py-2 text-base font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                  // Added explicit height h-[42px] to match the button
+                  className="block flex-1 h-[42px] rounded-md border border-gray-300 px-3 py-2 text-base font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
                 />
                 <button
                   type="button"
                   onClick={() => setDeviceId(generateDeviceId())}
                   disabled={loading || needsCode}
-                  className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  // Added explicit height h-[42px] to match the input
+                  className="h-[42px] px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t("accounts.addForm.randomize")}
                 </button>
