@@ -333,5 +333,20 @@
     "VN": "Vietnam",
     "YE": "Yemen",
     "ZA": "South Africa"
+  },
+  "errors": {
+    "download": {
+      "redirectLocation": "Failed to retrieve redirect location",
+      "passwordExpired": "Password token is expired",
+      "licenseRequired": "License required - purchase the app first",
+      "downloadFailed": "Download failed: {{failureType}}",
+      "noItems": "No items in response",
+      "missingUrl": "Missing download URL",
+      "missingMetadata": "Missing metadata",
+      "missingVersion": "Missing required version information",
+      "invalidSinf": "Invalid sinf item",
+      "noSinf": "No sinf found in response",
+      "tooManyRedirects": "Too many redirects"
+    }
   }
 }

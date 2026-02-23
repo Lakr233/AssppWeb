@@ -3,6 +3,8 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { mergeCookies, parseCookieHeaders } from "./cookies";
 import { storeAPIHost } from "./config";
+// Import i18n to support translations in raw TS files
+import i18n from "../i18n";
 
 export class DownloadError extends Error {
   constructor(
@@ -67,7 +69,7 @@ export async function getDownloadInfo(
     if (response.status === 302) {
       const location = response.headers["location"];
       if (!location) {
-        throw new DownloadError("Failed to retrieve redirect location");
+        throw new DownloadError(i18n.t("errors.download.redirectLocation"));
       }
       const url = new URL(location);
       requestHost = url.hostname;
@@ -84,18 +86,19 @@ export async function getDownloadInfo(
       switch (failureType) {
         case "2034":
         case "2042":
-          throw new DownloadError("Password token is expired", failureType);
+          throw new DownloadError(i18n.t("errors.download.passwordExpired"), failureType);
         case "9610":
           throw new DownloadError(
-            "License required - purchase the app first",
+            i18n.t("errors.download.licenseRequired"),
             "9610",
           );
         default: {
           if (customerMessage === "Your password has changed.") {
-            throw new DownloadError("Password token is expired", failureType);
+            throw new DownloadError(i18n.t("errors.download.passwordExpired"), failureType);
           }
+          // If apple provides a specific string, we fall back to it, otherwise we use the localized default.
           throw new DownloadError(
-            customerMessage ?? `Download failed: ${failureType}`,
+            customerMessage ?? i18n.t("errors.download.downloadFailed", { failureType }),
             failureType,
           );
         }
@@ -104,24 +107,24 @@ export async function getDownloadInfo(
 
     const songList = dict.songList as Record<string, any>[] | undefined;
     if (!songList || songList.length === 0) {
-      throw new DownloadError("No items in response");
+      throw new DownloadError(i18n.t("errors.download.noItems"));
     }
 
     const item = songList[0];
     const url = item.URL as string;
     if (!url) {
-      throw new DownloadError("Missing download URL");
+      throw new DownloadError(i18n.t("errors.download.missingUrl"));
     }
 
     const metadata = item.metadata as Record<string, any>;
     if (!metadata) {
-      throw new DownloadError("Missing metadata");
+      throw new DownloadError(i18n.t("errors.download.missingMetadata"));
     }
 
     const version = metadata.bundleShortVersionString as string;
     const bundleVersion = metadata.bundleVersion as string;
     if (!version || !bundleVersion) {
-      throw new DownloadError("Missing required version information");
+      throw new DownloadError(i18n.t("errors.download.missingVersion"));
     }
 
     const sinfs: Sinf[] = [];
@@ -139,7 +142,7 @@ export async function getDownloadInfo(
           } else if (typeof sinf === "string") {
             sinfBase64 = sinf;
           } else {
-            throw new DownloadError("Invalid sinf item");
+            throw new DownloadError(i18n.t("errors.download.invalidSinf"));
           }
           sinfs.push({ id, sinf: sinfBase64 });
         }
@@ -147,7 +150,7 @@ export async function getDownloadInfo(
     }
 
     if (sinfs.length === 0) {
-      throw new DownloadError("No sinf found in response");
+      throw new DownloadError(i18n.t("errors.download.noSinf"));
     }
 
     // Build iTunesMetadata plist
@@ -170,7 +173,7 @@ export async function getDownloadInfo(
     };
   }
 
-  throw new DownloadError("Too many redirects");
+  throw new DownloadError(i18n.t("errors.download.tooManyRedirects"));
 }
 
 function base64FromString(value: string): string {
