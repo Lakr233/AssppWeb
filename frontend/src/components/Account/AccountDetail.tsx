@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import { useAccounts } from "../../hooks/useAccounts";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
@@ -8,6 +10,8 @@ import { storeIdToCountry } from "../../apple/config";
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
   const navigate = useNavigate();
+  // Initialize translation hook
+  const { t } = useTranslation();
   const {
     accounts,
     loading: storeLoading,
@@ -31,22 +35,22 @@ export default function AccountDetail() {
 
   if (storeLoading) {
     return (
-      <PageContainer title="Account">
-        <div className="text-center text-gray-500 py-12">Loading...</div>
+      <PageContainer title={t("accounts.title")}>
+        <div className="text-center text-gray-500 py-12">{t("loading")}</div>
       </PageContainer>
     );
   }
 
   if (!account) {
     return (
-      <PageContainer title="Account">
+      <PageContainer title={t("accounts.title")}>
         <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">Account not found.</p>
+          <p className="text-gray-500 mb-4">{t("accounts.detail.notFound")}</p>
           <button
             onClick={() => navigate("/accounts")}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Back to accounts
+            {t("accounts.detail.back")}
           </button>
         </div>
       </PageContainer>
@@ -70,14 +74,14 @@ export default function AccountDetail() {
       await updateAccount(updated);
       setNeedsCode(false);
       setReauthCode("");
-      setSuccess("Account re-authenticated successfully.");
+      setSuccess(t("accounts.detail.reauthSuccess"));
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {
         setNeedsCode(true);
         setError(err.message);
       } else {
         setError(
-          err instanceof Error ? err.message : "Re-authentication failed",
+          err instanceof Error ? err.message : t("accounts.detail.reauthFailed"),
         );
       }
     } finally {
@@ -94,32 +98,32 @@ export default function AccountDetail() {
   const country = storeIdToCountry(account.store);
 
   return (
-    <PageContainer title="Account Details">
+    <PageContainer title={t("accounts.detail.title")}>
       <div className="max-w-lg space-y-6">
         <section className="bg-white rounded-lg border border-gray-200 p-6">
           <dl className="space-y-4">
             <DetailRow
-              label="Name"
+              label={t("accounts.detail.name")}
               value={`${account.firstName} ${account.lastName}`}
             />
-            <DetailRow label="Email" value={account.email} />
+            <DetailRow label={t("accounts.detail.email")} value={account.email} />
             <DetailRow
-              label="Apple ID"
+              label={t("accounts.detail.appleId")}
               value={account.appleId || account.email}
             />
             <DetailRow
-              label="Store Region"
+              label={t("accounts.detail.storeRegion")}
               value={country ? `${country} (${account.store})` : account.store}
             />
             <DetailRow
-              label="DSID"
+              label={t("accounts.detail.dsid")}
               value={account.directoryServicesIdentifier}
             />
             <DetailRow
-              label="Device Identifier"
+              label={t("accounts.detail.deviceId")}
               value={account.deviceIdentifier}
             />
-            {account.pod && <DetailRow label="Pod" value={account.pod} />}
+            {account.pod && <DetailRow label={t("accounts.detail.pod")} value={account.pod} />}
           </dl>
         </section>
 
@@ -129,7 +133,7 @@ export default function AccountDetail() {
               htmlFor="reauth-code"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              2FA Verification Code
+              {t("accounts.detail.code")}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -151,7 +155,7 @@ export default function AccountDetail() {
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {reauthing && <Spinner />}
-                Verify
+                {t("accounts.detail.verify")}
               </button>
             </div>
           </section>
@@ -176,7 +180,7 @@ export default function AccountDetail() {
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {reauthing && <Spinner />}
-            Re-authenticate
+            {t("accounts.detail.reauth")}
           </button>
 
           {!showDelete ? (
@@ -184,22 +188,22 @@ export default function AccountDetail() {
               onClick={() => setShowDelete(true)}
               className="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
             >
-              Delete Account
+              {t("accounts.detail.delete")}
             </button>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-gray-600">Are you sure?</span>
+              <span className="text-sm text-gray-600">{t("accounts.detail.areYouSure")}</span>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
               >
-                Confirm Delete
+                {t("accounts.detail.confirmDelete")}
               </button>
               <button
                 onClick={() => setShowDelete(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                {t("accounts.detail.cancel")}
               </button>
             </div>
           )}
@@ -209,7 +213,7 @@ export default function AccountDetail() {
           onClick={() => navigate("/accounts")}
           className="text-sm text-gray-500 hover:text-gray-700"
         >
-          Back to accounts
+          {t("accounts.detail.back")}
         </button>
       </div>
     </PageContainer>

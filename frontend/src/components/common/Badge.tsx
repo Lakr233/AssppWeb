@@ -1,3 +1,6 @@
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
+
 interface BadgeProps {
   status:
     | "pending"
@@ -17,21 +20,16 @@ const styles: Record<BadgeProps["status"], string> = {
   failed: "bg-red-100 text-red-700",
 };
 
-const labels: Record<BadgeProps["status"], string> = {
-  pending: "Pending",
-  downloading: "Downloading",
-  paused: "Paused",
-  injecting: "Injecting",
-  completed: "Completed",
-  failed: "Failed",
-};
-
 export default function Badge({ status }: BadgeProps) {
+  // Initialize translation hook
+  const { t } = useTranslation();
+
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}
     >
-      {labels[status]}
+      {/* Dynamic lookup matching the JSON structure "downloads.status.xxx" */}
+      {t(`downloads.status.${status}`)}
     </span>
   );
 }

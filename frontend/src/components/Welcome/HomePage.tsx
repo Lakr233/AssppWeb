@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import { useAccounts } from "../../hooks/useAccounts";
 import { accountHash } from "../../utils/account";
@@ -11,6 +13,8 @@ interface Stats {
 }
 
 export default function HomePage() {
+  // Initialize translation hook
+  const { t } = useTranslation();
   const { accounts } = useAccounts();
   const [stats, setStats] = useState<Stats>({
     accounts: 0,
@@ -64,35 +68,34 @@ export default function HomePage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome to Asspp Web
+            {t("home.welcome")}
           </h1>
           <p className="mt-2 text-gray-600">
-            Manage Apple accounts, search the App Store, and download apps from
-            your browser.
+            {t("home.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="Accounts" value={stats.accounts} />
-          <StatCard label="Downloads" value={stats.downloads} />
-          <StatCard label="Packages" value={stats.packages} />
+          <StatCard label={t("home.stats.accounts")} value={stats.accounts} />
+          <StatCard label={t("home.stats.downloads")} value={stats.downloads} />
+          <StatCard label={t("home.stats.packages")} value={stats.packages} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <ActionCard
             to="/accounts/add"
-            title="Add Account"
-            description="Sign in with an Apple ID to get started."
+            title={t("home.actions.addAccount")}
+            description={t("home.actions.addAccountDesc")}
           />
           <ActionCard
             to="/search"
-            title="Search Apps"
-            description="Find apps on the App Store by name or ID."
+            title={t("home.actions.searchApps")}
+            description={t("home.actions.searchAppsDesc")}
           />
           <ActionCard
             to="/downloads"
-            title="View Downloads"
-            description="Check download progress and manage packages."
+            title={t("home.actions.viewDownloads")}
+            description={t("home.actions.viewDownloadsDesc")}
           />
         </div>
       </div>

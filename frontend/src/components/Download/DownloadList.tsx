@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import DownloadItem from "./DownloadItem";
 import { useDownloads } from "../../hooks/useDownloads";
@@ -8,6 +10,8 @@ import type { DownloadTask } from "../../types";
 type StatusFilter = "all" | DownloadTask["status"];
 
 export default function DownloadList() {
+  // Initialize translation hook
+  const { t } = useTranslation();
   const { tasks, loading, pauseDownload, resumeDownload, deleteDownload } =
     useDownloads();
   const [filter, setFilter] = useState<StatusFilter>("all");
@@ -28,19 +32,19 @@ export default function DownloadList() {
   });
 
   function handleDelete(id: string) {
-    if (!confirm("Delete this download?")) return;
+    if (!confirm(t("downloads.deleteConfirm"))) return;
     deleteDownload(id);
   }
 
   return (
     <PageContainer
-      title="Downloads"
+      title={t("downloads.title")}
       action={
         <Link
           to="/downloads/add"
           className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
-          New Download
+          {t("downloads.new")}
         </Link>
       }
     >
@@ -64,7 +68,7 @@ export default function DownloadList() {
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {t(`downloads.status.${status}`)}
             {status !== "all" && (
               <span className="ml-1">
                 ({tasks.filter((t) => t.status === status).length})
@@ -75,25 +79,24 @@ export default function DownloadList() {
       </div>
 
       <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
-        Packages are temporary and will be cleared on server restart. Download
-        or install promptly.
+        {t("downloads.warning")}
       </div>
 
       {loading && tasks.length === 0 ? (
         <div className="text-center text-gray-500 py-12">
-          Loading downloads...
+          {t("downloads.loading")}
         </div>
       ) : sortedTasks.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">
-            {filter === "all" ? "No downloads yet." : `No ${filter} downloads.`}
+            {filter === "all" ? t("downloads.emptyAll") : t("downloads.emptyFilter", { status: t(`downloads.status.${filter}`) })}
           </p>
           {filter === "all" && (
             <Link
               to="/search"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              Search for apps to download
+              {t("downloads.searchApps")}
             </Link>
           )}
         </div>

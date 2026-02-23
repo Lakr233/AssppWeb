@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import { useAccounts } from "../../hooks/useAccounts";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
@@ -8,6 +10,8 @@ import { generateDeviceId } from "../../apple/config";
 export default function AddAccountForm() {
   const navigate = useNavigate();
   const { addAccount } = useAccounts();
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,7 +45,7 @@ export default function AddAccountForm() {
         setNeedsCode(true);
         setError(err.message);
       } else {
-        setError(err instanceof Error ? err.message : "Authentication failed");
+        setError(err instanceof Error ? err.message : t("accounts.addForm.authFailed"));
       }
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ export default function AddAccountForm() {
   }
 
   return (
-    <PageContainer title="Add Account">
+    <PageContainer title={t("accounts.addForm.title")}>
       <div className="max-w-lg">
         <form onSubmit={handleSubmit} className="space-y-6">
           <section className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
@@ -58,7 +62,7 @@ export default function AddAccountForm() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Apple ID (Email)
+                {t("accounts.addForm.email")}
               </label>
               <input
                 id="email"
@@ -67,7 +71,7 @@ export default function AddAccountForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                placeholder="user@example.com"
+                placeholder={t("accounts.addForm.emailPlaceholder")}
                 className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
               />
             </div>
@@ -77,7 +81,7 @@ export default function AddAccountForm() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                {t("accounts.addForm.password")}
               </label>
               <input
                 id="password"
@@ -95,7 +99,7 @@ export default function AddAccountForm() {
                 htmlFor="deviceId"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Device Identifier
+                {t("accounts.addForm.deviceId")}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -113,11 +117,11 @@ export default function AddAccountForm() {
                   disabled={loading || needsCode}
                   className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Randomize
+                  {t("accounts.addForm.randomize")}
                 </button>
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                Generated randomly. Each account must use a unique identifier.
+                {t("accounts.addForm.deviceIdHelp")}
               </p>
             </div>
 
@@ -127,7 +131,7 @@ export default function AddAccountForm() {
                   htmlFor="code"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  2FA Verification Code
+                  {t("accounts.addForm.code")}
                 </label>
                 <input
                   id="code"
@@ -138,12 +142,12 @@ export default function AddAccountForm() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   disabled={loading}
-                  placeholder="000000"
+                  placeholder={t("accounts.addForm.codePlaceholder")}
                   className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
                   autoFocus
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Enter the verification code from your trusted device.
+                  {t("accounts.addForm.codeHelp")}
                 </p>
               </div>
             )}
@@ -162,7 +166,7 @@ export default function AddAccountForm() {
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading && <Spinner />}
-              {needsCode ? "Verify" : "Sign In"}
+              {needsCode ? t("accounts.addForm.verify") : t("accounts.addForm.signIn")}
             </button>
             <button
               type="button"
@@ -170,7 +174,7 @@ export default function AddAccountForm() {
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-              Cancel
+              {t("accounts.addForm.cancel")}
             </button>
           </div>
         </form>

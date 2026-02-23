@@ -1,4 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import Badge from "../common/Badge";
@@ -13,14 +15,16 @@ export default function PackageDetail() {
   const navigate = useNavigate();
   const { tasks, deleteDownload, pauseDownload, resumeDownload, hashToEmail } =
     useDownloads();
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   const task = tasks.find((t) => t.id === id);
 
   if (!task) {
     return (
-      <PageContainer title="Package">
+      <PageContainer title={t("downloads.package.title")}>
         <div className="text-center py-12 text-gray-500">
-          {tasks.length === 0 ? "Loading..." : "Download not found."}
+          {tasks.length === 0 ? t("loading") : t("downloads.package.notFound")}
         </div>
       </PageContainer>
     );
@@ -32,13 +36,13 @@ export default function PackageDetail() {
   const installInfo = isCompleted ? getInstallInfo(task.id) : null;
 
   async function handleDelete() {
-    if (!confirm("Delete this download?")) return;
+    if (!confirm(t("downloads.package.deleteConfirm"))) return;
     await deleteDownload(task!.id);
     navigate("/downloads");
   }
 
   return (
-    <PageContainer title="Package Details">
+    <PageContainer title={t("downloads.package.title")}>
       <div className="space-y-6">
         <div className="flex items-start gap-4">
           <AppIcon
@@ -79,23 +83,23 @@ export default function PackageDetail() {
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <dt className="text-gray-500 flex-shrink-0">Bundle ID</dt>
+              <dt className="text-gray-500 flex-shrink-0">{t("downloads.package.bundleId")}</dt>
               <dd className="text-gray-900 min-w-0 truncate ml-4">
                 {task.software.bundleID}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500 flex-shrink-0">Version</dt>
+              <dt className="text-gray-500 flex-shrink-0">{t("downloads.package.version")}</dt>
               <dd className="text-gray-900">{task.software.version}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500 flex-shrink-0">Account</dt>
+              <dt className="text-gray-500 flex-shrink-0">{t("downloads.package.account")}</dt>
               <dd className="text-gray-900 min-w-0 truncate ml-4">
                 {hashToEmail[task.accountHash] || task.accountHash}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500 flex-shrink-0">Created</dt>
+              <dt className="text-gray-500 flex-shrink-0">{t("downloads.package.created")}</dt>
               <dd className="text-gray-900">
                 {new Date(task.createdAt).toLocaleString()}
               </dd>
@@ -113,7 +117,7 @@ export default function PackageDetail() {
                     href={installInfo.installUrl}
                     className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Install on Device
+                    {t("downloads.package.install")}
                   </a>
                   
                   {/* QR code hover window: hidden by default, gracefully appears on hover via group-hover */}
@@ -125,7 +129,7 @@ export default function PackageDetail() {
                         size={128}
                         className="mb-1"
                       />
-                      <span className="text-xs text-gray-500 mt-1">Scan to install</span>
+                      <span className="text-xs text-gray-500 mt-1">{t("downloads.package.scan")}</span>
                       {/* Small triangle indicator at the bottom of the hover window, pointing to the button below */}
                       <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-gray-200 transform rotate-45"></div>
                     </div>
@@ -137,7 +141,7 @@ export default function PackageDetail() {
                 download
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Download IPA
+                {t("downloads.package.downloadIpa")}
               </a>
             </>
           )}
@@ -146,7 +150,7 @@ export default function PackageDetail() {
               onClick={() => pauseDownload(task.id)}
               className="px-4 py-2 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
-              Pause
+              {t("downloads.package.pause")}
             </button>
           )}
           {isPaused && (
@@ -154,14 +158,14 @@ export default function PackageDetail() {
               onClick={() => resumeDownload(task.id)}
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Resume
+              {t("downloads.package.resume")}
             </button>
           )}
           <button
             onClick={handleDelete}
             className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
           >
-            Delete
+            {t("downloads.package.delete")}
           </button>
         </div>
       </div>

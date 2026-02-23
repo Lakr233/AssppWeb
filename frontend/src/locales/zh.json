@@ -1,0 +1,201 @@
+{
+  "loading": "加载中...",
+  "nav": {
+    "home": "首页",
+    "accounts": "账号",
+    "search": "搜索",
+    "downloads": "下载",
+    "settings": "设置"
+  },
+  "home": {
+    "welcome": "欢迎来到 Asspp Web",
+    "subtitle": "在浏览器中管理 Apple 账号，搜索 App Store 并下载应用。",
+    "stats": {
+      "accounts": "账号",
+      "downloads": "下载",
+      "packages": "安装包"
+    },
+    "actions": {
+      "addAccount": "添加账号",
+      "addAccountDesc": "使用 Apple ID 登录以开始。",
+      "searchApps": "搜索应用",
+      "searchAppsDesc": "通过名称或 ID 在 App Store 查找应用。",
+      "viewDownloads": "查看下载",
+      "viewDownloadsDesc": "查看下载进度并管理安装包。"
+    }
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "搜索应用或输入 Bundle ID...",
+    "button": "搜索",
+    "searching": "搜索中...",
+    "empty": "搜索应用以开始。",
+    "free": "免费",
+    "product": {
+      "title": "应用详情",
+      "notFound": "找不到请求的应用。",
+      "licenseSuccess": "许可证获取成功",
+      "purchaseFailed": "购买失败",
+      "downloadFailed": "下载失败",
+      "addAccountPrompt": "以下载或购买应用。",
+      "addAccountLink": "添加账号",
+      "account": "账号",
+      "getLicense": "获取许可证",
+      "processing": "处理中...",
+      "download": "下载",
+      "versionHistory": "历史版本",
+      "details": "详细信息",
+      "bundleId": "Bundle ID",
+      "version": "版本",
+      "size": "大小",
+      "minOs": "最低系统版本",
+      "seller": "开发者",
+      "released": "发布日期",
+      "description": "描述",
+      "releaseNotes": "更新日志",
+      "screenshots": "屏幕截图",
+      "ratings": "个评分",
+      "free": "免费"
+    },
+    "versions": {
+      "title": "历史版本",
+      "unavailable": "应用信息不可用，请从搜索页面进入。",
+      "loadFailed": "加载版本失败",
+      "downloadFailed": "下载失败",
+      "account": "账号",
+      "load": "加载版本",
+      "loading": "加载中...",
+      "loadDetails": "加载详情",
+      "download": "下载",
+      "downloading": "下载中..."
+    }
+  },
+  "accounts": {
+    "title": "账号",
+    "add": "添加账号",
+    "loading": "加载账号中...",
+    "empty": "暂未添加账号。",
+    "addFirst": "添加您的第一个账号",
+    "addForm": {
+      "title": "添加账号",
+      "email": "Apple ID (邮箱)",
+      "emailPlaceholder": "user@example.com",
+      "password": "密码",
+      "deviceId": "设备标识符",
+      "randomize": "随机生成",
+      "deviceIdHelp": "随机生成。每个账号必须使用唯一的标识符。",
+      "code": "双重认证代码",
+      "codePlaceholder": "000000",
+      "codeHelp": "输入来自您受信任设备的验证码。",
+      "signIn": "登录",
+      "verify": "验证",
+      "cancel": "取消",
+      "authFailed": "认证失败"
+    },
+    "detail": {
+      "title": "账号详情",
+      "notFound": "账号未找到。",
+      "back": "返回账号列表",
+      "name": "姓名",
+      "email": "邮箱",
+      "appleId": "Apple ID",
+      "storeRegion": "商店地区",
+      "dsid": "DSID",
+      "deviceId": "设备标识符",
+      "pod": "Pod",
+      "reauthSuccess": "账号重新认证成功。",
+      "reauthFailed": "重新认证失败",
+      "code": "双重认证代码",
+      "verify": "验证",
+      "reauth": "重新认证",
+      "delete": "删除账号",
+      "confirmDelete": "确认删除",
+      "cancel": "取消",
+      "areYouSure": "您确定吗？"
+    }
+  },
+  "downloads": {
+    "title": "下载",
+    "new": "新建下载",
+    "warning": "安装包是临时的，将在服务器重启时被清除。请及时下载或安装。",
+    "loading": "加载下载中...",
+    "emptyAll": "暂无下载。",
+    "emptyFilter": "暂无{{status}}下载。",
+    "searchApps": "搜索要下载的应用",
+    "deleteConfirm": "删除此下载？",
+    "status": {
+      "all": "全部",
+      "downloading": "下载中",
+      "pending": "等待中",
+      "paused": "已暂停",
+      "completed": "已完成",
+      "failed": "已失败",
+      "injecting": "注入中"
+    },
+    "item": {
+      "viewPackage": "查看安装包"
+    },
+    "add": {
+      "title": "新建下载",
+      "bundleId": "Bundle ID",
+      "placeholder": "com.example.app",
+      "lookup": "查找",
+      "lookingUp": "查找中...",
+      "notFound": "应用未找到",
+      "lookupFailed": "查找失败",
+      "licenseFailed": "获取许可证失败",
+      "versionsFailed": "加载版本失败",
+      "downloadFailed": "下载失败",
+      "versionOptional": "版本 (可选)",
+      "latest": "最新",
+      "getLicense": "获取许可证",
+      "selectVersion": "选择版本",
+      "download": "下载",
+      "processing": "处理中..."
+    },
+    "package": {
+      "title": "安装包详情",
+      "notFound": "未找到下载。",
+      "deleteConfirm": "删除此下载？",
+      "bundleId": "Bundle ID",
+      "version": "版本",
+      "account": "账号",
+      "created": "创建时间",
+      "install": "在设备上安装",
+      "scan": "扫码安装",
+      "downloadIpa": "下载 IPA",
+      "pause": "暂停",
+      "resume": "恢复",
+      "delete": "删除"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "language": {
+      "title": "语言",
+      "label": "显示语言"
+    },
+    "defaults": {
+      "title": "默认设置",
+      "country": "默认国家 / 地区",
+      "entity": "默认设备类型"
+    },
+    "server": {
+      "title": "服务器",
+      "version": "版本",
+      "dataDir": "数据目录",
+      "uptime": "运行时间",
+      "offline": "无法连接到服务器。"
+    },
+    "data": {
+      "title": "数据",
+      "description": "清除此浏览器中存储的所有本地数据，包括账号、凭据和设置。",
+      "confirm": "这将删除所有账号、凭据和设置，且无法恢复。是否继续？",
+      "button": "重置所有数据"
+    },
+    "about": {
+      "title": "关于",
+      "description": "Asspp Web —— 基于 Web 的 Apple 应用下载和许可证管理界面。"
+    }
+  }
+}

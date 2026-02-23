@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
@@ -17,6 +19,8 @@ export default function VersionHistory() {
   const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
@@ -54,7 +58,7 @@ export default function VersionHistory() {
       setVersions(result.versions);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load versions");
+      setError(e instanceof Error ? e.message : t("search.versions.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -100,7 +104,7 @@ export default function VersionHistory() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Download failed");
+      setError(e instanceof Error ? e.message : t("search.versions.downloadFailed"));
     } finally {
       setDownloadingVersion(null);
     }
@@ -108,17 +112,16 @@ export default function VersionHistory() {
 
   if (!app) {
     return (
-      <PageContainer title="Version History">
+      <PageContainer title={t("search.versions.title")}>
         <p className="text-gray-500">
-          App information is not available. Please navigate from the search
-          page.
+          {t("search.versions.unavailable")}
         </p>
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer title="Version History">
+    <PageContainer title={t("search.versions.title")}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <AppIcon url={app.artworkUrl} name={app.name} size="md" />
@@ -143,7 +146,7 @@ export default function VersionHistory() {
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Account
+                {t("search.versions.account")}
               </label>
               <select
                 value={selectedAccount}
@@ -162,7 +165,7 @@ export default function VersionHistory() {
               disabled={loading || !account}
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
             >
-              {loading ? "Loading..." : "Load Versions"}
+              {loading ? t("search.versions.loading") : t("search.versions.load")}
             </button>
           </div>
         )}
@@ -193,11 +196,11 @@ export default function VersionHistory() {
                         onClick={() => handleLoadMeta(versionId)}
                         className="text-xs text-blue-600 hover:text-blue-700 py-1"
                       >
-                        Load details
+                        {t("search.versions.loadDetails")}
                       </button>
                     )}
                     {isLoadingMeta && (
-                      <span className="text-xs text-gray-400">Loading...</span>
+                      <span className="text-xs text-gray-400">{t("search.versions.loading")}</span>
                     )}
                   </div>
                   <button
@@ -205,7 +208,7 @@ export default function VersionHistory() {
                     disabled={isDownloading || downloadingVersion !== null}
                     className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
                   >
-                    {isDownloading ? "Downloading..." : "Download"}
+                    {isDownloading ? t("search.versions.downloading") : t("search.versions.download")}
                   </button>
                 </div>
               );

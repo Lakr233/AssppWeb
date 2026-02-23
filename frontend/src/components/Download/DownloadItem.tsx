@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import type { DownloadTask } from "../../types";
 import AppIcon from "../common/AppIcon";
 import Badge from "../common/Badge";
@@ -17,6 +19,9 @@ export default function DownloadItem({
   onResume,
   onDelete,
 }: DownloadItemProps) {
+  // Initialize translation hook
+  const { t } = useTranslation();
+  
   const isActive = task.status === "downloading" || task.status === "injecting";
   const isPaused = task.status === "paused";
   const isCompleted = task.status === "completed";
@@ -63,7 +68,7 @@ export default function DownloadItem({
                 onClick={() => onPause(task.id)}
                 className="text-xs text-gray-600 hover:text-gray-800 font-medium"
               >
-                Pause
+                {t("downloads.package.pause")}
               </button>
             )}
             {isPaused && (
@@ -71,7 +76,7 @@ export default function DownloadItem({
                 onClick={() => onResume(task.id)}
                 className="text-xs text-blue-600 hover:text-blue-700 font-medium"
               >
-                Resume
+                {t("downloads.package.resume")}
               </button>
             )}
             {isCompleted && task.hasFile && (
@@ -79,14 +84,14 @@ export default function DownloadItem({
                 to={`/downloads/${task.id}`}
                 className="text-xs text-blue-600 hover:text-blue-700 font-medium"
               >
-                View Package
+                {t("downloads.item.viewPackage")}
               </Link>
             )}
             <button
               onClick={() => onDelete(task.id)}
               className="text-xs text-red-600 hover:text-red-700 font-medium"
             >
-              Delete
+              {t("downloads.package.delete")}
             </button>
           </div>
         </div>

@@ -1,14 +1,19 @@
 import { NavLink } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 
 const navItems = [
-  { to: "/", label: "Home", icon: HomeIcon },
-  { to: "/accounts", label: "Accounts", icon: AccountsIcon },
-  { to: "/search", label: "Search", icon: SearchIcon },
-  { to: "/downloads", label: "Downloads", icon: DownloadsIcon },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/", label: "home", icon: HomeIcon },
+  { to: "/accounts", label: "accounts", icon: AccountsIcon },
+  { to: "/search", label: "search", icon: SearchIcon },
+  { to: "/downloads", label: "downloads", icon: DownloadsIcon },
+  { to: "/settings", label: "settings", icon: SettingsIcon },
 ];
 
 export default function Sidebar() {
+  // Initialize translation hook
+  const { t } = useTranslation();
+
   return (
     <aside className="hidden md:flex md:flex-col md:w-60 bg-white border-r border-gray-200 h-screen sticky top-0">
       <div className="px-6 py-5 border-b border-gray-200">
@@ -29,7 +34,8 @@ export default function Sidebar() {
             }
           >
             <item.icon className="w-5 h-5" />
-            {item.label}
+            {/* Map label to translation key */}
+            {t(`nav.${item.label}`)}
           </NavLink>
         ))}
       </nav>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
@@ -20,6 +22,8 @@ export default function ProductDetail() {
   const location = useLocation();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const stateApp = (location.state as { app?: Software; country?: string })
@@ -67,16 +71,16 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <PageContainer title="App Details">
-        <div className="text-center text-gray-500 py-12">Loading...</div>
+      <PageContainer title={t("search.product.title")}>
+        <div className="text-center text-gray-500 py-12">{t("loading")}</div>
       </PageContainer>
     );
   }
 
   if (!app) {
     return (
-      <PageContainer title="App Not Found">
-        <p className="text-gray-500">Could not find the requested app.</p>
+      <PageContainer title={t("search.product.title")}>
+        <p className="text-gray-500">{t("search.product.notFound")}</p>
       </PageContainer>
     );
   }
@@ -89,9 +93,9 @@ export default function ProductDetail() {
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
-      setSuccess("License acquired successfully");
+      setSuccess(t("search.product.licenseSuccess"));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Purchase failed");
+      setError(e instanceof Error ? e.message : t("search.product.purchaseFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -119,7 +123,7 @@ export default function ProductDetail() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Download failed");
+      setError(e instanceof Error ? e.message : t("search.product.downloadFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -134,12 +138,12 @@ export default function ProductDetail() {
             <h1 className="text-2xl font-bold text-gray-900">{app.name}</h1>
             <p className="text-gray-500">{app.artistName}</p>
             <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500">
-              <span>{app.formattedPrice ?? "Free"}</span>
+              <span>{app.formattedPrice ?? t("search.product.free")}</span>
               <span>{app.primaryGenreName}</span>
               <span>v{app.version}</span>
               <span>
                 {app.averageUserRating.toFixed(1)} ({app.userRatingCount}{" "}
-                ratings)
+                {t("search.product.ratings")})
               </span>
             </div>
           </div>
@@ -159,15 +163,15 @@ export default function ProductDetail() {
         {accounts.length === 0 ? (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">
             <Link to="/accounts/add" className="font-medium underline">
-              Add an account
+              {t("search.product.addAccountLink")}
             </Link>{" "}
-            to download or purchase apps.
+            {t("search.product.addAccountPrompt")}
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Account
+                {t("search.product.account")}
               </label>
               <select
                 value={selectedAccount}
@@ -189,7 +193,7 @@ export default function ProductDetail() {
                   disabled={actionLoading}
                   className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
                 >
-                  {actionLoading ? "Processing..." : "Get License"}
+                  {actionLoading ? t("search.product.processing") : t("search.product.getLicense")}
                 </button>
               )}
               <button
@@ -197,37 +201,37 @@ export default function ProductDetail() {
                 disabled={actionLoading}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {actionLoading ? "Processing..." : "Download"}
+                {actionLoading ? t("search.product.processing") : t("search.product.download")}
               </button>
               <Link
                 to={`/search/${app.id}/versions`}
                 state={{ app, country }}
                 className="px-4 py-2 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
               >
-                Version History
+                {t("search.product.versionHistory")}
               </Link>
             </div>
           </div>
         )}
 
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="font-semibold text-gray-900 mb-2">Details</h2>
+          <h2 className="font-semibold text-gray-900 mb-2">{t("search.product.details")}</h2>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <dt className="text-gray-500">Bundle ID</dt>
+            <dt className="text-gray-500">{t("search.product.bundleId")}</dt>
             <dd className="text-gray-900 break-all">{app.bundleID}</dd>
-            <dt className="text-gray-500">Version</dt>
+            <dt className="text-gray-500">{t("search.product.version")}</dt>
             <dd className="text-gray-900">{app.version}</dd>
-            <dt className="text-gray-500">Size</dt>
+            <dt className="text-gray-500">{t("search.product.size")}</dt>
             <dd className="text-gray-900">
               {app.fileSizeBytes
                 ? `${(parseInt(app.fileSizeBytes) / 1024 / 1024).toFixed(1)} MB`
                 : "N/A"}
             </dd>
-            <dt className="text-gray-500">Min OS</dt>
+            <dt className="text-gray-500">{t("search.product.minOs")}</dt>
             <dd className="text-gray-900">{app.minimumOsVersion}</dd>
-            <dt className="text-gray-500">Seller</dt>
+            <dt className="text-gray-500">{t("search.product.seller")}</dt>
             <dd className="text-gray-900">{app.sellerName}</dd>
-            <dt className="text-gray-500">Released</dt>
+            <dt className="text-gray-500">{t("search.product.released")}</dt>
             <dd className="text-gray-900">
               {new Date(app.releaseDate).toLocaleDateString()}
             </dd>
@@ -236,7 +240,7 @@ export default function ProductDetail() {
 
         {app.description && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h2 className="font-semibold text-gray-900 mb-2">Description</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">{t("search.product.description")}</h2>
             <p className="text-sm text-gray-700 whitespace-pre-line">
               {app.description}
             </p>
@@ -245,7 +249,7 @@ export default function ProductDetail() {
 
         {app.releaseNotes && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h2 className="font-semibold text-gray-900 mb-2">Release Notes</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">{t("search.product.releaseNotes")}</h2>
             <p className="text-sm text-gray-700 whitespace-pre-line">
               {app.releaseNotes}
             </p>
@@ -254,7 +258,7 @@ export default function ProductDetail() {
 
         {app.screenshotUrls && app.screenshotUrls.length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h2 className="font-semibold text-gray-900 mb-2">Screenshots</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">{t("search.product.screenshots")}</h2>
             <div className="flex gap-3 overflow-x-auto pb-2">
               {app.screenshotUrls.map((url, i) => (
                 <img

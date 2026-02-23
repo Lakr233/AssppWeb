@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useSearch } from "../../hooks/useSearch";
@@ -11,6 +13,8 @@ import { firstAccountCountry } from "../../utils/account";
 const sortedCountries = Object.keys(countryCodeMap).sort();
 
 export default function SearchPage() {
+  // Initialize translation hook
+  const { t } = useTranslation();
   const { defaultCountry, defaultEntity } = useSettingsStore();
   const { accounts } = useAccounts();
   const initialCountry = firstAccountCountry(accounts) ?? defaultCountry;
@@ -26,14 +30,14 @@ export default function SearchPage() {
   }
 
   return (
-    <PageContainer title="Search">
+    <PageContainer title={t("search.title")}>
       <form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div className="flex gap-2">
           <input
             type="text"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            placeholder="Search apps or enter bundle ID..."
+            placeholder={t("search.placeholder")}
             className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
           <button
@@ -41,7 +45,7 @@ export default function SearchPage() {
             disabled={loading || !term.trim()}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? "Searching..." : "Search"}
+            {loading ? t("search.searching") : t("search.button")}
           </button>
         </div>
         <div className="flex gap-3">
@@ -75,7 +79,7 @@ export default function SearchPage() {
 
       {results.length === 0 && !loading && !error && (
         <div className="text-center text-gray-500 py-12">
-          Search for apps to get started.
+          {t("search.empty")}
         </div>
       )}
 
@@ -95,7 +99,7 @@ export default function SearchPage() {
                   {app.artistName}
                 </p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                  <span>{app.formattedPrice ?? "Free"}</span>
+                  <span>{app.formattedPrice ?? t("search.free")}</span>
                   <span>{app.primaryGenreName}</span>
                   <span>
                     {app.averageUserRating.toFixed(1)} ({app.userRatingCount})

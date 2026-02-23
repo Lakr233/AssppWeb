@@ -5,6 +5,9 @@ import App from "./App";
 import "./index.css";
 import { initLibcurl } from "./apple/libcurl-init";
 
+// Import i18n configuration to initialize it before rendering the app
+import "./i18n";
+
 // Start loading WASM early (non-blocking)
 initLibcurl().catch((e) => console.warn("[libcurl] Init failed:", e));
 

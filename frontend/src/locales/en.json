@@ -1,0 +1,201 @@
+{
+  "loading": "Loading...",
+  "nav": {
+    "home": "Home",
+    "accounts": "Accounts",
+    "search": "Search",
+    "downloads": "Downloads",
+    "settings": "Settings"
+  },
+  "home": {
+    "welcome": "Welcome to Asspp Web",
+    "subtitle": "Manage Apple accounts, search the App Store, and download apps from your browser.",
+    "stats": {
+      "accounts": "Accounts",
+      "downloads": "Downloads",
+      "packages": "Packages"
+    },
+    "actions": {
+      "addAccount": "Add Account",
+      "addAccountDesc": "Sign in with an Apple ID to get started.",
+      "searchApps": "Search Apps",
+      "searchAppsDesc": "Find apps on the App Store by name or ID.",
+      "viewDownloads": "View Downloads",
+      "viewDownloadsDesc": "Check download progress and manage packages."
+    }
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search apps or enter bundle ID...",
+    "button": "Search",
+    "searching": "Searching...",
+    "empty": "Search for apps to get started.",
+    "free": "Free",
+    "product": {
+      "title": "App Details",
+      "notFound": "Could not find the requested app.",
+      "licenseSuccess": "License acquired successfully",
+      "purchaseFailed": "Purchase failed",
+      "downloadFailed": "Download failed",
+      "addAccountPrompt": "to download or purchase apps.",
+      "addAccountLink": "Add an account",
+      "account": "Account",
+      "getLicense": "Get License",
+      "processing": "Processing...",
+      "download": "Download",
+      "versionHistory": "Version History",
+      "details": "Details",
+      "bundleId": "Bundle ID",
+      "version": "Version",
+      "size": "Size",
+      "minOs": "Min OS",
+      "seller": "Seller",
+      "released": "Released",
+      "description": "Description",
+      "releaseNotes": "Release Notes",
+      "screenshots": "Screenshots",
+      "ratings": "ratings",
+      "free": "Free"
+    },
+    "versions": {
+      "title": "Version History",
+      "unavailable": "App information is not available. Please navigate from the search page.",
+      "loadFailed": "Failed to load versions",
+      "downloadFailed": "Download failed",
+      "account": "Account",
+      "load": "Load Versions",
+      "loading": "Loading...",
+      "loadDetails": "Load details",
+      "download": "Download",
+      "downloading": "Downloading..."
+    }
+  },
+  "accounts": {
+    "title": "Accounts",
+    "add": "Add Account",
+    "loading": "Loading accounts...",
+    "empty": "No accounts added yet.",
+    "addFirst": "Add your first account",
+    "addForm": {
+      "title": "Add Account",
+      "email": "Apple ID (Email)",
+      "emailPlaceholder": "user@example.com",
+      "password": "Password",
+      "deviceId": "Device Identifier",
+      "randomize": "Randomize",
+      "deviceIdHelp": "Generated randomly. Each account must use a unique identifier.",
+      "code": "2FA Verification Code",
+      "codePlaceholder": "000000",
+      "codeHelp": "Enter the verification code from your trusted device.",
+      "signIn": "Sign In",
+      "verify": "Verify",
+      "cancel": "Cancel",
+      "authFailed": "Authentication failed"
+    },
+    "detail": {
+      "title": "Account Details",
+      "notFound": "Account not found.",
+      "back": "Back to accounts",
+      "name": "Name",
+      "email": "Email",
+      "appleId": "Apple ID",
+      "storeRegion": "Store Region",
+      "dsid": "DSID",
+      "deviceId": "Device Identifier",
+      "pod": "Pod",
+      "reauthSuccess": "Account re-authenticated successfully.",
+      "reauthFailed": "Re-authentication failed",
+      "code": "2FA Verification Code",
+      "verify": "Verify",
+      "reauth": "Re-authenticate",
+      "delete": "Delete Account",
+      "confirmDelete": "Confirm Delete",
+      "cancel": "Cancel",
+      "areYouSure": "Are you sure?"
+    }
+  },
+  "downloads": {
+    "title": "Downloads",
+    "new": "New Download",
+    "warning": "Packages are temporary and will be cleared on server restart. Download or install promptly.",
+    "loading": "Loading downloads...",
+    "emptyAll": "No downloads yet.",
+    "emptyFilter": "No {{status}} downloads.",
+    "searchApps": "Search for apps to download",
+    "deleteConfirm": "Delete this download?",
+    "status": {
+      "all": "All",
+      "downloading": "Downloading",
+      "pending": "Pending",
+      "paused": "Paused",
+      "completed": "Completed",
+      "failed": "Failed",
+      "injecting": "Injecting"
+    },
+    "item": {
+      "viewPackage": "View Package"
+    },
+    "add": {
+      "title": "New Download",
+      "bundleId": "Bundle ID",
+      "placeholder": "com.example.app",
+      "lookup": "Look Up",
+      "lookingUp": "Looking up...",
+      "notFound": "App not found",
+      "lookupFailed": "Lookup failed",
+      "licenseFailed": "Failed to get license",
+      "versionsFailed": "Failed to load versions",
+      "downloadFailed": "Download failed",
+      "versionOptional": "Version (optional)",
+      "latest": "Latest",
+      "getLicense": "Get License",
+      "selectVersion": "Select Version",
+      "download": "Download",
+      "processing": "Processing..."
+    },
+    "package": {
+      "title": "Package Details",
+      "notFound": "Download not found.",
+      "deleteConfirm": "Delete this download?",
+      "bundleId": "Bundle ID",
+      "version": "Version",
+      "account": "Account",
+      "created": "Created",
+      "install": "Install on Device",
+      "scan": "Scan to install",
+      "downloadIpa": "Download IPA",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "label": "Display Language"
+    },
+    "defaults": {
+      "title": "Defaults",
+      "country": "Default Country / Region",
+      "entity": "Default Entity Type"
+    },
+    "server": {
+      "title": "Server",
+      "version": "Version",
+      "dataDir": "Data Directory",
+      "uptime": "Uptime",
+      "offline": "Unable to connect to server."
+    },
+    "data": {
+      "title": "Data",
+      "description": "Clear all local data including accounts, credentials, and settings stored in this browser.",
+      "confirm": "This will delete all accounts, credentials, and settings. This cannot be undone. Continue?",
+      "button": "Reset All Data"
+    },
+    "about": {
+      "title": "About",
+      "description": "Asspp Web -- a web-based interface for managing Apple app downloads and licenses."
+    }
+  }
+}

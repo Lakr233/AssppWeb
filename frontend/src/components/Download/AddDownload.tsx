@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+// Import useTranslation hook
+import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
@@ -23,6 +25,8 @@ export default function AddDownload() {
   const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   const [bundleId, setBundleId] = useState("");
   const [country, setCountry] = useState(defaultCountry);
@@ -61,13 +65,13 @@ export default function AddDownload() {
     try {
       const result = await lookupApp(bundleId.trim(), country);
       if (!result) {
-        setError("App not found");
+        setError(t("downloads.add.notFound"));
         return;
       }
       setApp(result);
       setStep("ready");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Lookup failed");
+      setError(e instanceof Error ? e.message : t("downloads.add.lookupFailed"));
     } finally {
       setLoading(false);
     }
@@ -81,7 +85,7 @@ export default function AddDownload() {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to get license");
+      setError(e instanceof Error ? e.message : t("downloads.add.licenseFailed"));
     } finally {
       setLoading(false);
     }
@@ -97,7 +101,7 @@ export default function AddDownload() {
       await updateAccount({ ...account, cookies: result.updatedCookies });
       setStep("versions");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load versions");
+      setError(e instanceof Error ? e.message : t("downloads.add.versionsFailed"));
     } finally {
       setLoading(false);
     }
@@ -124,14 +128,14 @@ export default function AddDownload() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Download failed");
+      setError(e instanceof Error ? e.message : t("downloads.add.downloadFailed"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <PageContainer title="New Download">
+    <PageContainer title={t("downloads.add.title")}>
       <div className="max-w-lg space-y-6">
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
@@ -142,13 +146,13 @@ export default function AddDownload() {
         <form onSubmit={handleLookup} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bundle ID
+              {t("downloads.add.bundleId")}
             </label>
             <input
               type="text"
               value={bundleId}
               onChange={(e) => setBundleId(e.target.value)}
-              placeholder="com.example.app"
+              placeholder={t("downloads.add.placeholder")}
               className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               disabled={loading}
             />
@@ -189,7 +193,7 @@ export default function AddDownload() {
             disabled={loading || !bundleId.trim()}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {loading && step === "lookup" ? "Looking up..." : "Look Up"}
+            {loading && step === "lookup" ? t("downloads.add.lookingUp") : t("downloads.add.lookup")}
           </button>
         </form>
 
@@ -201,7 +205,7 @@ export default function AddDownload() {
                 <p className="font-medium text-gray-900">{app.name}</p>
                 <p className="text-sm text-gray-500">{app.artistName}</p>
                 <p className="text-sm text-gray-400">
-                  v{app.version} - {app.formattedPrice ?? "Free"}
+                  v{app.version} - {app.formattedPrice ?? t("search.product.free")}
                 </p>
               </div>
             </div>
@@ -209,14 +213,14 @@ export default function AddDownload() {
             {step === "versions" && versions.length > 0 && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Version (optional)
+                  {t("downloads.add.versionOptional")}
                 </label>
                 <select
                   value={selectedVersion}
                   onChange={(e) => setSelectedVersion(e.target.value)}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
-                  <option value="">Latest</option>
+                  <option value="">{t("downloads.add.latest")}</option>
                   {versions.map((v) => (
                     <option key={v} value={v}>
                       {v}
@@ -233,7 +237,7 @@ export default function AddDownload() {
                   disabled={loading || !account}
                   className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
                 >
-                  Get License
+                  {t("downloads.add.getLicense")}
                 </button>
               )}
               {step !== "versions" && (
@@ -242,7 +246,7 @@ export default function AddDownload() {
                   disabled={loading || !account}
                   className="px-3 py-1.5 text-gray-700 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                 >
-                  Select Version
+                  {t("downloads.add.selectVersion")}
                 </button>
               )}
               <button
@@ -250,7 +254,7 @@ export default function AddDownload() {
                 disabled={loading || !account}
                 className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {loading ? "Processing..." : "Download"}
+                {loading ? t("downloads.add.processing") : t("downloads.add.download")}
               </button>
             </div>
           </div>
