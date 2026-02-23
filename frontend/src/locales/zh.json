@@ -191,7 +191,21 @@
       "title": "数据",
       "description": "清除此浏览器中存储的所有本地数据，包括账号、凭据和设置。",
       "confirm": "这将删除所有账号、凭据和设置，且无法恢复。是否继续？",
-      "button": "重置所有数据"
+      "button": "重置所有数据",
+      "exportBtn": "导出账号",
+      "importBtn": "导入账号",
+      "passwordPrompt": "请输入密码",
+      "passwordConfirm": "确认密码",
+      "passwordMismatch": "两次输入的密码不一致。",
+      "incorrectPassword": "密码错误或数据已损坏。",
+      "exportSuccess": "账号导出成功。",
+      "importSuccess": "账号导入成功。",
+      "cancel": "取消",
+      "confirm": "确认",
+      "conflictTitle": "发现重复账号",
+      "conflictDesc": "在备份中发现 {{conflict}} 个相同的账号以及 {{new}} 个新账号。",
+      "conflictOverwrite": "覆盖本地",
+      "conflictSkip": "保留本地 (仅添加新账号)"
     },
     "about": {
       "title": "关于",

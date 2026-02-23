@@ -191,7 +191,21 @@
       "title": "Data",
       "description": "Clear all local data including accounts, credentials, and settings stored in this browser.",
       "confirm": "This will delete all accounts, credentials, and settings. This cannot be undone. Continue?",
-      "button": "Reset All Data"
+      "button": "Reset All Data",
+      "exportBtn": "Export Accounts",
+      "importBtn": "Import Accounts",
+      "passwordPrompt": "Enter Password",
+      "passwordConfirm": "Confirm Password",
+      "passwordMismatch": "Passwords do not match.",
+      "incorrectPassword": "Incorrect password or corrupted data.",
+      "exportSuccess": "Accounts exported successfully.",
+      "importSuccess": "Accounts imported successfully.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "conflictTitle": "Account Conflicts Detected",
+      "conflictDesc": "Found {{conflict}} identical accounts and {{new}} new accounts in the backup.",
+      "conflictOverwrite": "Overwrite Local",
+      "conflictSkip": "Keep Local (Add New Only)"
     },
     "about": {
       "title": "About",
