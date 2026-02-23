@@ -5,6 +5,8 @@ import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
 import { useDownloads } from "../../hooks/useDownloads";
 import { getInstallInfo } from "../../api/install";
+// Import pure frontend QR code generation library
+import { QRCodeSVG } from "qrcode.react";
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -105,12 +107,30 @@ export default function PackageDetail() {
           {isCompleted && (
             <>
               {installInfo && (
-                <a
-                  href={installInfo.installUrl}
-                  className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  Install on Device
-                </a>
+                <div className="relative group flex items-center">
+                  {/* Add relative container and group class to capture mouse hover events */}
+                  <a
+                    href={installInfo.installUrl}
+                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Install on Device
+                  </a>
+                  
+                  {/* QR code hover window: hidden by default, gracefully appears on hover via group-hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 z-50">
+                    <div className="bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex flex-col items-center">
+                      {/* Render QR code using the pure frontend library qrcode.react to improve security and loading speed */}
+                      <QRCodeSVG 
+                        value={installInfo.installUrl} 
+                        size={128}
+                        className="mb-1"
+                      />
+                      <span className="text-xs text-gray-500 mt-1">Scan to install</span>
+                      {/* Small triangle indicator at the bottom of the hover window, pointing to the button below */}
+                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-gray-200 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </div>
               )}
               <a
                 href={`/api/packages/${task.id}/file?accountHash=${encodeURIComponent(task.accountHash)}`}

@@ -13,6 +13,7 @@
   "dependencies": {
     "idb": "^8.0.1",
     "libcurl.js": "^0.7.4",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
