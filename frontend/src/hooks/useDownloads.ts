@@ -19,13 +19,16 @@ export function useDownloads() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Calculate original hashes preserving the order corresponding to 'accounts'
       const hashes = await Promise.all(accounts.map((a) => accountHash(a)));
-      const key = hashes.sort().join(",");
+      // Use slice() before sort() so we don't mutate the original 'hashes' array
+      const key = hashes.slice().sort().join(",");
       if (cancelled || key === hashesRef.current) return;
       hashesRef.current = key;
 
       const map: Record<string, string> = {};
       for (let i = 0; i < accounts.length; i++) {
+        // Now hashes[i] correctly maps to accounts[i]
         map[hashes[i]] = accounts[i].email;
       }
       setHashToEmail(map);
