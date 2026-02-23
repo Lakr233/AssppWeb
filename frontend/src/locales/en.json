@@ -1,5 +1,9 @@
 {
   "loading": "Loading...",
+  "regions": {
+    "available": "Available Regions",
+    "all": "All Regions"
+  },
   "nav": {
     "home": "Home",
     "accounts": "Accounts",

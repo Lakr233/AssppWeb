@@ -1,5 +1,9 @@
 {
   "loading": "加载中...",
+  "regions": {
+    "available": "可用国家 / 地区",
+    "all": "所有国家 / 地区"
+  },
   "nav": {
     "home": "首页",
     "accounts": "账号",

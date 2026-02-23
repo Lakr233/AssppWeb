@@ -7,7 +7,7 @@ import AppIcon from "../common/AppIcon";
 import { useSearch } from "../../hooks/useSearch";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
-import { countryCodeMap } from "../../apple/config";
+import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
 
 export default function SearchPage() {
@@ -21,8 +21,15 @@ export default function SearchPage() {
   const [entity, setEntity] = useState<string>(defaultEntity);
   const { results, loading, error, search } = useSearch();
 
-  // Dynamically sort countries inside component to access the translation function
-  const sortedCountries = Object.keys(countryCodeMap).sort((a, b) =>
+  // Extract unique country codes from user's added accounts to build the "Available Regions" list
+  const availableCountryCodes = Array.from(
+    new Set(accounts.map((a) => storeIdToCountry(a.store)).filter(Boolean) as string[])
+  ).sort((a, b) =>
+    t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
+  );
+
+  // Dynamically sort all countries inside component to access the translation function
+  const allCountryCodes = Object.keys(countryCodeMap).sort((a, b) =>
     t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
   );
 
@@ -57,11 +64,24 @@ export default function SearchPage() {
             onChange={(e) => setCountry(e.target.value)}
             className="rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
-            {sortedCountries.map((c) => (
-              <option key={c} value={c}>
-                {t(`countries.${c}`, c)} ({c})
-              </option>
-            ))}
+            {/* Group 1: Available Regions (only shows if there are valid accounts) */}
+            {availableCountryCodes.length > 0 && (
+              <optgroup label={t("regions.available")}>
+                {availableCountryCodes.map((c) => (
+                  <option key={`avail-${c}`} value={c}>
+                    {t(`countries.${c}`, c)} ({c})
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {/* Group 2: All Regions */}
+            <optgroup label={t("regions.all")}>
+              {allCountryCodes.map((c) => (
+                <option key={`all-${c}`} value={c}>
+                  {t(`countries.${c}`, c)} ({c})
+                </option>
+              ))}
+            </optgroup>
           </select>
           <select
             value={entity}
