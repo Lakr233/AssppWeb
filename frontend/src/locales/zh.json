@@ -155,7 +155,8 @@
       "getLicense": "获取许可证",
       "selectVersion": "选择版本",
       "download": "下载",
-      "processing": "处理中..."
+      "processing": "处理中...",
+      "noAccountsForRegion": "未找到该地区账号"
     },
     "package": {
       "title": "安装包详情",

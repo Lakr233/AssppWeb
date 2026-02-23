@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 // Import useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -49,11 +49,23 @@ export default function AddDownload() {
     t(`countries.${a}`, a).localeCompare(t(`countries.${b}`, b)),
   );
 
+  // Filter accounts based on the selected country/region
+  const filteredAccounts = useMemo(() => {
+    return accounts.filter((a) => storeIdToCountry(a.store) === country);
+  }, [accounts, country]);
+
+  // Automatically select an account when the filtered list changes
   useEffect(() => {
-    if (accounts.length > 0 && !selectedAccount) {
-      setSelectedAccount(accounts[0].email);
+    if (filteredAccounts.length > 0) {
+      if (!selectedAccount || !filteredAccounts.find((a) => a.email === selectedAccount)) {
+        setSelectedAccount(filteredAccounts[0].email);
+      }
+    } else {
+      if (selectedAccount !== "") {
+        setSelectedAccount("");
+      }
     }
-  }, [accounts, selectedAccount]);
+  }, [filteredAccounts, selectedAccount]);
 
   const account = accounts.find((a) => a.email === selectedAccount);
   const autoCountry =
@@ -201,13 +213,17 @@ export default function AddDownload() {
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
                 className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                disabled={loading}
+                disabled={loading || filteredAccounts.length === 0}
               >
-                {accounts.map((a) => (
-                  <option key={a.email} value={a.email}>
-                    {a.firstName} {a.lastName}
-                  </option>
-                ))}
+                {filteredAccounts.length > 0 ? (
+                  filteredAccounts.map((a) => (
+                    <option key={a.email} value={a.email}>
+                      {a.firstName} {a.lastName} ({a.email})
+                    </option>
+                  ))
+                ) : (
+                  <option value="">{t("downloads.add.noAccountsForRegion")}</option>
+                )}
               </select>
             )}
           </div>

@@ -155,7 +155,8 @@
       "getLicense": "Get License",
       "selectVersion": "Select Version",
       "download": "Download",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "noAccountsForRegion": "No accounts found for this region"
     },
     "package": {
       "title": "Package Details",
