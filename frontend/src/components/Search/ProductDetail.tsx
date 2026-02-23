@@ -15,6 +15,8 @@ import {
   accountStoreCountry,
   firstAccountCountry,
 } from "../../utils/account";
+// Import storeIdToCountry to display account region
+import { storeIdToCountry } from "../../apple/config";
 import type { Software } from "../../types";
 
 export default function ProductDetail() {
@@ -179,11 +181,16 @@ export default function ProductDetail() {
                 className="rounded-md border border-gray-300 px-3 py-2 text-base w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 disabled={actionLoading}
               >
-                {accounts.map((a) => (
-                  <option key={a.email} value={a.email}>
-                    {a.firstName} {a.lastName} ({a.email})
-                  </option>
-                ))}
+                {accounts.map((a) => {
+                  // Resolve region code and display name for each account
+                  const regionCode = storeIdToCountry(a.store);
+                  const regionDisplay = regionCode ? t(`countries.${regionCode}`, regionCode) : a.store;
+                  return (
+                    <option key={a.email} value={a.email}>
+                      {a.firstName} {a.lastName} ({a.email}){regionDisplay ? ` - ${regionDisplay}` : ""}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <div className="flex flex-wrap gap-3">
