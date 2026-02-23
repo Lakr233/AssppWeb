@@ -175,7 +175,7 @@ export default function AddDownload() {
               value={bundleId}
               onChange={(e) => setBundleId(e.target.value)}
               placeholder={t("downloads.add.placeholder")}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
               disabled={loading}
             />
           </div>
@@ -187,7 +187,7 @@ export default function AddDownload() {
                 setCountry(e.target.value);
                 setCountryTouched(true);
               }}
-              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
+              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {/* Group 1: Available Regions (only shows if there are valid accounts) */}
@@ -213,7 +213,7 @@ export default function AddDownload() {
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
+                className="w-1/2 rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 disabled={loading || filteredAccounts.length === 0}
               >
                 {filteredAccounts.length > 0 ? (
@@ -258,7 +258,7 @@ export default function AddDownload() {
                 <select
                   value={selectedVersion}
                   onChange={(e) => setSelectedVersion(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 >
                   <option value="">{t("downloads.add.latest")}</option>
                   {versions.map((v) => (
@@ -275,7 +275,7 @@ export default function AddDownload() {
                 <button
                   onClick={handleGetLicense}
                   disabled={loading || !account}
-                  className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {t("downloads.add.getLicense")}
                 </button>
@@ -284,7 +284,7 @@ export default function AddDownload() {
                 <button
                   onClick={handleLoadVersions}
                   disabled={loading || !account}
-                  className="px-3 py-1.5 text-gray-700 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 text-gray-700 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {t("downloads.add.selectVersion")}
                 </button>
@@ -292,7 +292,7 @@ export default function AddDownload() {
               <button
                 onClick={handleDownload}
                 disabled={loading || !account}
-                className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? t("downloads.add.processing") : t("downloads.add.download")}
               </button>
