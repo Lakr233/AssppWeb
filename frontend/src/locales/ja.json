@@ -65,7 +65,12 @@
       "releaseNotes": "リリースノート",
       "screenshots": "スクリーンショット",
       "ratings": "件の評価",
-      "free": "無料"
+      "free": "無料",
+      "downloadStarted": "{{appName}} のダウンロードを開始しました（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskSuccess": "{{appName}} のダウンロードに成功しました（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskFailed": "{{appName}} のダウンロードに失敗しました（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseSuccessArgs": "{{appName}} のライセンス取得に成功しました（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseFailedArgs": "{{appName}} のライセンス取得に失敗しました（{{userName}} / {{appleId}} - {{country}}）"
     },
     "versions": {
       "title": "バージョン履歴",

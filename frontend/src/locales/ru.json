@@ -65,7 +65,12 @@
       "releaseNotes": "Что нового",
       "screenshots": "Скриншоты",
       "ratings": "оценок",
-      "free": "Бесплатно"
+      "free": "Бесплатно",
+      "downloadStarted": "Начата загрузка {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskSuccess": "Успешная загрузка {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskFailed": "Ошибка загрузки {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "licenseSuccessArgs": "Лицензия успешно получена для {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "licenseFailedArgs": "Не удалось получить лицензию для {{appName}} ({{userName}} / {{appleId}} - {{country}})"
     },
     "versions": {
       "title": "История версий",

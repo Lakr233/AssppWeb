@@ -65,7 +65,12 @@
       "releaseNotes": "更新日誌",
       "screenshots": "螢幕截圖",
       "ratings": "個評分",
-      "free": "免費"
+      "free": "免費",
+      "downloadStarted": "開始下載 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskSuccess": "下載成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskFailed": "下載失敗 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseSuccessArgs": "獲取授權成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseFailedArgs": "獲取授權失敗 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
     },
     "versions": {
       "title": "歷史版本",

@@ -92,12 +92,21 @@ export default function ProductDetail() {
   async function handlePurchase() {
     if (!account || !app) return;
     setActionLoading(true);
+
+    const userName = `${account.firstName} ${account.lastName}`;
+    const appleId = account.email;
+    const appName = app.name;
+    const rawCountryCode = storeIdToCountry(account.store) || "";
+    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
+
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
-      addToast(t("search.product.licenseSuccess"), "success");
+      // Notify success with details / 带详情信息的成功通知
+      addToast(t("search.product.licenseSuccessArgs", { appName, userName, appleId, country: countryStr }), "success");
     } catch (e) {
-      addToast(getErrorMessage(e, t("search.product.purchaseFailed")), "error");
+      // Notify failure with details / 带详情信息的失败通知
+      addToast(`${t("search.product.licenseFailedArgs", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
     } finally {
       setActionLoading(false);
     }
@@ -106,6 +115,16 @@ export default function ProductDetail() {
   async function handleDownload() {
     if (!account || !app) return;
     setActionLoading(true);
+
+    const userName = `${account.firstName} ${account.lastName}`;
+    const appleId = account.email;
+    const appName = app.name;
+    const rawCountryCode = storeIdToCountry(account.store) || "";
+    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
+
+    // Notify download started / 下载开始通知
+    addToast(t("search.product.downloadStarted", { appName, userName, appleId, country: countryStr }), "info");
+
     try {
       const { output, updatedCookies } = await getDownloadInfo(account, app);
       await updateAccount({ ...account, cookies: updatedCookies });
@@ -121,9 +140,12 @@ export default function ProductDetail() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
-      navigate("/downloads");
+      // Notify download success / 下载成功通知
+      addToast(t("search.product.downloadTaskSuccess", { appName, userName, appleId, country: countryStr }), "success");
+      // Removed automatic navigation / 移除了自动跳转到下载列表的代码
     } catch (e) {
-      addToast(getErrorMessage(e, t("search.product.downloadFailed")), "error");
+      // Notify download failed / 下载失败通知
+      addToast(`${t("search.product.downloadTaskFailed", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
     } finally {
       setActionLoading(false);
     }

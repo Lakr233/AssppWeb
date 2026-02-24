@@ -12,6 +12,7 @@ import { getDownloadInfo } from "../../apple/download";
 import { apiPost } from "../../api/client";
 import { accountHash } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
+import { storeIdToCountry } from "../../apple/config"; // Added missing import / 补充缺少的导入
 import type { Software, VersionMetadata } from "../../types";
 // Import useToastStore / 引入全局 Toast Store
 import { useToastStore } from "../../store/toast";
@@ -83,6 +84,16 @@ export default function VersionHistory() {
   async function handleDownloadVersion(versionId: string) {
     if (!account || !app) return;
     setDownloadingVersion(versionId);
+
+    const userName = `${account.firstName} ${account.lastName}`;
+    const appleId = account.email;
+    const appName = app.name;
+    const rawCountryCode = storeIdToCountry(account.store) || "";
+    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
+
+    // Notify download started / 下载开始通知
+    addToast(t("search.product.downloadStarted", { appName, userName, appleId, country: countryStr }), "info");
+
     try {
       const { output, updatedCookies } = await getDownloadInfo(
         account,
@@ -102,9 +113,13 @@ export default function VersionHistory() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
-      navigate("/downloads");
+      
+      // Notify download success / 下载成功通知
+      addToast(t("search.product.downloadTaskSuccess", { appName, userName, appleId, country: countryStr }), "success");
+      // Removed automatic navigation / 移除了自动跳转逻辑
     } catch (e) {
-      addToast(getErrorMessage(e, t("search.versions.downloadFailed")), "error");
+      // Notify download failed / 下载失败通知
+      addToast(`${t("search.product.downloadTaskFailed", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
     } finally {
       setDownloadingVersion(null);
     }

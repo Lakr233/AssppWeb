@@ -65,7 +65,12 @@
       "releaseNotes": "更新日志",
       "screenshots": "屏幕截图",
       "ratings": "个评分",
-      "free": "免费"
+      "free": "免费",
+      "downloadStarted": "开始下载 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskSuccess": "下载成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "downloadTaskFailed": "下载失败 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseSuccessArgs": "获取许可证成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "licenseFailedArgs": "获取许可证失败 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
     },
     "versions": {
       "title": "历史版本",

@@ -65,7 +65,12 @@
       "releaseNotes": "릴리스 노트",
       "screenshots": "스크린샷",
       "ratings": "개의 평가",
-      "free": "무료"
+      "free": "무료",
+      "downloadStarted": "{{appName}} 다운로드 시작됨 ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskSuccess": "{{appName}} 다운로드 성공 ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskFailed": "{{appName}} 다운로드 실패 ({{userName}} / {{appleId}} - {{country}})",
+      "licenseSuccessArgs": "{{appName}} 라이선스 획득 성공 ({{userName}} / {{appleId}} - {{country}})",
+      "licenseFailedArgs": "{{appName}} 라이선스 획득 실패 ({{userName}} / {{appleId}} - {{country}})"
     },
     "versions": {
       "title": "버전 기록",

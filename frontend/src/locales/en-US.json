@@ -65,7 +65,12 @@
       "releaseNotes": "Release Notes",
       "screenshots": "Screenshots",
       "ratings": "ratings",
-      "free": "Free"
+      "free": "Free",
+      "downloadStarted": "Started downloading {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskSuccess": "Successfully downloaded {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "downloadTaskFailed": "Failed to download {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "licenseSuccessArgs": "Successfully acquired license for {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "licenseFailedArgs": "Failed to acquire license for {{appName}} ({{userName}} / {{appleId}} - {{country}})"
     },
     "versions": {
       "title": "Version History",
