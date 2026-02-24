@@ -65,12 +65,7 @@
       "releaseNotes": "更新日誌",
       "screenshots": "螢幕截圖",
       "ratings": "個評分",
-      "free": "免費",
-      "downloadStarted": "開始下載 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskSuccess": "下載成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskFailed": "下載失敗 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseSuccessArgs": "獲取授權成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseFailedArgs": "獲取授權失敗 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
+      "free": "免費"
     },
     "versions": {
       "title": "歷史版本",
@@ -191,11 +186,7 @@
       "downloadIpa": "下載 IPA",
       "pause": "暫停",
       "resume": "繼續",
-      "delete": "刪除",
-      "notifyInstall": "開始安裝 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyShare": "已獲取 {{appName}}（{{userName}} / {{appleId}} - {{country}}），您可以使用 Airdrop 分享給您的朋友。",
-      "notifyDownload": "開始下載 IPA {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyDelete": "已刪除 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
+      "delete": "刪除"
     }
   },
   "settings": {
@@ -330,7 +321,7 @@
     "MN": "蒙古",
     "MO": "澳門",
     "MS": "蒙哲臘",
-    "MT": "馬爾他",
+    "MT": "馬耳他",
     "MU": "模里西斯",
     "MV": "馬爾地夫",
     "MX": "墨西哥",
@@ -340,7 +331,7 @@
     "NI": "尼加拉瓜",
     "NL": "荷蘭",
     "NO": "挪威",
-    "NP": "尼泊爾",
+    "NP": "尼泊尔",
     "NZ": "紐西蘭",
     "OM": "阿曼",
     "PA": "巴拿馬",
@@ -413,5 +404,21 @@
       "missingAddress": "回應中缺少 address",
       "unknownReason": "未知原因導致認證失敗"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "開始下載",
+      "downloadSuccess": "下載成功",
+      "downloadFailed": "下載失敗",
+      "licenseSuccess": "獲取授權成功",
+      "licenseFailed": "獲取授權失敗",
+      "installStarted": "開始安裝",
+      "shareAcquired": "連結已獲取",
+      "downloadIpaStarted": "開始下載 IPA",
+      "deleteSuccess": "刪除成功"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n您可以使用 Airdrop 分享給您的朋友。",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n錯誤: {{error}}"
   }
 }

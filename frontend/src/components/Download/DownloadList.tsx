@@ -46,8 +46,12 @@ export default function DownloadList() {
       const rawCountryCode = account ? storeIdToCountry(account.store) || "" : "";
       const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : (account?.store || "Unknown");
 
-      // Notify deletion with details / 携带详情的删除通知
-      addToast(t("downloads.package.notifyDelete", { appName, userName, appleId, country: countryStr }), "success");
+      // Notify deletion with title and details / 携带标题和详情的删除通知
+      addToast(
+        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+        "success",
+        t("toast.title.deleteSuccess")
+      );
     }
 
     deleteDownload(id);

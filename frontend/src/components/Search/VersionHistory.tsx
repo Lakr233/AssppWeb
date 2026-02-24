@@ -91,8 +91,12 @@ export default function VersionHistory() {
     const rawCountryCode = storeIdToCountry(account.store) || "";
     const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
 
-    // Notify download started / 下载开始通知
-    addToast(t("search.product.downloadStarted", { appName, userName, appleId, country: countryStr }), "info");
+    // Notify download started with title / 带标题的下载开始通知
+    addToast(
+      t("toast.msg", { appName, userName, appleId, country: countryStr }),
+      "info",
+      t("toast.title.downloadStarted")
+    );
 
     try {
       const { output, updatedCookies } = await getDownloadInfo(
@@ -114,12 +118,19 @@ export default function VersionHistory() {
         iTunesMetadata: output.iTunesMetadata,
       });
       
-      // Notify download success / 下载成功通知
-      addToast(t("search.product.downloadTaskSuccess", { appName, userName, appleId, country: countryStr }), "success");
-      // Removed automatic navigation / 移除了自动跳转逻辑
+      // Notify download success with title / 带标题的下载成功通知
+      addToast(
+        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+        "success",
+        t("toast.title.downloadSuccess")
+      );
     } catch (e) {
-      // Notify download failed / 下载失败通知
-      addToast(`${t("search.product.downloadTaskFailed", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
+      // Notify download failed with title / 带标题的下载失败通知
+      addToast(
+        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
+        "error",
+        t("toast.title.downloadFailed")
+      );
     } finally {
       setDownloadingVersion(null);
     }

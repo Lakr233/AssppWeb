@@ -65,12 +65,7 @@
       "releaseNotes": "Release Notes",
       "screenshots": "Screenshots",
       "ratings": "ratings",
-      "free": "Free",
-      "downloadStarted": "Started downloading {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskSuccess": "Successfully downloaded {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskFailed": "Failed to download {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "licenseSuccessArgs": "Successfully acquired license for {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "licenseFailedArgs": "Failed to acquire license for {{appName}} ({{userName}} / {{appleId}} - {{country}})"
+      "free": "Free"
     },
     "versions": {
       "title": "Version History",
@@ -191,11 +186,7 @@
       "downloadIpa": "Download IPA",
       "pause": "Pause",
       "resume": "Resume",
-      "delete": "Delete",
-      "notifyInstall": "Starting installation of {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "notifyShare": "Link acquired for {{appName}} ({{userName}} / {{appleId}} - {{country}}). You can use AirDrop to share it with your friends.",
-      "notifyDownload": "Downloading IPA for {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "notifyDelete": "Deleted {{appName}} ({{userName}} / {{appleId}} - {{country}})"
+      "delete": "Delete"
     }
   },
   "settings": {
@@ -413,5 +404,21 @@
       "missingAddress": "Missing address in response",
       "unknownReason": "Authentication failed for an unknown reason"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "Download Started",
+      "downloadSuccess": "Download Success",
+      "downloadFailed": "Download Failed",
+      "licenseSuccess": "License Acquired",
+      "licenseFailed": "License Failed",
+      "installStarted": "Installation Started",
+      "shareAcquired": "Link Acquired",
+      "downloadIpaStarted": "Downloading IPA",
+      "deleteSuccess": "Delete Success"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nYou can use AirDrop to share it with your friends.",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nError: {{error}}"
   }
 }

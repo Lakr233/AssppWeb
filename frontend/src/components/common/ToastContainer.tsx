@@ -1,4 +1,4 @@
-// New ToastContainer component with frosted glass effect
+// Updated ToastContainer component to support multi-line text and rich titles
 import { useToastStore } from "../../store/toast";
 
 const icons = {
@@ -24,20 +24,45 @@ export default function ToastContainer() {
 
   return (
     // Fixed container at the top right / 固定在右上角的容器
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          // Frosted glass UI classes / 磨砂玻璃质感的UI类名
-          className="pointer-events-auto flex items-center gap-3 px-4 py-3 min-w-[280px] max-w-sm rounded-xl backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border border-gray-200/50 dark:border-gray-700/50 shadow-lg transform transition-all duration-300 translate-y-0 opacity-100"
+          // Dynamically adjust alignment based on the presence of a title / 根据是否有标题动态调整对齐方式，增加宽度
+          className={`pointer-events-auto flex gap-3 px-4 py-4 min-w-[320px] max-w-md rounded-xl backdrop-blur-xl bg-white/85 dark:bg-gray-900/85 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl transform transition-all duration-300 translate-y-0 opacity-100 ${
+            toast.title ? "items-start" : "items-center"
+          }`}
         >
-          {icons[toast.type]}
-          <p className="text-sm font-medium text-gray-800 dark:text-gray-200 flex-1">
-            {toast.message}
-          </p>
+          <div className={`${toast.title ? "mt-0.5" : ""} flex-shrink-0`}>
+            {icons[toast.type]}
+          </div>
+          <div className="flex-1 min-w-0">
+            {toast.title && (
+              <h4
+                className={`text-sm font-bold mb-1 ${
+                  toast.type === "success"
+                    ? "text-green-600 dark:text-green-400"
+                    : toast.type === "error"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-blue-600 dark:text-blue-400"
+                }`}
+              >
+                {toast.title}
+              </h4>
+            )}
+            <p
+              className={`text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-pre-line break-words ${
+                toast.title ? "leading-relaxed" : ""
+              }`}
+            >
+              {toast.message}
+            </p>
+          </div>
           <button
             onClick={() => removeToast(toast.id)}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className={`text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-shrink-0 ${
+              toast.title ? "mt-0.5" : ""
+            }`}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

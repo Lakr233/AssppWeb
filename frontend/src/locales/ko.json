@@ -65,12 +65,7 @@
       "releaseNotes": "릴리스 노트",
       "screenshots": "스크린샷",
       "ratings": "개의 평가",
-      "free": "무료",
-      "downloadStarted": "{{appName}} 다운로드 시작됨 ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskSuccess": "{{appName}} 다운로드 성공 ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskFailed": "{{appName}} 다운로드 실패 ({{userName}} / {{appleId}} - {{country}})",
-      "licenseSuccessArgs": "{{appName}} 라이선스 획득 성공 ({{userName}} / {{appleId}} - {{country}})",
-      "licenseFailedArgs": "{{appName}} 라이선스 획득 실패 ({{userName}} / {{appleId}} - {{country}})"
+      "free": "무료"
     },
     "versions": {
       "title": "버전 기록",
@@ -191,11 +186,7 @@
       "downloadIpa": "IPA 다운로드",
       "pause": "일시 정지",
       "resume": "재개",
-      "delete": "삭제",
-      "notifyInstall": "{{appName}} 설치 시작됨 ({{userName}} / {{appleId}} - {{country}})",
-      "notifyShare": "{{appName}} 링크를 가져왔습니다 ({{userName}} / {{appleId}} - {{country}}). AirDrop을 사용하여 친구와 공유할 수 있습니다.",
-      "notifyDownload": "{{appName}} IPA 다운로드 시작됨 ({{userName}} / {{appleId}} - {{country}})",
-      "notifyDelete": "{{appName}} 삭제됨 ({{userName}} / {{appleId}} - {{country}})"
+      "delete": "삭제"
     }
   },
   "settings": {
@@ -413,5 +404,21 @@
       "missingAddress": "응답에 address가 없습니다",
       "unknownReason": "알 수 없는 이유로 인증에 실패했습니다"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "다운로드 시작",
+      "downloadSuccess": "다운로드 성공",
+      "downloadFailed": "다운로드 실패",
+      "licenseSuccess": "라이선스 획득 성공",
+      "licenseFailed": "라이선스 획득 실패",
+      "installStarted": "설치 시작",
+      "shareAcquired": "링크 획득",
+      "downloadIpaStarted": "IPA 다운로드 시작",
+      "deleteSuccess": "삭제 성공"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nAirDrop을 사용하여 친구와 공유할 수 있습니다.",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n오류: {{error}}"
   }
 }

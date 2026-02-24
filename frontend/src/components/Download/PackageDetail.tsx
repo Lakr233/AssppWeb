@@ -53,8 +53,12 @@ export default function PackageDetail() {
   async function handleDelete() {
     if (!confirm(t("downloads.package.deleteConfirm"))) return;
     await deleteDownload(task!.id);
-    // Show detailed deletion toast / 显示带详情信息的删除通知
-    addToast(t("downloads.package.notifyDelete", { appName, userName, appleId, country: countryStr }), "success");
+    // Show detailed deletion toast with title / 显示带标题和详情信息的删除通知
+    addToast(
+      t("toast.msg", { appName, userName, appleId, country: countryStr }),
+      "success",
+      t("toast.title.deleteSuccess")
+    );
     navigate("/downloads");
   }
 
@@ -70,8 +74,12 @@ export default function PackageDetail() {
         await navigator.share({ 
           text: urlToShare 
         });
-        // Use detailed share toast / 使用带详情信息的分享通知
-        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
+        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
+        addToast(
+          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
+          "success",
+          t("toast.title.shareAcquired")
+        );
         return; 
       } catch (error: any) {
         if (error.name === 'AbortError') return;
@@ -83,8 +91,12 @@ export default function PackageDetail() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(urlToShare);
-        // Use detailed share toast / 使用带详情信息的分享通知
-        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
+        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
+        addToast(
+          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
+          "success",
+          t("toast.title.shareAcquired")
+        );
         return;
       } catch (err) {
         console.warn("Clipboard API failed, falling back to execCommand:", err);
@@ -107,8 +119,12 @@ export default function PackageDetail() {
       document.body.removeChild(textArea);
       
       if (successful) {
-        // Use detailed share toast / 使用带详情信息的分享通知
-        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
+        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
+        addToast(
+          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
+          "success",
+          t("toast.title.shareAcquired")
+        );
       } else {
         console.error("Fallback execCommand failed to copy");
       }
@@ -202,7 +218,11 @@ export default function PackageDetail() {
                   <>
                     <a
                       href={installInfo.installUrl}
-                      onClick={() => addToast(t("downloads.package.notifyInstall", { appName, userName, appleId, country: countryStr }), "info")}
+                      onClick={() => addToast(
+                        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+                        "info",
+                        t("toast.title.installStarted")
+                      )}
                       className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                       {t("downloads.package.install")}
@@ -234,7 +254,11 @@ export default function PackageDetail() {
                 <a
                   href={`/api/packages/${task.id}/file?accountHash=${encodeURIComponent(task.accountHash)}`}
                   download
-                  onClick={() => addToast(t("downloads.package.notifyDownload", { appName, userName, appleId, country: countryStr }), "info")}
+                  onClick={() => addToast(
+                    t("toast.msg", { appName, userName, appleId, country: countryStr }),
+                    "info",
+                    t("toast.title.downloadIpaStarted")
+                  )}
                   className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {t("downloads.package.downloadIpa")}

@@ -65,12 +65,7 @@
       "releaseNotes": "リリースノート",
       "screenshots": "スクリーンショット",
       "ratings": "件の評価",
-      "free": "無料",
-      "downloadStarted": "{{appName}} のダウンロードを開始しました（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskSuccess": "{{appName}} のダウンロードに成功しました（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskFailed": "{{appName}} のダウンロードに失敗しました（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseSuccessArgs": "{{appName}} のライセンス取得に成功しました（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseFailedArgs": "{{appName}} のライセンス取得に失敗しました（{{userName}} / {{appleId}} - {{country}}）"
+      "free": "無料"
     },
     "versions": {
       "title": "バージョン履歴",
@@ -191,11 +186,7 @@
       "downloadIpa": "IPA をダウンロード",
       "pause": "一時停止",
       "resume": "再開",
-      "delete": "削除",
-      "notifyInstall": "{{appName}} のインストールを開始します（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyShare": "{{appName}} のリンクを取得しました（{{userName}} / {{appleId}} - {{country}}）。AirDrop を使用して友達と共有できます。",
-      "notifyDownload": "{{appName}} の IPA のダウンロードを開始します（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyDelete": "{{appName}} を削除しました（{{userName}} / {{appleId}} - {{country}}）"
+      "delete": "削除"
     }
   },
   "settings": {
@@ -413,5 +404,21 @@
       "missingAddress": "レスポンスに address がありません",
       "unknownReason": "不明な理由により認証に失敗しました"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "ダウンロード開始",
+      "downloadSuccess": "ダウンロード成功",
+      "downloadFailed": "ダウンロード失敗",
+      "licenseSuccess": "ライセンス取得成功",
+      "licenseFailed": "ライセンス取得失敗",
+      "installStarted": "インストール開始",
+      "shareAcquired": "リンク取得成功",
+      "downloadIpaStarted": "IPA ダウンロード開始",
+      "deleteSuccess": "削除成功"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nAirDropを使用して友達と共有できます。",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nエラー: {{error}}"
   }
 }

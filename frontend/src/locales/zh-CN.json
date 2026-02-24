@@ -65,12 +65,7 @@
       "releaseNotes": "更新日志",
       "screenshots": "屏幕截图",
       "ratings": "个评分",
-      "free": "免费",
-      "downloadStarted": "开始下载 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskSuccess": "下载成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "downloadTaskFailed": "下载失败 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseSuccessArgs": "获取许可证成功 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "licenseFailedArgs": "获取许可证失败 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
+      "free": "免费"
     },
     "versions": {
       "title": "历史版本",
@@ -191,11 +186,7 @@
       "downloadIpa": "下载 IPA",
       "pause": "暂停",
       "resume": "恢复",
-      "delete": "删除",
-      "notifyInstall": "开始安装 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyShare": "已获取 {{appName}}（{{userName}} / {{appleId}} - {{country}}），您可以使用 Airdrop 分享给您的朋友。",
-      "notifyDownload": "开始下载 IPA {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
-      "notifyDelete": "已删除 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
+      "delete": "删除"
     }
   },
   "settings": {
@@ -413,5 +404,21 @@
       "missingAddress": "响应中缺少 address",
       "unknownReason": "未知原因导致认证失败"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "开始下载",
+      "downloadSuccess": "下载成功",
+      "downloadFailed": "下载失败",
+      "licenseSuccess": "获取许可证成功",
+      "licenseFailed": "获取许可证失败",
+      "installStarted": "开始安装",
+      "shareAcquired": "链接已获取",
+      "downloadIpaStarted": "开始下载 IPA",
+      "deleteSuccess": "删除成功"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n您可以使用 Airdrop 分享给您的朋友。",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n错误: {{error}}"
   }
 }

@@ -102,11 +102,19 @@ export default function ProductDetail() {
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
-      // Notify success with details / 带详情信息的成功通知
-      addToast(t("search.product.licenseSuccessArgs", { appName, userName, appleId, country: countryStr }), "success");
+      // Notify success with details and title / 带详情信息和标题的成功通知
+      addToast(
+        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+        "success",
+        t("toast.title.licenseSuccess")
+      );
     } catch (e) {
-      // Notify failure with details / 带详情信息的失败通知
-      addToast(`${t("search.product.licenseFailedArgs", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
+      // Notify failure with details and title / 带详情信息和标题的失败通知
+      addToast(
+        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
+        "error",
+        t("toast.title.licenseFailed")
+      );
     } finally {
       setActionLoading(false);
     }
@@ -122,8 +130,12 @@ export default function ProductDetail() {
     const rawCountryCode = storeIdToCountry(account.store) || "";
     const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
 
-    // Notify download started / 下载开始通知
-    addToast(t("search.product.downloadStarted", { appName, userName, appleId, country: countryStr }), "info");
+    // Notify download started with title / 带标题的下载开始通知
+    addToast(
+      t("toast.msg", { appName, userName, appleId, country: countryStr }),
+      "info",
+      t("toast.title.downloadStarted")
+    );
 
     try {
       const { output, updatedCookies } = await getDownloadInfo(account, app);
@@ -140,12 +152,19 @@ export default function ProductDetail() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
-      // Notify download success / 下载成功通知
-      addToast(t("search.product.downloadTaskSuccess", { appName, userName, appleId, country: countryStr }), "success");
-      // Removed automatic navigation / 移除了自动跳转到下载列表的代码
+      // Notify download success with title / 带标题的下载成功通知
+      addToast(
+        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+        "success",
+        t("toast.title.downloadSuccess")
+      );
     } catch (e) {
-      // Notify download failed / 下载失败通知
-      addToast(`${t("search.product.downloadTaskFailed", { appName, userName, appleId, country: countryStr })}: ${getErrorMessage(e, "")}`, "error");
+      // Notify download failed with title / 带标题的下载失败通知
+      addToast(
+        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
+        "error",
+        t("toast.title.downloadFailed")
+      );
     } finally {
       setActionLoading(false);
     }

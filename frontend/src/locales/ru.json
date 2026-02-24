@@ -65,12 +65,7 @@
       "releaseNotes": "Что нового",
       "screenshots": "Скриншоты",
       "ratings": "оценок",
-      "free": "Бесплатно",
-      "downloadStarted": "Начата загрузка {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskSuccess": "Успешная загрузка {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "downloadTaskFailed": "Ошибка загрузки {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "licenseSuccessArgs": "Лицензия успешно получена для {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "licenseFailedArgs": "Не удалось получить лицензию для {{appName}} ({{userName}} / {{appleId}} - {{country}})"
+      "free": "Бесплатно"
     },
     "versions": {
       "title": "История версий",
@@ -191,11 +186,7 @@
       "downloadIpa": "Скачать IPA",
       "pause": "Пауза",
       "resume": "Продолжить",
-      "delete": "Удалить",
-      "notifyInstall": "Начало установки {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "notifyShare": "Ссылка получена для {{appName}} ({{userName}} / {{appleId}} - {{country}}). Вы можете использовать AirDrop, чтобы поделиться ею с друзьями.",
-      "notifyDownload": "Загрузка IPA для {{appName}} ({{userName}} / {{appleId}} - {{country}})",
-      "notifyDelete": "Удалено {{appName}} ({{userName}} / {{appleId}} - {{country}})"
+      "delete": "Удалить"
     }
   },
   "settings": {
@@ -413,5 +404,21 @@
       "missingAddress": "В ответе отсутствует address",
       "unknownReason": "Аутентификация не удалась по неизвестной причине"
     }
+  },
+  "toast": {
+    "title": {
+      "downloadStarted": "Начало загрузки",
+      "downloadSuccess": "Успешная загрузка",
+      "downloadFailed": "Ошибка загрузки",
+      "licenseSuccess": "Лицензия получена",
+      "licenseFailed": "Ошибка получения лицензии",
+      "installStarted": "Начало установки",
+      "shareAcquired": "Ссылка получена",
+      "downloadIpaStarted": "Начало загрузки IPA",
+      "deleteSuccess": "Успешное удаление"
+    },
+    "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
+    "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nВы можете использовать AirDrop, чтобы поделиться ею с друзьями.",
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nОшибка: {{error}}"
   }
 }
