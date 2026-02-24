@@ -39,7 +39,11 @@ export default function AddDownload() {
   const [versions, setVersions] = useState<string[]>([]);
   const [selectedVersion, setSelectedVersion] = useState("");
   const [step, setStep] = useState<"lookup" | "ready" | "versions">("lookup");
-  const [loading, setLoading] = useState(false);
+  // 将单一的 loading 布尔值改为 loadingAction 字符串状态，以精准区分当前正在执行的操作 / Change the single loading boolean to a loadingAction string state to accurately distinguish the currently executing action
+  const [loadingAction, setLoadingAction] = useState<"lookup" | "license" | "versions" | "download" | null>(null);
+
+  // 派生一个通用的加载状态用于禁用其他输入框和按钮 / Derive a general loading state to disable other inputs and buttons
+  const isLoading = loadingAction !== null;
 
   const availableCountryCodes = Array.from(
     new Set(
@@ -88,7 +92,8 @@ export default function AddDownload() {
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     if (!bundleId.trim()) return;
-    setLoading(true);
+    // 设置当前加载动作为查找 / Set current loading action to lookup
+    setLoadingAction("lookup");
     try {
       const result = await lookupApp(bundleId.trim(), country);
       if (!result) {
@@ -100,13 +105,15 @@ export default function AddDownload() {
     } catch (e) {
       addToast(getErrorMessage(e, t("downloads.add.lookupFailed")), "error");
     } finally {
-      setLoading(false);
+      // 完成后重置加载状态 / Reset loading state after completion
+      setLoadingAction(null);
     }
   }
 
   async function handleGetLicense() {
     if (!account || !app) return;
-    setLoading(true);
+    // 设置当前加载动作为获取许可证 / Set current loading action to license
+    setLoadingAction("license");
 
     const userName = `${account.firstName} ${account.lastName}`;
     const appleId = account.email;
@@ -129,13 +136,15 @@ export default function AddDownload() {
         t("toast.title.licenseFailed")
       );
     } finally {
-      setLoading(false);
+      // 完成后重置加载状态 / Reset loading state after completion
+      setLoadingAction(null);
     }
   }
 
   async function handleLoadVersions() {
     if (!account || !app) return;
-    setLoading(true);
+    // 设置当前加载动作为获取版本 / Set current loading action to versions
+    setLoadingAction("versions");
     try {
       const result = await listVersions(account, app);
       setVersions(result.versions);
@@ -144,13 +153,15 @@ export default function AddDownload() {
     } catch (e) {
       addToast(getErrorMessage(e, t("downloads.add.versionsFailed")), "error");
     } finally {
-      setLoading(false);
+      // 完成后重置加载状态 / Reset loading state after completion
+      setLoadingAction(null);
     }
   }
 
   async function handleDownload() {
     if (!account || !app) return;
-    setLoading(true);
+    // 设置当前加载动作为下载 / Set current loading action to download
+    setLoadingAction("download");
 
     const userName = `${account.firstName} ${account.lastName}`;
     const appleId = account.email;
@@ -190,7 +201,8 @@ export default function AddDownload() {
         t("toast.title.downloadFailed")
       );
     } finally {
-      setLoading(false);
+      // 完成后重置加载状态 / Reset loading state after completion
+      setLoadingAction(null);
     }
   }
 
@@ -208,15 +220,18 @@ export default function AddDownload() {
                 value={bundleId}
                 onChange={(e) => setBundleId(e.target.value)}
                 placeholder={t("downloads.add.placeholder")}
+                // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
                 className="block w-full flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-                disabled={loading}
+                disabled={isLoading}
               />
               <button
                 type="submit"
-                disabled={loading || !bundleId.trim()}
+                // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
+                disabled={isLoading || !bundleId.trim()}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
               >
-                {loading && step === "lookup"
+                {/* 仅当执行查找动作时显示对应的加载文本 / Show the corresponding loading text only when the lookup action is executing */}
+                {loadingAction === "lookup"
                   ? t("downloads.add.lookingUp")
                   : t("downloads.add.lookup")}
               </button>
@@ -231,14 +246,16 @@ export default function AddDownload() {
               }}
               availableCountryCodes={availableCountryCodes}
               allCountryCodes={allCountryCodes}
-              disabled={loading}
+              // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
+              disabled={isLoading}
               className="w-1/2 truncate disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed"
             />
             <select
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
+              // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
               className="w-1/2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-              disabled={loading || filteredAccounts.length === 0}
+              disabled={isLoading || filteredAccounts.length === 0}
             >
               {filteredAccounts.length > 0 ? (
                 filteredAccounts.map((a) => (
@@ -255,7 +272,8 @@ export default function AddDownload() {
           </div>
         </form>
 
-        {!app && !loading && (
+        {/* 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check */}
+        {!app && !isLoading && (
           <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">
               <svg
@@ -323,27 +341,33 @@ export default function AddDownload() {
               {(app.price === undefined || app.price === 0) && (
                 <button
                   onClick={handleGetLicense}
-                  disabled={loading || !account}
+                  // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
+                  disabled={isLoading || !account}
                   className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {t("downloads.add.getLicense")}
+                  {/* 根据具体动作状态显示对应文本 / Show corresponding text based on specific action state */}
+                  {loadingAction === "license" ? t("downloads.add.processing", "Processing...") : t("downloads.add.getLicense")}
                 </button>
               )}
               {step !== "versions" && (
                 <button
                   onClick={handleLoadVersions}
-                  disabled={loading || !account}
+                  // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
+                  disabled={isLoading || !account}
                   className="px-3 py-1.5 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {t("downloads.add.selectVersion")}
+                  {/* 根据具体动作状态显示对应文本 / Show corresponding text based on specific action state */}
+                  {loadingAction === "versions" ? t("downloads.add.processing", "Processing...") : t("downloads.add.selectVersion")}
                 </button>
               )}
               <button
                 onClick={handleDownload}
-                disabled={loading || !account}
+                // 统一使用 isLoading 替代原有的 loading 判断 / Uniformly use isLoading to replace the original loading check
+                disabled={isLoading || !account}
                 className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading
+                {/* 根据具体动作状态显示对应文本 / Show corresponding text based on specific action state */}
+                {loadingAction === "download"
                   ? t("downloads.add.processing")
                   : t("downloads.add.download")}
               </button>
