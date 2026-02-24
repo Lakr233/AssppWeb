@@ -1,37 +1,29 @@
 import { useState, useEffect } from "react";
-import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
+import { useDownloadAction } from "../../hooks/useDownloadAction";
 import { useSettingsStore } from "../../store/settings";
 import { lookupApp } from "../../api/search";
-import { purchaseApp } from "../../apple/purchase";
-import { getDownloadInfo } from "../../apple/download";
-import { apiPost } from "../../api/client";
-import {
-  accountHash,
-  accountStoreCountry,
-  firstAccountCountry,
-} from "../../utils/account";
 import { storeIdToCountry } from "../../apple/config";
-import { getErrorMessage } from "../../utils/error";
+import { accountStoreCountry, firstAccountCountry } from "../../utils/account";
 import type { Software } from "../../types";
-import { useToastStore } from "../../store/toast";
-// Import useDownloadsStore to trigger global polling / 引入全局下载状态库以触发轮询
-import { useDownloadsStore } from "../../store/downloads";
 
 export default function ProductDetail() {
   const { appId } = useParams<{ appId: string }>();
   const location = useLocation();
-  const { accounts, updateAccount } = useAccounts();
+  const { accounts } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
-  // Get fetchTasks to wake up the global background polling / 获取 fetchTasks 方法用于唤醒后台轮询
-  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
+  const {
+    startDownload,
+    acquireLicense,
+    toastDownloadError,
+    toastLicenseError,
+  } = useDownloadAction();
 
-  const navigate = useNavigate();
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
   const stateCountry = (location.state as { country?: string })?.country;
@@ -39,8 +31,9 @@ export default function ProductDetail() {
   const [app, setApp] = useState<Software | null>(stateApp ?? null);
   const [loading, setLoading] = useState(!stateApp);
   const [selectedAccount, setSelectedAccount] = useState("");
-  // 将原先单一的 actionLoading 布尔值改为字符串状态，以区分当前正在执行的具体操作 / Change the single boolean actionLoading state to a string state to distinguish the specific action currently executing
-  const [loadingAction, setLoadingAction] = useState<"purchase" | "download" | null>(null);
+  const [loadingAction, setLoadingAction] = useState<
+    "purchase" | "download" | null
+  >(null);
 
   const account = accounts.find((a) => a.email === selectedAccount);
 
@@ -92,80 +85,24 @@ export default function ProductDetail() {
 
   async function handlePurchase() {
     if (!account || !app) return;
-    // 设置当前的加载状态为获取许可证 / Set the current loading state to purchase
     setLoadingAction("purchase");
-
-    const userName = `${account.firstName} ${account.lastName}`;
-    const appleId = account.email;
-    const appName = app.name;
-    const rawCountryCode = storeIdToCountry(account.store) || "";
-    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
-
     try {
-      const result = await purchaseApp(account, app);
-      await updateAccount({ ...account, cookies: result.updatedCookies });
-      addToast(
-        t("toast.msg", { appName, userName, appleId, country: countryStr }),
-        "success",
-        t("toast.title.licenseSuccess")
-      );
+      await acquireLicense(account, app);
     } catch (e) {
-      addToast(
-        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
-        "error",
-        t("toast.title.licenseFailed")
-      );
+      toastLicenseError(account, app, e);
     } finally {
-      // 操作完成后重置加载状态 / Reset the loading state after the operation is complete
       setLoadingAction(null);
     }
   }
 
   async function handleDownload() {
     if (!account || !app) return;
-    // 设置当前的加载状态为下载 / Set the current loading state to download
     setLoadingAction("download");
-
-    const userName = `${account.firstName} ${account.lastName}`;
-    const appleId = account.email;
-    const appName = app.name;
-    const rawCountryCode = storeIdToCountry(account.store) || "";
-    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
-
     try {
-      const { output, updatedCookies } = await getDownloadInfo(account, app);
-      await updateAccount({ ...account, cookies: updatedCookies });
-      const hash = await accountHash(account);
-      const versionedSoftware = {
-        ...app,
-        version: output.bundleShortVersionString,
-      };
-      
-      await apiPost("/api/downloads", {
-        software: versionedSoftware,
-        accountHash: hash,
-        downloadURL: output.downloadURL,
-        sinfs: output.sinfs,
-        iTunesMetadata: output.iTunesMetadata,
-      });
-
-      // Force fetch tasks right after submitting so the store knows about the new task and starts polling immediately
-      // 强制刷新任务列表，让全局状态器立刻知晓新任务并启动后台轮询监听
-      fetchTasks();
-      
-      addToast(
-        t("toast.msg", { appName, userName, appleId, country: countryStr }),
-        "info",
-        t("toast.title.downloadStarted")
-      );
+      await startDownload(account, app);
     } catch (e) {
-      addToast(
-        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
-        "error",
-        t("toast.title.downloadFailed")
-      );
+      toastDownloadError(account, app, e);
     } finally {
-      // 操作完成后重置加载状态 / Reset the loading state after the operation is complete
       setLoadingAction(null);
     }
   }
@@ -208,7 +145,6 @@ export default function ProductDetail() {
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                // 更新禁用判断逻辑 / Update the disabled logic
                 className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={loadingAction !== null}
               >
@@ -230,11 +166,9 @@ export default function ProductDetail() {
               {(app.price === undefined || app.price === 0) && (
                 <button
                   onClick={handlePurchase}
-                  // 更新禁用判断逻辑 / Update the disabled logic
                   disabled={loadingAction !== null}
                   className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
                 >
-                  {/* 根据具体操作状态显示对应文字 / Show corresponding text based on specific action state */}
                   {loadingAction === "purchase"
                     ? t("search.product.processing")
                     : t("search.product.getLicense")}
@@ -242,11 +176,9 @@ export default function ProductDetail() {
               )}
               <button
                 onClick={handleDownload}
-                // 更新禁用判断逻辑 / Update the disabled logic
                 disabled={loadingAction !== null}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {/* 根据具体操作状态显示对应文字 / Show corresponding text based on specific action state */}
                 {loadingAction === "download"
                   ? t("search.product.processing")
                   : t("search.product.download")}

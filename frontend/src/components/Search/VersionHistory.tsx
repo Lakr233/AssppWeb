@@ -1,32 +1,25 @@
 import { useState, useEffect } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
+import { useDownloadAction } from "../../hooks/useDownloadAction";
 import { useSettingsStore } from "../../store/settings";
 import { listVersions } from "../../apple/versionFinder";
 import { getVersionMetadata } from "../../apple/versionLookup";
-import { getDownloadInfo } from "../../apple/download";
-import { apiPost } from "../../api/client";
-import { accountHash } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
-import { storeIdToCountry } from "../../apple/config";
-import type { Software, VersionMetadata } from "../../types";
 import { useToastStore } from "../../store/toast";
-// Import useDownloadsStore to trigger global polling / 引入全局下载状态库以触发轮询
-import { useDownloadsStore } from "../../store/downloads";
+import type { Software, VersionMetadata } from "../../types";
 
 export default function VersionHistory() {
   const { appId } = useParams<{ appId: string }>();
   const location = useLocation();
-  const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
-  // Get fetchTasks to wake up the global background polling / 获取 fetchTasks 方法用于唤醒后台轮询
-  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
+  const { startDownload, toastDownloadError } = useDownloadAction();
 
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
@@ -84,48 +77,10 @@ export default function VersionHistory() {
   async function handleDownloadVersion(versionId: string) {
     if (!account || !app) return;
     setDownloadingVersion(versionId);
-
-    const userName = `${account.firstName} ${account.lastName}`;
-    const appleId = account.email;
-    const appName = app.name;
-    const rawCountryCode = storeIdToCountry(account.store) || "";
-    const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
-
     try {
-      const { output, updatedCookies } = await getDownloadInfo(
-        account,
-        app,
-        versionId,
-      );
-      await updateAccount({ ...account, cookies: updatedCookies });
-      const hash = await accountHash(account);
-      const versionedSoftware = {
-        ...app,
-        version: output.bundleShortVersionString,
-      };
-      
-      await apiPost("/api/downloads", {
-        software: versionedSoftware,
-        accountHash: hash,
-        downloadURL: output.downloadURL,
-        sinfs: output.sinfs,
-        iTunesMetadata: output.iTunesMetadata,
-      });
-
-      // Force fetch tasks right after submitting / 强制触发下载列表抓取以唤醒后台轮询
-      fetchTasks();
-      
-      addToast(
-        t("toast.msg", { appName, userName, appleId, country: countryStr }),
-        "info",
-        t("toast.title.downloadStarted")
-      );
+      await startDownload(account, app, versionId);
     } catch (e) {
-      addToast(
-        t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
-        "error",
-        t("toast.title.downloadFailed")
-      );
+      toastDownloadError(account, app, e);
     } finally {
       setDownloadingVersion(null);
     }

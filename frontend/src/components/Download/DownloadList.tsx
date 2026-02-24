@@ -4,22 +4,24 @@ import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import DownloadItem from "./DownloadItem";
 import { useDownloads } from "../../hooks/useDownloads";
-import type { DownloadTask } from "../../types";
-// Import hooks and store for delete notification details / 导入相关依赖以获取删除通知所需的详情信息
-import { useToastStore } from "../../store/toast";
 import { useAccounts } from "../../hooks/useAccounts";
-import { storeIdToCountry } from "../../apple/config";
+import { useToastStore } from "../../store/toast";
+import { getAccountContext } from "../../utils/toast";
+import type { DownloadTask } from "../../types";
 
 type StatusFilter = "all" | DownloadTask["status"];
 
 export default function DownloadList() {
   const { t } = useTranslation();
-  // Extract hashToEmail to identify the account / 提取 hashToEmail 用于识别账号
-  const { tasks, loading, pauseDownload, resumeDownload, deleteDownload, hashToEmail } =
-    useDownloads();
+  const {
+    tasks,
+    loading,
+    pauseDownload,
+    resumeDownload,
+    deleteDownload,
+    hashToEmail,
+  } = useDownloads();
   const [filter, setFilter] = useState<StatusFilter>("all");
-  
-  // Get addToast and accounts / 获取全局 Toast 和账户列表
   const addToast = useToastStore((s) => s.addToast);
   const { accounts } = useAccounts();
 
@@ -34,23 +36,17 @@ export default function DownloadList() {
 
   function handleDelete(id: string) {
     if (!confirm(t("downloads.deleteConfirm"))) return;
-    
-    // Find task details before deleting for notification / 在删除前获取任务详情用于通知
-    const task = tasks.find(t => t.id === id);
+
+    const task = tasks.find((t) => t.id === id);
     if (task) {
       const accountEmail = hashToEmail[task.accountHash];
-      const account = accounts.find(a => a.email === accountEmail);
-      const userName = account ? `${account.firstName} ${account.lastName}` : "Unknown";
-      const appleId = account ? account.email : "Unknown";
-      const appName = task.software.name;
-      const rawCountryCode = account ? storeIdToCountry(account.store) || "" : "";
-      const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : (account?.store || "Unknown");
+      const account = accounts.find((a) => a.email === accountEmail);
+      const ctx = getAccountContext(account, t);
 
-      // Notify deletion with title and details / 携带标题和详情的删除通知
       addToast(
-        t("toast.msg", { appName, userName, appleId, country: countryStr }),
+        t("toast.msg", { appName: task.software.name, ...ctx }),
         "success",
-        t("toast.title.deleteSuccess")
+        t("toast.title.deleteSuccess"),
       );
     }
 
@@ -108,7 +104,6 @@ export default function DownloadList() {
           {t("downloads.loading")}
         </div>
       ) : sortedTasks.length === 0 ? (
-        /* Removed transition-colors to prevent dark mode flashing */
         <div className="flex flex-col items-center justify-center py-16 px-4 my-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">
             <svg
@@ -133,8 +128,8 @@ export default function DownloadList() {
                 })}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center max-w-sm">
-            {filter === "all" 
-              ? t("downloads.emptyAllDesc") 
+            {filter === "all"
+              ? t("downloads.emptyAllDesc")
               : t("downloads.emptyFilterDesc")}
           </p>
           {filter === "all" && (

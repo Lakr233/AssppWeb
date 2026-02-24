@@ -3,11 +3,10 @@ import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Modal from "../common/Modal";
 import { useAccountsStore } from "../../store/accounts";
+import { useToastStore } from "../../store/toast";
 import { encryptData, decryptData } from "../../utils/crypto";
 import { countryCodeMap } from "../../apple/config";
 import type { Account } from "../../types";
-// Import useToastStore / 引入全局 Toast Store
-import { useToastStore } from "../../store/toast";
 
 interface ServerInfo {
   version?: string;
@@ -23,7 +22,6 @@ const entityTypes = [
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { accounts, addAccount, updateAccount } = useAccountsStore();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
 
   const [country, setCountry] = useState(
@@ -37,7 +35,6 @@ export default function SettingsPage() {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportPassword, setExportPassword] = useState("");
   const [exportConfirmPassword, setExportConfirmPassword] = useState("");
-  // Removed local error states for modals / 移除了模态框的本地错误状态
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -85,10 +82,9 @@ export default function SettingsPage() {
       setExportModalOpen(false);
       setExportPassword("");
       setExportConfirmPassword("");
-      // Replace alert with addToast / 用 addToast 替代 alert
       addToast(t("settings.data.exportSuccess"), "success");
-    } catch (e) {
-      addToast("Export failed.", "error");
+    } catch {
+      addToast(t("settings.data.exportFailed"), "error");
     }
   };
 
@@ -149,7 +145,7 @@ export default function SettingsPage() {
           setImportPassword("");
         }
       }
-    } catch (e) {
+    } catch {
       addToast(t("settings.data.incorrectPassword"), "error");
     }
   };
@@ -158,9 +154,9 @@ export default function SettingsPage() {
     for (const imported of pendingAccounts) {
       const exists = accounts.some((a) => a.email === imported.email);
       if (exists) {
-        if (overwrite) await updateAccount(imported); // Replace local
+        if (overwrite) await updateAccount(imported);
       } else {
-        await addAccount(imported); // Always add new ones
+        await addAccount(imported);
       }
     }
     setConflictModalOpen(false);
@@ -186,11 +182,10 @@ export default function SettingsPage() {
               <select
                 id="language"
                 value={i18n.resolvedLanguage || "en-US"}
-                onChange={(e) => {
+                onChange={async (e) => {
                   const newLang = e.target.value;
-                  i18n.changeLanguage(newLang);
-                  // Trigger toast with forced language / 使用新选择的语言触发 Toast 通知
-                  addToast(t("settings.language.changed", { lng: newLang }), "success");
+                  await i18n.changeLanguage(newLang);
+                  addToast(t("settings.language.changed"), "success");
                 }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               >
@@ -222,7 +217,6 @@ export default function SettingsPage() {
                 value={country}
                 onChange={(e) => {
                   setCountry(e.target.value);
-                  // Notify country change / 触发默认国家修改成功的 Toast 通知
                   addToast(t("settings.defaults.countryChanged"), "success");
                 }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
@@ -246,14 +240,13 @@ export default function SettingsPage() {
                 value={entity}
                 onChange={(e) => {
                   setEntity(e.target.value);
-                  // Notify entity change / 触发默认设备类型修改成功的 Toast 通知
                   addToast(t("settings.defaults.entityChanged"), "success");
                 }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               >
-                {entityTypes.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                {entityTypes.map((et) => (
+                  <option key={et.value} value={et.value}>
+                    {et.label}
                   </option>
                 ))}
               </select>
@@ -315,9 +308,7 @@ export default function SettingsPage() {
 
           <div className="flex flex-wrap gap-3 mb-6">
             <button
-              onClick={() => {
-                setExportModalOpen(true);
-              }}
+              onClick={() => setExportModalOpen(true)}
               className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
             >
               {t("settings.data.exportBtn")}
@@ -342,7 +333,6 @@ export default function SettingsPage() {
               if (!confirm(t("settings.data.confirm"))) return;
               localStorage.clear();
               indexedDB.deleteDatabase("asspp-accounts");
-              // Notify data cleared and delay the page reload slightly to show the toast / 提示数据已清空并延迟1秒后刷新页面以展示通知
               addToast(t("settings.data.cleared"), "success");
               setTimeout(() => {
                 window.location.href = "/";
@@ -395,7 +385,6 @@ export default function SettingsPage() {
               className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             />
           </div>
-          {/* Removed local inline error render / 移除了本地内联错误的渲染 */}
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <button

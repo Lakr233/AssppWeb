@@ -3,15 +3,13 @@ import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-// Removed Alert component / 移除了 Alert 组件
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
 import { useDownloads } from "../../hooks/useDownloads";
-import { getInstallInfo } from "../../api/install";
-// Import useToastStore and other required hooks / 引入全局 Toast Store 及依赖钩子
-import { useToastStore } from "../../store/toast";
 import { useAccounts } from "../../hooks/useAccounts";
-import { storeIdToCountry } from "../../apple/config";
+import { useToastStore } from "../../store/toast";
+import { getInstallInfo } from "../../api/install";
+import { getAccountContext } from "../../utils/toast";
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +17,7 @@ export default function PackageDetail() {
   const { tasks, deleteDownload, pauseDownload, resumeDownload, hashToEmail } =
     useDownloads();
   const { t } = useTranslation();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
-  // Get accounts for details formatting / 获取账号信息用于格式化详情
   const { accounts } = useAccounts();
 
   const task = tasks.find((t) => t.id === id);
@@ -41,36 +37,30 @@ export default function PackageDetail() {
   const isCompleted = task.status === "completed";
   const installInfo = isCompleted ? getInstallInfo(task.id) : null;
 
-  // Extract account details for notifications / 提取账户详情供通知使用
   const accountEmail = hashToEmail[task.accountHash];
   const account = accounts.find((a) => a.email === accountEmail);
-  const userName = account ? `${account.firstName} ${account.lastName}` : "Unknown";
-  const appleId = account ? account.email : "Unknown";
+  const ctx = getAccountContext(account, t);
   const appName = task.software.name;
-  const rawCountryCode = account ? storeIdToCountry(account.store) || "" : "";
-  const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : (account?.store || "Unknown");
+
+  function toastAction(titleKey: string, type: "success" | "info" = "info") {
+    addToast(t("toast.msg", { appName, ...ctx }), type, t(titleKey));
+  }
 
   async function handleDelete() {
     if (!confirm(t("downloads.package.deleteConfirm"))) return;
     await deleteDownload(task!.id);
-    // Show detailed deletion toast with title / 显示带标题和详情信息的删除通知
-    addToast(
-      t("toast.msg", { appName, userName, appleId, country: countryStr }),
-      "success",
-      t("toast.title.deleteSuccess")
-    );
+    toastAction("toast.title.deleteSuccess", "success");
     navigate("/downloads");
   }
 
   async function handleShare(e: React.MouseEvent) {
     e.preventDefault();
     if (!installInfo) return;
-    
+
     const urlToShare = installInfo.installUrl;
 
-    // First attempt to copy to clipboard directly as a fallback and to ensure user has it / 首先尝试直接复制到剪贴板作为兜底，确保用户已获取
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+      if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(urlToShare);
       } else {
         const textArea = document.createElement("textarea");
@@ -81,28 +71,25 @@ export default function PackageDetail() {
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(textArea);
       }
     } catch (err) {
       console.warn("Clipboard fallback failed:", err);
     }
 
-    // Immediately show the toast notification BEFORE opening native share menu / 在打开原生分享菜单之前，立刻显示通知
     addToast(
-      t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
+      t("toast.msgShare", { appName, ...ctx }),
       "success",
-      t("toast.title.shareAcquired")
+      t("toast.title.shareAcquired"),
     );
 
-    // Then try native share / 然后调起原生分享
     if (navigator.share) {
       try {
-        await navigator.share({ 
-          text: urlToShare 
-        });
-      } catch (error: any) {
-        if (error.name === 'AbortError') return;
+        await navigator.share({ text: urlToShare });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
         console.warn("Native share failed or aborted by user:", error);
       }
     }
@@ -143,7 +130,6 @@ export default function PackageDetail() {
           </div>
         )}
 
-        {/* Change alert to small red text so we get rid of the inline box UI / 将原本的Alert换成了红色的文字渲染 */}
         {task.error && (
           <p className="text-sm text-red-500 dark:text-red-400">{task.error}</p>
         )}
@@ -193,16 +179,12 @@ export default function PackageDetail() {
                   <>
                     <a
                       href={installInfo.installUrl}
-                      onClick={() => addToast(
-                        t("toast.msg", { appName, userName, appleId, country: countryStr }),
-                        "info",
-                        t("toast.title.installStarted")
-                      )}
+                      onClick={() => toastAction("toast.title.installStarted")}
                       className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                       {t("downloads.package.install")}
                     </a>
-                    
+
                     <div className="relative group flex items-center">
                       <button
                         onClick={handleShare}
@@ -229,11 +211,7 @@ export default function PackageDetail() {
                 <a
                   href={`/api/packages/${task.id}/file?accountHash=${encodeURIComponent(task.accountHash)}`}
                   download
-                  onClick={() => addToast(
-                    t("toast.msg", { appName, userName, appleId, country: countryStr }),
-                    "info",
-                    t("toast.title.downloadIpaStarted")
-                  )}
+                  onClick={() => toastAction("toast.title.downloadIpaStarted")}
                   className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {t("downloads.package.downloadIpa")}

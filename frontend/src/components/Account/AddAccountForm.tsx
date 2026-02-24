@@ -3,19 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
-// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
+import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { generateDeviceId } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
-// Import useToastStore / 引入全局 Toast Store
-import { useToastStore } from "../../store/toast";
 
 export default function AddAccountForm() {
   const navigate = useNavigate();
   const { addAccount } = useAccounts();
   const { t } = useTranslation();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
 
   const [email, setEmail] = useState("");
@@ -24,14 +21,12 @@ export default function AddAccountForm() {
   const [deviceId, setDeviceId] = useState(() => generateDeviceId());
   const [needsCode, setNeedsCode] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Removed error local state / 移除本地 error 状态
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // if deviceId contains space or ":", remove them and fill back to the input field
       const cleanedDeviceId = deviceId.replace(/[: ]/g, "");
       setDeviceId(cleanedDeviceId);
 
@@ -43,18 +38,17 @@ export default function AddAccountForm() {
         cleanedDeviceId,
       );
       await addAccount(account);
-      
-      // Show success toast for adding account / 显示添加账号成功的 Toast 提示
       addToast(t("accounts.addForm.addSuccess"), "success");
-      
       navigate("/accounts");
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {
         setNeedsCode(true);
-        // Show error toast / 显示错误 Toast
         addToast(err.message, "error");
       } else {
-        addToast(getErrorMessage(err, t("accounts.addForm.authFailed")), "error");
+        addToast(
+          getErrorMessage(err, t("accounts.addForm.authFailed")),
+          "error",
+        );
       }
     } finally {
       setLoading(false);
@@ -63,7 +57,6 @@ export default function AddAccountForm() {
 
   return (
     <PageContainer title={t("accounts.addForm.title")}>
-      {/* 移除了 max-w-lg 以便表单在所有设备上自适应全宽 */}
       <div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 space-y-4">
@@ -112,7 +105,6 @@ export default function AddAccountForm() {
                 {t("accounts.addForm.deviceId")}
               </label>
               <div className="flex items-center gap-2">
-                {/* 增加 min-w-0 防止 flex 子元素在极窄屏幕下溢出 */}
                 <input
                   id="deviceId"
                   type="text"
@@ -122,7 +114,6 @@ export default function AddAccountForm() {
                   disabled={loading || needsCode}
                   className="block flex-1 min-w-0 h-[42px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 transition-colors"
                 />
-                {/* 增加 whitespace-nowrap 和 flex-shrink-0，保证文字不折行且按钮不被挤压 */}
                 <button
                   type="button"
                   onClick={() => setDeviceId(generateDeviceId())}

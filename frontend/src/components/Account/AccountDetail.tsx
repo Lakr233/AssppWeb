@@ -3,13 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
-// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
+import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { storeIdToCountry } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
-// Import useToastStore / 引入全局 Toast Store
-import { useToastStore } from "../../store/toast";
 
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
@@ -22,14 +20,12 @@ export default function AccountDetail() {
     updateAccount,
     removeAccount,
   } = useAccounts();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
 
   const [showDelete, setShowDelete] = useState(false);
   const [reauthing, setReauthing] = useState(false);
   const [reauthCode, setReauthCode] = useState("");
   const [needsCode, setNeedsCode] = useState(false);
-  // Removed error and success local states in favor of global toast / 移除本地错误和成功状态，改用全局 Toast
 
   useEffect(() => {
     loadAccounts();
@@ -77,15 +73,16 @@ export default function AccountDetail() {
       await updateAccount(updated);
       setNeedsCode(false);
       setReauthCode("");
-      // Show success toast / 显示成功 Toast
       addToast(t("accounts.detail.reauthSuccess"), "success");
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {
         setNeedsCode(true);
-        // Show error toast / 显示错误 Toast
         addToast(err.message, "error");
       } else {
-        addToast(getErrorMessage(err, t("accounts.detail.reauthFailed")), "error");
+        addToast(
+          getErrorMessage(err, t("accounts.detail.reauthFailed")),
+          "error",
+        );
       }
     } finally {
       setReauthing(false);
@@ -95,7 +92,6 @@ export default function AccountDetail() {
   async function handleDelete() {
     if (!account) return;
     await removeAccount(account.email);
-    // Show success toast for deleting account / 显示删除账号成功的 Toast 提示
     addToast(t("accounts.detail.deleteSuccess"), "success");
     navigate("/accounts");
   }

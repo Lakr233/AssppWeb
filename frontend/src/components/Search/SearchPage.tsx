@@ -3,22 +3,19 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-// Removed Alert component / 移除了 Alert 组件
 import CountrySelect from "../common/CountrySelect";
 import { useSearch } from "../../hooks/useSearch";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
+import { useToastStore } from "../../store/toast";
 import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
-// Import useToastStore / 引入全局 Toast Store
-import { useToastStore } from "../../store/toast";
 
 export default function SearchPage() {
   const { t } = useTranslation();
   const { defaultCountry, defaultEntity } = useSettingsStore();
   const { accounts } = useAccounts();
   const initialCountry = firstAccountCountry(accounts) ?? defaultCountry;
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
 
   const {
@@ -32,7 +29,6 @@ export default function SearchPage() {
     setSearchParam,
   } = useSearch();
 
-  // Watch for errors and show toast / 监听错误并显示 Toast
   useEffect(() => {
     if (error) {
       addToast(error, "error");
@@ -105,9 +101,6 @@ export default function SearchPage() {
         </div>
       </form>
 
-      {/* Removed Alert component block / 移除了 Alert 组件的代码块 */}
-
-      {/* Removed transition-colors to prevent dark mode flashing */}
       {results.length === 0 && !loading && !error && (
         <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">

@@ -1,4 +1,3 @@
-// Updated toast state management to support titles and longer timeouts
 import { create } from "zustand";
 
 export type ToastType = "success" | "error" | "info";
@@ -7,7 +6,7 @@ export interface Toast {
   id: string;
   message: string;
   type: ToastType;
-  title?: string; // Newly added optional title property / 新增的可选标题属性
+  title?: string;
 }
 
 interface ToastStore {
@@ -16,12 +15,15 @@ interface ToastStore {
   removeToast: (id: string) => void;
 }
 
+let nextId = 0;
+
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   addToast: (message, type, title) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    set((state) => ({ toasts: [...state.toasts, { id, message, type, title }] }));
-    // Auto remove after 5 seconds to allow reading multiline text / 为了让用户有时间阅读多行文本，延长至 5 秒自动移除
+    const id = String(nextId++);
+    set((state) => ({
+      toasts: [...state.toasts, { id, message, type, title }],
+    }));
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 5000);
