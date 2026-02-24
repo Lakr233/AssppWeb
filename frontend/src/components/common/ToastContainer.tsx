@@ -47,7 +47,8 @@ export default function ToastContainer() {
       </style>
 
       {/* Fixed container at the top right / 固定在右上角的容器 */}
-      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none">
+      {/* Adjusted top position with calc() to place toast below mobile header in PWA / 调整了 top 属性，在移动端 PWA 下将 Toast 显示在顶栏下方 */}
+      <div className="fixed top-[calc(env(safe-area-inset-top)+4rem)] md:top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
