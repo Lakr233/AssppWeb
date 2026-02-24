@@ -172,6 +172,7 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 9. Types (`type Software`)
 
 **Enforcement**: Every PR must verify import ordering. Common mistakes:
+
 - Putting hooks/stores before layout/common components
 - Putting config before utilities
 - Putting type imports in the middle instead of last
@@ -310,12 +311,14 @@ These rules prevent the codebase from becoming messy after merging PRs. Enforce 
 **Problem**: `transition-colors` on static containers (cards, sections, alerts, badges) causes visible color flashing when the page loads in dark mode — the element briefly renders in light colors then transitions to dark.
 
 **Rule**: Only use `transition-colors` on **interactive elements** that change color on user interaction:
+
 - Buttons (hover state)
 - Links (hover state)
 - Form inputs and selects (focus state)
 - Nav items (hover/active state)
 
 **Never use `transition-colors` on**:
+
 - Card containers (`bg-white dark:bg-gray-900 rounded-lg border ...`)
 - Section wrappers (`<section>` with background)
 - Alert/warning banners (use the `<Alert>` component)
@@ -350,6 +353,7 @@ Before merging any frontend PR, verify imports follow the convention in every ch
 ### Empty State Containers
 
 Empty states (shown when a list has no items) use a consistent pattern:
+
 - `border-2 border-dashed` (not solid border)
 - `bg-gray-50 dark:bg-gray-900/30` background
 - No `transition-colors` (removed to prevent dark mode flashing)
@@ -358,6 +362,7 @@ Empty states (shown when a list has no items) use a consistent pattern:
 ### Dark Mode Color Pairings
 
 Always pair light and dark variants consistently:
+
 - **Primary text**: `text-gray-900 dark:text-white`
 - **Secondary text**: `text-gray-600 dark:text-gray-400` or `text-gray-500 dark:text-gray-400`
 - **Tertiary text**: `text-gray-400 dark:text-gray-500`
@@ -369,6 +374,7 @@ Always pair light and dark variants consistently:
 ### Code Duplication Prevention
 
 When the same UI pattern appears in 3+ components, extract it to `components/common/`. Current shared components:
+
 - `Alert`, `Modal`, `Spinner`, `CountrySelect`, `AppIcon`, `Badge`, `ProgressBar`, `icons`
 
 When adding new common components, update this AGENTS.md file accordingly.
