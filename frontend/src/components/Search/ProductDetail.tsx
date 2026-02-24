@@ -39,7 +39,8 @@ export default function ProductDetail() {
   const [app, setApp] = useState<Software | null>(stateApp ?? null);
   const [loading, setLoading] = useState(!stateApp);
   const [selectedAccount, setSelectedAccount] = useState("");
-  const [actionLoading, setActionLoading] = useState(false);
+  // 将原先单一的 actionLoading 布尔值改为字符串状态，以区分当前正在执行的具体操作 / Change the single boolean actionLoading state to a string state to distinguish the specific action currently executing
+  const [loadingAction, setLoadingAction] = useState<"purchase" | "download" | null>(null);
 
   const account = accounts.find((a) => a.email === selectedAccount);
 
@@ -91,7 +92,8 @@ export default function ProductDetail() {
 
   async function handlePurchase() {
     if (!account || !app) return;
-    setActionLoading(true);
+    // 设置当前的加载状态为获取许可证 / Set the current loading state to purchase
+    setLoadingAction("purchase");
 
     const userName = `${account.firstName} ${account.lastName}`;
     const appleId = account.email;
@@ -114,13 +116,15 @@ export default function ProductDetail() {
         t("toast.title.licenseFailed")
       );
     } finally {
-      setActionLoading(false);
+      // 操作完成后重置加载状态 / Reset the loading state after the operation is complete
+      setLoadingAction(null);
     }
   }
 
   async function handleDownload() {
     if (!account || !app) return;
-    setActionLoading(true);
+    // 设置当前的加载状态为下载 / Set the current loading state to download
+    setLoadingAction("download");
 
     const userName = `${account.firstName} ${account.lastName}`;
     const appleId = account.email;
@@ -161,7 +165,8 @@ export default function ProductDetail() {
         t("toast.title.downloadFailed")
       );
     } finally {
-      setActionLoading(false);
+      // 操作完成后重置加载状态 / Reset the loading state after the operation is complete
+      setLoadingAction(null);
     }
   }
 
@@ -203,8 +208,9 @@ export default function ProductDetail() {
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
+                // 更新禁用判断逻辑 / Update the disabled logic
                 className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                disabled={actionLoading}
+                disabled={loadingAction !== null}
               >
                 {accounts.map((a) => {
                   const regionCode = storeIdToCountry(a.store);
@@ -224,20 +230,24 @@ export default function ProductDetail() {
               {(app.price === undefined || app.price === 0) && (
                 <button
                   onClick={handlePurchase}
-                  disabled={actionLoading}
+                  // 更新禁用判断逻辑 / Update the disabled logic
+                  disabled={loadingAction !== null}
                   className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
                 >
-                  {actionLoading
+                  {/* 根据具体操作状态显示对应文字 / Show corresponding text based on specific action state */}
+                  {loadingAction === "purchase"
                     ? t("search.product.processing")
                     : t("search.product.getLicense")}
                 </button>
               )}
               <button
                 onClick={handleDownload}
-                disabled={actionLoading}
+                // 更新禁用判断逻辑 / Update the disabled logic
+                disabled={loadingAction !== null}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {actionLoading
+                {/* 根据具体操作状态显示对应文字 / Show corresponding text based on specific action state */}
+                {loadingAction === "download"
                   ? t("search.product.processing")
                   : t("search.product.download")}
               </button>
