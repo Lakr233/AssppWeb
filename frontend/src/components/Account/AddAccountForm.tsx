@@ -43,6 +43,10 @@ export default function AddAccountForm() {
         cleanedDeviceId,
       );
       await addAccount(account);
+      
+      // Show success toast for adding account / 显示添加账号成功的 Toast 提示
+      addToast(t("accounts.addForm.addSuccess"), "success");
+      
       navigate("/accounts");
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {

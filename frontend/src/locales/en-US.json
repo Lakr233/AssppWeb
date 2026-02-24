@@ -101,7 +101,8 @@
       "signIn": "Sign In",
       "verify": "Verify",
       "cancel": "Cancel",
-      "authFailed": "Authentication failed"
+      "authFailed": "Authentication failed",
+      "addSuccess": "Account added successfully."
     },
     "detail": {
       "title": "Account Details",
@@ -122,7 +123,8 @@
       "delete": "Delete Account",
       "confirmDelete": "Confirm Delete",
       "cancel": "Cancel",
-      "areYouSure": "Are you sure?"
+      "areYouSure": "Are you sure?",
+      "deleteSuccess": "Account deleted successfully."
     }
   },
   "downloads": {

@@ -95,6 +95,8 @@ export default function AccountDetail() {
   async function handleDelete() {
     if (!account) return;
     await removeAccount(account.email);
+    // Show success toast for deleting account / 显示删除账号成功的 Toast 提示
+    addToast(t("accounts.detail.deleteSuccess"), "success");
     navigate("/accounts");
   }
 

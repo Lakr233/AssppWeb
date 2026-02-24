@@ -101,7 +101,8 @@
       "signIn": "サインイン",
       "verify": "確認",
       "cancel": "キャンセル",
-      "authFailed": "認証に失敗しました"
+      "authFailed": "認証に失敗しました",
+      "addSuccess": "アカウントが正常に追加されました。"
     },
     "detail": {
       "title": "アカウントの詳細",
@@ -122,7 +123,8 @@
       "delete": "アカウントを削除",
       "confirmDelete": "削除を確認",
       "cancel": "キャンセル",
-      "areYouSure": "本当によろしいですか？"
+      "areYouSure": "本当によろしいですか？",
+      "deleteSuccess": "アカウントが正常に削除されました。"
     }
   },
   "downloads": {

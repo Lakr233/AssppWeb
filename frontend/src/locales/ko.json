@@ -101,7 +101,8 @@
       "signIn": "로그인",
       "verify": "확인",
       "cancel": "취소",
-      "authFailed": "인증 실패"
+      "authFailed": "인증 실패",
+      "addSuccess": "계정이 성공적으로 추가되었습니다."
     },
     "detail": {
       "title": "계정 세부 정보",
@@ -122,7 +123,8 @@
       "delete": "계정 삭제",
       "confirmDelete": "삭제 확인",
       "cancel": "취소",
-      "areYouSure": "정말 삭제하시겠습니까?"
+      "areYouSure": "정말 삭제하시겠습니까?",
+      "deleteSuccess": "계정이 성공적으로 삭제되었습니다."
     }
   },
   "downloads": {

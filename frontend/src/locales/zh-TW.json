@@ -101,7 +101,8 @@
       "signIn": "登入",
       "verify": "驗證",
       "cancel": "取消",
-      "authFailed": "認證失敗"
+      "authFailed": "認證失敗",
+      "addSuccess": "帳號新增成功。"
     },
     "detail": {
       "title": "帳號詳情",
@@ -122,7 +123,8 @@
       "delete": "刪除帳號",
       "confirmDelete": "確認刪除",
       "cancel": "取消",
-      "areYouSure": "您確定嗎？"
+      "areYouSure": "您確定嗎？",
+      "deleteSuccess": "帳號刪除成功。"
     }
   },
   "downloads": {
