@@ -40,7 +40,7 @@ export default function ToastContainer() {
             }
           }
           .animate-toast-in {
-            /* Using a cubic-bezier for a smooth, modern decelaration / 使用贝塞尔曲线实现现代化的平滑减速效果 */
+            /* Using a cubic-bezier for a smooth, modern deceleration / 使用贝塞尔曲线实现现代化的平滑减速效果 */
             animation: toast-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
         `}
