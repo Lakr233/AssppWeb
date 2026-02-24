@@ -135,7 +135,7 @@ export default function PackageDetail() {
 
         {task.error && <Alert type="error">{task.error}</Alert>}
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-500 dark:text-gray-400 flex-shrink-0">

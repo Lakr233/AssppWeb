@@ -58,7 +58,7 @@ export default function AddAccountForm() {
       {/* 移除了 max-w-lg 以便表单在所有设备上自适应全宽 */}
       <div>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 space-y-4 transition-colors">
+          <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 space-y-4">
             <div>
               <label
                 htmlFor="email"

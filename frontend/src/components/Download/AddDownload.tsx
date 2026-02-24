@@ -249,7 +249,7 @@ export default function AddDownload() {
         )}
 
         {app && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
             <div className="flex items-center gap-4 mb-4">
               <AppIcon url={app.artworkUrl} name={app.name} size="md" />
               <div>

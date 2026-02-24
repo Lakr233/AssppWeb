@@ -156,14 +156,14 @@ export default function ProductDetail() {
         {success && <Alert type="success">{success}</Alert>}
 
         {accounts.length === 0 ? (
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
             <Link to="/accounts/add" className="font-medium underline">
               {t("search.product.addAccountLink")}
             </Link>{" "}
             {t("search.product.addAccountPrompt")}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 space-y-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t("search.product.account")}
@@ -220,7 +220,7 @@ export default function ProductDetail() {
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
           <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
             {t("search.product.details")}
           </h2>
@@ -265,7 +265,7 @@ export default function ProductDetail() {
         </div>
 
         {app.description && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.description")}
             </h2>
@@ -276,7 +276,7 @@ export default function ProductDetail() {
         )}
 
         {app.releaseNotes && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.releaseNotes")}
             </h2>
@@ -287,7 +287,7 @@ export default function ProductDetail() {
         )}
 
         {app.screenshotUrls && app.screenshotUrls.length > 0 && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.screenshots")}
             </h2>

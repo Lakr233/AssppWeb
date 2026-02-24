@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import PageContainer from "../Layout/PageContainer";
 import { useAccountsStore } from "../../store/accounts";
 import { storeIdToCountry } from "../../apple/config";
-import PageContainer from "../Layout/PageContainer";
 
 export default function AccountList() {
   const { t } = useTranslation();

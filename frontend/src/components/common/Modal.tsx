@@ -18,7 +18,7 @@ export default function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-sm w-full p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 transition-colors">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-sm w-full p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800">
         <h3 className="text-lg font-bold mb-4">{title}</h3>
         {children}
       </div>

@@ -70,7 +70,7 @@ export default function DownloadList() {
         ))}
       </div>
 
-      <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-700 dark:text-amber-400 transition-colors">
+      <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-700 dark:text-amber-400">
         {t("downloads.warning")}
       </div>
 

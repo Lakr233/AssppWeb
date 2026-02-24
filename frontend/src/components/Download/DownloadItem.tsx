@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { DownloadTask } from "../../types";
 import AppIcon from "../common/AppIcon";
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
+import type { DownloadTask } from "../../types";
 
 interface DownloadItemProps {
   task: DownloadTask;
@@ -25,7 +25,7 @@ export default function DownloadItem({
   const isCompleted = task.status === "completed";
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-3 transition-colors">
+    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
       <div className="flex gap-3">
         <AppIcon
           url={task.software.artworkUrl}

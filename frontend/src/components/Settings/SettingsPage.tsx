@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Modal from "../common/Modal";
-import { countryCodeMap } from "../../apple/config";
 import { useAccountsStore } from "../../store/accounts";
 import { encryptData, decryptData } from "../../utils/crypto";
+import { countryCodeMap } from "../../apple/config";
 import type { Account } from "../../types";
 
 interface ServerInfo {
@@ -171,7 +171,7 @@ export default function SettingsPage() {
   return (
     <PageContainer title={t("settings.title")}>
       <div className="space-y-6">
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t("settings.language.title")}
           </h2>
@@ -200,7 +200,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t("settings.defaults.title")}
           </h2>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t("settings.server.title")}
           </h2>
@@ -292,7 +292,7 @@ export default function SettingsPage() {
           )}
         </section>
 
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t("settings.data.title")}
           </h2>
@@ -338,7 +338,7 @@ export default function SettingsPage() {
           </button>
         </section>
 
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t("settings.about.title")}
           </h2>

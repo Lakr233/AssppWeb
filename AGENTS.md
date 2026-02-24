@@ -151,6 +151,7 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - **AppIcon** — 3 sizes (40/56/80px), rounded corners, letter fallback
 - **Badge** — color-coded status pill
 - **ProgressBar** — gray track, blue fill, percentage label
+- **icons** — shared SVG icon components (`HomeIcon`, `AccountsIcon`, `SearchIcon`, `DownloadsIcon`, `SettingsIcon`, `SunIcon`, `MoonIcon`, `SystemIcon`) used by Sidebar, MobileNav, and MobileHeader
 
 ### Frontend Shared Utilities (`utils/`)
 
@@ -163,11 +164,17 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 1. React / library imports (`useState`, `useNavigate`, `useTranslation`)
 2. Layout components (`PageContainer`)
 3. Common components (`AppIcon`, `Alert`, `Spinner`, `Modal`, `CountrySelect`)
-4. Hooks / stores (`useAccounts`, `useSettingsStore`)
-5. Apple protocol / API modules (`authenticate`, `purchaseApp`, `apiPost`)
-6. Utilities (`accountHash`, `getErrorMessage`)
-7. Config (`countryCodeMap`, `storeIdToCountry`)
-8. Types (`type Software`)
+4. Sibling components within the same feature folder (e.g., `DownloadItem` inside `Download/`)
+5. Hooks / stores (`useAccounts`, `useSettingsStore`)
+6. Apple protocol / API modules (`authenticate`, `purchaseApp`, `apiPost`)
+7. Utilities (`accountHash`, `getErrorMessage`)
+8. Config (`countryCodeMap`, `storeIdToCountry`)
+9. Types (`type Software`)
+
+**Enforcement**: Every PR must verify import ordering. Common mistakes:
+- Putting hooks/stores before layout/common components
+- Putting config before utilities
+- Putting type imports in the middle instead of last
 
 ## Error Handling
 
@@ -293,3 +300,75 @@ The `e2e/docker-test.sh` script automates the full flow: build, test, and verify
 - **ProgressBar**: Gray track, blue fill, percentage label
 - **AppIcon**: 3 sizes (40/56/80px), rounded corners, letter fallback
 - **Nav active state**: `bg-blue-50 text-blue-700` (sidebar), `text-blue-600` (mobile)
+
+## Frontend Cleanup Rules
+
+These rules prevent the codebase from becoming messy after merging PRs. Enforce them on every change.
+
+### `transition-colors` Usage Policy
+
+**Problem**: `transition-colors` on static containers (cards, sections, alerts, badges) causes visible color flashing when the page loads in dark mode — the element briefly renders in light colors then transitions to dark.
+
+**Rule**: Only use `transition-colors` on **interactive elements** that change color on user interaction:
+- Buttons (hover state)
+- Links (hover state)
+- Form inputs and selects (focus state)
+- Nav items (hover/active state)
+
+**Never use `transition-colors` on**:
+- Card containers (`bg-white dark:bg-gray-900 rounded-lg border ...`)
+- Section wrappers (`<section>` with background)
+- Alert/warning banners (use the `<Alert>` component)
+- Badge pills
+- ProgressBar tracks
+- Modal containers
+- AppIcon fallback containers
+- Empty state placeholder containers
+
+**Exception**: Layout chrome (Sidebar, MobileNav, MobileHeader, PageContainer) may keep `transition-colors duration-200` for smooth theme toggle animation, since these persist across navigations.
+
+### Shared Icons
+
+All navigation and theme icons live in `components/common/icons.tsx`. When Sidebar, MobileNav, or MobileHeader need icons, import from there. Never duplicate icon SVG components inline.
+
+### Import Ordering Verification
+
+Before merging any frontend PR, verify imports follow the convention in every changed file:
+
+```
+1. React / library imports
+2. Layout components
+3. Common components
+4. Sibling components (same feature folder)
+5. Hooks / stores
+6. Apple protocol / API modules
+7. Utilities
+8. Config
+9. Types (always last)
+```
+
+### Empty State Containers
+
+Empty states (shown when a list has no items) use a consistent pattern:
+- `border-2 border-dashed` (not solid border)
+- `bg-gray-50 dark:bg-gray-900/30` background
+- No `transition-colors` (removed to prevent dark mode flashing)
+- Centered icon in a white circle, title, description, optional CTA button
+
+### Dark Mode Color Pairings
+
+Always pair light and dark variants consistently:
+- **Primary text**: `text-gray-900 dark:text-white`
+- **Secondary text**: `text-gray-600 dark:text-gray-400` or `text-gray-500 dark:text-gray-400`
+- **Tertiary text**: `text-gray-400 dark:text-gray-500`
+- **Card background**: `bg-white dark:bg-gray-900`
+- **Page background**: `bg-gray-50 dark:bg-gray-950`
+- **Card border**: `border-gray-200 dark:border-gray-800`
+- **Input border**: `border-gray-300 dark:border-gray-700`
+
+### Code Duplication Prevention
+
+When the same UI pattern appears in 3+ components, extract it to `components/common/`. Current shared components:
+- `Alert`, `Modal`, `Spinner`, `CountrySelect`, `AppIcon`, `Badge`, `ProgressBar`, `icons`
+
+When adding new common components, update this AGENTS.md file accordingly.

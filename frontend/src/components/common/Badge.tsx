@@ -24,7 +24,7 @@ export default function Badge({ status }: BadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${styles[status]}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}
     >
       {/* Dynamic lookup matching the JSON structure "downloads.status.xxx" */}
       {t(`downloads.status.${status}`)}

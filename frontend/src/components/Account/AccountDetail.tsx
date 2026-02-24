@@ -102,7 +102,7 @@ export default function AccountDetail() {
   return (
     <PageContainer title={t("accounts.detail.title")}>
       <div className="max-w-lg space-y-6">
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <dl className="space-y-4">
             <DetailRow
               label={t("accounts.detail.name")}
@@ -135,7 +135,7 @@ export default function AccountDetail() {
         </section>
 
         {needsCode && (
-          <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 transition-colors">
+          <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
             <label
               htmlFor="reauth-code"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"

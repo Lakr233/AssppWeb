@@ -18,7 +18,7 @@ export default function Alert({
 }) {
   return (
     <div
-      className={`p-3 border rounded-lg text-sm transition-colors ${styles[type]} ${className}`}
+      className={`p-3 border rounded-lg text-sm ${styles[type]} ${className}`}
     >
       {children}
     </div>

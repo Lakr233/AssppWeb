@@ -18,7 +18,7 @@ export default function AppIcon({ url, name, size = "md" }: AppIconProps) {
   if (!url || failed) {
     return (
       <div
-        className={`${sizeClasses[size]} bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold transition-colors`}
+        className={`${sizeClasses[size]} bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold`}
       >
         {name.charAt(0).toUpperCase()}
       </div>
