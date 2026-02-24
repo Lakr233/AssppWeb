@@ -5,14 +5,23 @@ import PageContainer from "../Layout/PageContainer";
 import DownloadItem from "./DownloadItem";
 import { useDownloads } from "../../hooks/useDownloads";
 import type { DownloadTask } from "../../types";
+// Import hooks and store for delete notification details / 导入相关依赖以获取删除通知所需的详情信息
+import { useToastStore } from "../../store/toast";
+import { useAccounts } from "../../hooks/useAccounts";
+import { storeIdToCountry } from "../../apple/config";
 
 type StatusFilter = "all" | DownloadTask["status"];
 
 export default function DownloadList() {
   const { t } = useTranslation();
-  const { tasks, loading, pauseDownload, resumeDownload, deleteDownload } =
+  // Extract hashToEmail to identify the account / 提取 hashToEmail 用于识别账号
+  const { tasks, loading, pauseDownload, resumeDownload, deleteDownload, hashToEmail } =
     useDownloads();
   const [filter, setFilter] = useState<StatusFilter>("all");
+  
+  // Get addToast and accounts / 获取全局 Toast 和账户列表
+  const addToast = useToastStore((s) => s.addToast);
+  const { accounts } = useAccounts();
 
   const filtered =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -25,6 +34,22 @@ export default function DownloadList() {
 
   function handleDelete(id: string) {
     if (!confirm(t("downloads.deleteConfirm"))) return;
+    
+    // Find task details before deleting for notification / 在删除前获取任务详情用于通知
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      const accountEmail = hashToEmail[task.accountHash];
+      const account = accounts.find(a => a.email === accountEmail);
+      const userName = account ? `${account.firstName} ${account.lastName}` : "Unknown";
+      const appleId = account ? account.email : "Unknown";
+      const appName = task.software.name;
+      const rawCountryCode = account ? storeIdToCountry(account.store) || "" : "";
+      const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : (account?.store || "Unknown");
+
+      // Notify deletion with details / 携带详情的删除通知
+      addToast(t("downloads.package.notifyDelete", { appName, userName, appleId, country: countryStr }), "success");
+    }
+
     deleteDownload(id);
   }
 

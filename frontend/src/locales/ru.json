@@ -191,7 +191,11 @@
       "downloadIpa": "Скачать IPA",
       "pause": "Пауза",
       "resume": "Продолжить",
-      "delete": "Удалить"
+      "delete": "Удалить",
+      "notifyInstall": "Начало установки {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "notifyShare": "Ссылка получена для {{appName}} ({{userName}} / {{appleId}} - {{country}}). Вы можете использовать AirDrop, чтобы поделиться ею с друзьями.",
+      "notifyDownload": "Загрузка IPA для {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "notifyDelete": "Удалено {{appName}} ({{userName}} / {{appleId}} - {{country}})"
     }
   },
   "settings": {

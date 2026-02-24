@@ -191,7 +191,11 @@
       "downloadIpa": "下载 IPA",
       "pause": "暂停",
       "resume": "恢复",
-      "delete": "删除"
+      "delete": "删除",
+      "notifyInstall": "开始安装 {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "notifyShare": "已获取 {{appName}}（{{userName}} / {{appleId}} - {{country}}），您可以使用 Airdrop 分享给您的朋友。",
+      "notifyDownload": "开始下载 IPA {{appName}}（{{userName}} / {{appleId}} - {{country}}）",
+      "notifyDelete": "已删除 {{appName}}（{{userName}} / {{appleId}} - {{country}}）"
     }
   },
   "settings": {

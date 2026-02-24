@@ -8,8 +8,10 @@ import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
 import { useDownloads } from "../../hooks/useDownloads";
 import { getInstallInfo } from "../../api/install";
-// Import useToastStore / 引入全局 Toast Store
+// Import useToastStore and other required hooks / 引入全局 Toast Store 及依赖钩子
 import { useToastStore } from "../../store/toast";
+import { useAccounts } from "../../hooks/useAccounts";
+import { storeIdToCountry } from "../../apple/config";
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +21,8 @@ export default function PackageDetail() {
   const { t } = useTranslation();
   // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
+  // Get accounts for details formatting / 获取账号信息用于格式化详情
+  const { accounts } = useAccounts();
 
   const task = tasks.find((t) => t.id === id);
 
@@ -37,9 +41,20 @@ export default function PackageDetail() {
   const isCompleted = task.status === "completed";
   const installInfo = isCompleted ? getInstallInfo(task.id) : null;
 
+  // Extract account details for notifications / 提取账户详情供通知使用
+  const accountEmail = hashToEmail[task.accountHash];
+  const account = accounts.find((a) => a.email === accountEmail);
+  const userName = account ? `${account.firstName} ${account.lastName}` : "Unknown";
+  const appleId = account ? account.email : "Unknown";
+  const appName = task.software.name;
+  const rawCountryCode = account ? storeIdToCountry(account.store) || "" : "";
+  const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : (account?.store || "Unknown");
+
   async function handleDelete() {
     if (!confirm(t("downloads.package.deleteConfirm"))) return;
     await deleteDownload(task!.id);
+    // Show detailed deletion toast / 显示带详情信息的删除通知
+    addToast(t("downloads.package.notifyDelete", { appName, userName, appleId, country: countryStr }), "success");
     navigate("/downloads");
   }
 
@@ -55,6 +70,8 @@ export default function PackageDetail() {
         await navigator.share({ 
           text: urlToShare 
         });
+        // Use detailed share toast / 使用带详情信息的分享通知
+        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
         return; 
       } catch (error: any) {
         if (error.name === 'AbortError') return;
@@ -66,8 +83,8 @@ export default function PackageDetail() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(urlToShare);
-        // Use toast instead of alert / 改用全局 Toast 而非浏览器原生弹窗
-        addToast(t("downloads.package.copied"), "success");
+        // Use detailed share toast / 使用带详情信息的分享通知
+        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
         return;
       } catch (err) {
         console.warn("Clipboard API failed, falling back to execCommand:", err);
@@ -90,8 +107,8 @@ export default function PackageDetail() {
       document.body.removeChild(textArea);
       
       if (successful) {
-        // Use toast instead of alert / 改用全局 Toast
-        addToast(t("downloads.package.copied"), "success");
+        // Use detailed share toast / 使用带详情信息的分享通知
+        addToast(t("downloads.package.notifyShare", { appName, userName, appleId, country: countryStr }), "success");
       } else {
         console.error("Fallback execCommand failed to copy");
       }
@@ -163,7 +180,7 @@ export default function PackageDetail() {
                 {t("downloads.package.account")}
               </dt>
               <dd className="text-gray-900 dark:text-gray-200 min-w-0 truncate ml-4">
-                {hashToEmail[task.accountHash] || task.accountHash}
+                {accountEmail || task.accountHash}
               </dd>
             </div>
             <div className="flex justify-between">
@@ -185,6 +202,7 @@ export default function PackageDetail() {
                   <>
                     <a
                       href={installInfo.installUrl}
+                      onClick={() => addToast(t("downloads.package.notifyInstall", { appName, userName, appleId, country: countryStr }), "info")}
                       className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                       {t("downloads.package.install")}
@@ -216,6 +234,7 @@ export default function PackageDetail() {
                 <a
                   href={`/api/packages/${task.id}/file?accountHash=${encodeURIComponent(task.accountHash)}`}
                   download
+                  onClick={() => addToast(t("downloads.package.notifyDownload", { appName, userName, appleId, country: countryStr }), "info")}
                   className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {t("downloads.package.downloadIpa")}

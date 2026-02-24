@@ -191,7 +191,11 @@
       "downloadIpa": "Download IPA",
       "pause": "Pause",
       "resume": "Resume",
-      "delete": "Delete"
+      "delete": "Delete",
+      "notifyInstall": "Starting installation of {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "notifyShare": "Link acquired for {{appName}} ({{userName}} / {{appleId}} - {{country}}). You can use AirDrop to share it with your friends.",
+      "notifyDownload": "Downloading IPA for {{appName}} ({{userName}} / {{appleId}} - {{country}})",
+      "notifyDelete": "Deleted {{appName}} ({{userName}} / {{appleId}} - {{country}})"
     }
   },
   "settings": {

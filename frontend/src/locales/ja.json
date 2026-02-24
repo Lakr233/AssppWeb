@@ -191,7 +191,11 @@
       "downloadIpa": "IPA をダウンロード",
       "pause": "一時停止",
       "resume": "再開",
-      "delete": "削除"
+      "delete": "削除",
+      "notifyInstall": "{{appName}} のインストールを開始します（{{userName}} / {{appleId}} - {{country}}）",
+      "notifyShare": "{{appName}} のリンクを取得しました（{{userName}} / {{appleId}} - {{country}}）。AirDrop を使用して友達と共有できます。",
+      "notifyDownload": "{{appName}} の IPA のダウンロードを開始します（{{userName}} / {{appleId}} - {{country}}）",
+      "notifyDelete": "{{appName}} を削除しました（{{userName}} / {{appleId}} - {{country}}）"
     }
   },
   "settings": {
