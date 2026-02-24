@@ -6,7 +6,8 @@ export default function MobileHeader() {
   const { t } = useTranslation();
 
   return (
-    <header className="md:hidden sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 transition-colors duration-200">
+    // Add 'safe-top' class to adapt to iOS PWA notch area padding / 添加 'safe-top' 类以适配 iOS PWA 模式下的顶部安全区域(刘海屏)
+    <header className="md:hidden sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 transition-colors duration-200 safe-top">
       <div className="flex items-center justify-between px-4 h-14">
         <h1 className="text-lg font-bold text-gray-900 dark:text-white">
           Asspp Web
