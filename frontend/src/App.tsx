@@ -8,6 +8,8 @@ import MobileNav from "./components/Layout/MobileNav";
 import MobileHeader from "./components/Layout/MobileHeader";
 // Import the global ToastContainer / 引入全局 Toast 容器
 import ToastContainer from "./components/common/ToastContainer";
+// Import the global background download notifier / 引入全局后台下载监听器
+import GlobalDownloadNotifier from "./components/common/GlobalDownloadNotifier";
 
 const HomePage = lazy(() => import("./components/Welcome/HomePage"));
 const AccountList = lazy(() => import("./components/Account/AccountList"));
@@ -60,6 +62,9 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex text-gray-900 dark:text-gray-100 transition-colors duration-200">
       {/* Render global toast container / 渲染全局 Toast 容器 */}
       <ToastContainer />
+      {/* Mount global background download notifier / 挂载全局后台下载监听器 */}
+      <GlobalDownloadNotifier />
+      
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 safe-top">
         <MobileHeader />
