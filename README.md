@@ -65,15 +65,18 @@ docker compose up -d
 
 **Environment Variables**
 
-| Variable          | Default         | Description                                                                    |
-| ----------------- | --------------- | ------------------------------------------------------------------------------ |
-| `PORT`            | `8080`          | Server listen port                                                             |
-| `DATA_DIR`        | `./data`        | Directory for storing compiled IPAs                                            |
-| `PUBLIC_BASE_URL` | _(auto-detect)_ | Public URL for generating install manifests (e.g. `https://asspp.example.com`) |
+| Variable                                    | Default         | Description                                                                    |
+| ------------------------------------------- | --------------- | ------------------------------------------------------------------------------ |
+| `PORT`                                      | `8080`          | Server listen port                                                             |
+| `DATA_DIR`                                  | `./data`        | Directory for storing compiled IPAs                                            |
+| `PUBLIC_BASE_URL`                           | _(auto-detect)_ | Public URL for generating install manifests (e.g. `https://asspp.example.com`) |
+| `UNSAFE_DANGEROUSLY_DISABLE_HTTPS_REDIRECT` | `false`         | Disable HTTPS redirect (see warning below)                                     |
 
 **Reverse Proxy (Required for Install Apps on iOS)**
 
 iOS requires HTTPS for `itms-services://` install links. You must put AssppWeb behind a reverse proxy with a valid TLS certificate.
+
+> **⚠️ Redirect loop (`ERR_TOO_MANY_REDIRECTS`)?** Some reverse proxies (e.g. NAS built-in proxies) always send `X-Forwarded-Proto: http` even when the client connected via HTTPS, causing an infinite redirect loop. If you cannot configure your proxy to send the correct header, set `UNSAFE_DANGEROUSLY_DISABLE_HTTPS_REDIRECT=true` as a last resort. **This disables the HTTP→HTTPS redirect — you must ensure your proxy enforces HTTPS externally.**
 
 The following is an example Caddyfile configuration:
 

@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { httpsRedirect } from "../src/middleware/httpsRedirect.js";
+import { config } from "../src/config.js";
 import type { Request, Response, NextFunction } from "express";
 
 function createMockReq(
@@ -74,6 +75,28 @@ describe("httpsRedirect middleware", () => {
     httpsRedirect(req, mock.res, next);
 
     expect(nextCalled).toBe(true);
+  });
+
+  it("should skip redirect when disableHttpsRedirect is true", () => {
+    const original = config.disableHttpsRedirect;
+    config.disableHttpsRedirect = true;
+    try {
+      const req = createMockReq(
+        { "x-forwarded-proto": "http", host: "example.com" },
+        "/test",
+      );
+      const mock = createMockRes();
+      let nextCalled = false;
+      const next: NextFunction = () => {
+        nextCalled = true;
+      };
+
+      httpsRedirect(req, mock.res, next);
+
+      expect(nextCalled).toBe(true);
+    } finally {
+      config.disableHttpsRedirect = original;
+    }
   });
 
   it("should use host header (not x-forwarded-host) for security", () => {
