@@ -54,7 +54,8 @@ export default function ToastContainer() {
             // Dynamically adjust alignment based on the presence of a title / 根据是否有标题动态调整对齐方式，增加宽度
             // Added overflow-hidden to accommodate the separated left icon section properly / 增加了 overflow-hidden 确保左侧独立的背景区域不会溢出圆角
             // Replaced static transition classes with custom 'animate-toast-in' class / 将静态过渡类替换为自定义的 'animate-toast-in' 动画类
-            className={`pointer-events-auto flex min-w-[320px] max-w-md overflow-hidden rounded-xl backdrop-blur-xl bg-white/85 dark:bg-gray-900/85 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl animate-toast-in`}
+            // Adjusted width classes to prevent overflow on very small screens like iPhone SE / 调整了宽度相关的类名，引入 calc 限制最大宽度，防止在 iPhone SE 等极小屏幕上溢出
+            className={`pointer-events-auto flex w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[320px] max-w-[calc(100vw-2rem)] sm:max-w-md overflow-hidden rounded-xl backdrop-blur-xl bg-white/85 dark:bg-gray-900/85 border border-gray-200/50 dark:border-gray-700/50 shadow-2xl animate-toast-in`}
           >
             {/* Separated left icon area with subtle background, vertically centered / 独立的左侧图标区域，带有微弱背景色且垂直居中 */}
             <div
