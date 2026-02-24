@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-// Removed Alert component / 移除了 Alert 组件
 import CountrySelect from "../common/CountrySelect";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
@@ -19,16 +18,18 @@ import {
 } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
 import type { Software } from "../../types";
-// Import useToastStore / 引入全局 Toast Store
 import { useToastStore } from "../../store/toast";
+// Import useDownloadsStore to trigger global polling / 引入全局下载状态库以触发轮询
+import { useDownloadsStore } from "../../store/downloads";
 
 export default function AddDownload() {
   const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
+  // Get fetchTasks to wake up the global background polling / 获取 fetchTasks 方法用于唤醒后台轮询
+  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
 
   const [bundleId, setBundleId] = useState("");
   const [country, setCountry] = useState(defaultCountry);
@@ -39,7 +40,6 @@ export default function AddDownload() {
   const [selectedVersion, setSelectedVersion] = useState("");
   const [step, setStep] = useState<"lookup" | "ready" | "versions">("lookup");
   const [loading, setLoading] = useState(false);
-  // Removed error local state / 移除本地错误状态
 
   const availableCountryCodes = Array.from(
     new Set(
@@ -117,14 +117,12 @@ export default function AddDownload() {
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
-      // Notify license success with title / 带标题的许可证获取成功通知
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
         "success",
         t("toast.title.licenseSuccess")
       );
     } catch (e) {
-      // Notify license failure with title / 带标题的许可证获取失败通知
       addToast(
         t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
         "error",
@@ -160,7 +158,6 @@ export default function AddDownload() {
     const rawCountryCode = storeIdToCountry(account.store) || "";
     const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
 
-
     try {
       const { output, updatedCookies } = await getDownloadInfo(
         account,
@@ -169,6 +166,7 @@ export default function AddDownload() {
       );
       await updateAccount({ ...account, cookies: updatedCookies });
       const hash = await accountHash(account);
+      
       await apiPost("/api/downloads", {
         software: app,
         accountHash: hash,
@@ -176,15 +174,16 @@ export default function AddDownload() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
+
+      // Force fetch tasks right after submitting / 强制触发下载列表抓取以唤醒后台轮询
+      fetchTasks();
       
-      // Only show download started when task is successfully submitted / 仅在任务成功提交后台后显示开始下载
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
         "info",
         t("toast.title.downloadStarted")
       );
     } catch (e) {
-      // Notify download failed with title / 带标题的下载失败通知
       addToast(
         t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
         "error",
@@ -198,8 +197,6 @@ export default function AddDownload() {
   return (
     <PageContainer title={t("downloads.add.title")}>
       <div className="space-y-6">
-        {/* Removed Alert component block / 移除了 Alert 组件的代码块 */}
-
         <form onSubmit={handleLookup} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -258,7 +255,6 @@ export default function AddDownload() {
           </div>
         </form>
 
-        {/* Removed transition-colors to prevent dark mode flashing */}
         {!app && !loading && (
           <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">

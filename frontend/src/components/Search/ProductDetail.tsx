@@ -3,7 +3,6 @@ import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { lookupApp } from "../../api/search";
@@ -18,8 +17,9 @@ import {
 import { storeIdToCountry } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
 import type { Software } from "../../types";
-// Import useToastStore / 引入全局 Toast Store
 import { useToastStore } from "../../store/toast";
+// Import useDownloadsStore to trigger global polling / 引入全局下载状态库以触发轮询
+import { useDownloadsStore } from "../../store/downloads";
 
 export default function ProductDetail() {
   const { appId } = useParams<{ appId: string }>();
@@ -27,8 +27,9 @@ export default function ProductDetail() {
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
+  // Get fetchTasks to wake up the global background polling / 获取 fetchTasks 方法用于唤醒后台轮询
+  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
 
   const navigate = useNavigate();
   const stateApp = (location.state as { app?: Software; country?: string })
@@ -39,7 +40,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(!stateApp);
   const [selectedAccount, setSelectedAccount] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
-  // Removed error and success local states / 移除本地错误和成功状态
 
   const account = accounts.find((a) => a.email === selectedAccount);
 
@@ -102,14 +102,12 @@ export default function ProductDetail() {
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
-      // Notify success with details and title / 带详情信息和标题的成功通知
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
         "success",
         t("toast.title.licenseSuccess")
       );
     } catch (e) {
-      // Notify failure with details and title / 带详情信息和标题的失败通知
       addToast(
         t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
         "error",
@@ -138,6 +136,7 @@ export default function ProductDetail() {
         ...app,
         version: output.bundleShortVersionString,
       };
+      
       await apiPost("/api/downloads", {
         software: versionedSoftware,
         accountHash: hash,
@@ -145,15 +144,17 @@ export default function ProductDetail() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
+
+      // Force fetch tasks right after submitting so the store knows about the new task and starts polling immediately
+      // 强制刷新任务列表，让全局状态器立刻知晓新任务并启动后台轮询监听
+      fetchTasks();
       
-      // Only show download started when task is successfully submitted to avoid fake success / 仅在任务成功提交后台后显示开始下载，避免提前报虚假成功
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
         "info",
         t("toast.title.downloadStarted")
       );
     } catch (e) {
-      // Notify download failed with title / 带标题的下载失败通知
       addToast(
         t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
         "error",
@@ -185,8 +186,6 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
-
-        {/* Removed Alert elements / 移除了 Alert 元素 */}
 
         {accounts.length === 0 ? (
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">

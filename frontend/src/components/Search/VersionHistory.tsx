@@ -3,7 +3,6 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { listVersions } from "../../apple/versionFinder";
@@ -12,10 +11,11 @@ import { getDownloadInfo } from "../../apple/download";
 import { apiPost } from "../../api/client";
 import { accountHash } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
-import { storeIdToCountry } from "../../apple/config"; // Added missing import / 补充缺少的导入
+import { storeIdToCountry } from "../../apple/config";
 import type { Software, VersionMetadata } from "../../types";
-// Import useToastStore / 引入全局 Toast Store
 import { useToastStore } from "../../store/toast";
+// Import useDownloadsStore to trigger global polling / 引入全局下载状态库以触发轮询
+import { useDownloadsStore } from "../../store/downloads";
 
 export default function VersionHistory() {
   const { appId } = useParams<{ appId: string }>();
@@ -24,8 +24,9 @@ export default function VersionHistory() {
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
-  // Get addToast function / 获取 addToast 方法
   const addToast = useToastStore((s) => s.addToast);
+  // Get fetchTasks to wake up the global background polling / 获取 fetchTasks 方法用于唤醒后台轮询
+  const fetchTasks = useDownloadsStore((s) => s.fetchTasks);
 
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
@@ -43,7 +44,6 @@ export default function VersionHistory() {
   const [downloadingVersion, setDownloadingVersion] = useState<string | null>(
     null,
   );
-  // Removed error and success local states / 移除本地错误和成功状态
 
   useEffect(() => {
     if (accounts.length > 0 && !selectedAccount) {
@@ -103,6 +103,7 @@ export default function VersionHistory() {
         ...app,
         version: output.bundleShortVersionString,
       };
+      
       await apiPost("/api/downloads", {
         software: versionedSoftware,
         accountHash: hash,
@@ -110,15 +111,16 @@ export default function VersionHistory() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
+
+      // Force fetch tasks right after submitting / 强制触发下载列表抓取以唤醒后台轮询
+      fetchTasks();
       
-      // Only show download started when task is successfully submitted / 仅在任务成功提交后台后显示开始下载
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
         "info",
         t("toast.title.downloadStarted")
       );
     } catch (e) {
-      // Notify download failed with title / 带标题的下载失败通知
       addToast(
         t("toast.msgFailed", { appName, userName, appleId, country: countryStr, error: getErrorMessage(e, "") }),
         "error",
@@ -151,8 +153,6 @@ export default function VersionHistory() {
             </p>
           </div>
         </div>
-
-        {/* Removed Alert elements / 移除了 Alert 元素 */}
 
         {accounts.length > 0 && (
           <div className="flex items-end gap-3">
