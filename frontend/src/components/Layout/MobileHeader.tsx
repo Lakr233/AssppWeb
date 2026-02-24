@@ -6,15 +6,21 @@ export default function MobileHeader() {
   const { t } = useTranslation();
 
   return (
-    // Add 'safe-top' class to adapt to iOS PWA notch area padding / 添加 'safe-top' 类以适配 iOS PWA 模式下的顶部安全区域(刘海屏)
-    <header className="md:hidden sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 transition-colors duration-200 safe-top">
-      <div className="flex items-center justify-between px-4 h-14">
-        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-          Asspp Web
-        </h1>
-        <ThemeToggle />
+    <>
+      {/* Use fixed instead of sticky to prevent PWA overscroll gap, with safe-top / 使用 fixed 替代 sticky 防止 PWA 下拉出现空白缝隙，保留 safe-top */}
+      <header className="md:hidden fixed top-0 left-0 right-0 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 transition-colors duration-200 safe-top">
+        <div className="flex items-center justify-between px-4 h-14">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+            Asspp Web
+          </h1>
+          <ThemeToggle />
+        </div>
+      </header>
+      {/* Spacer to occupy the space of the fixed header in the document flow / 为 fixed 定位的顶栏提供占位，防止下方内容被遮挡 */}
+      <div className="md:hidden safe-top">
+        <div className="h-14"></div>
       </div>
-    </header>
+    </>
   );
 }
 
