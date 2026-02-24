@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { listVersions } from "../../apple/versionFinder";
@@ -13,6 +13,8 @@ import { apiPost } from "../../api/client";
 import { accountHash } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
 import type { Software, VersionMetadata } from "../../types";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function VersionHistory() {
   const { appId } = useParams<{ appId: string }>();
@@ -21,6 +23,8 @@ export default function VersionHistory() {
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
@@ -38,8 +42,7 @@ export default function VersionHistory() {
   const [downloadingVersion, setDownloadingVersion] = useState<string | null>(
     null,
   );
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // Removed error and success local states / 移除本地错误和成功状态
 
   useEffect(() => {
     if (accounts.length > 0 && !selectedAccount) {
@@ -52,13 +55,12 @@ export default function VersionHistory() {
   async function handleLoadVersions() {
     if (!account || !app) return;
     setLoading(true);
-    setError("");
     try {
       const result = await listVersions(account, app);
       setVersions(result.versions);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(getErrorMessage(e, t("search.versions.loadFailed")));
+      addToast(getErrorMessage(e, t("search.versions.loadFailed")), "error");
     } finally {
       setLoading(false);
     }
@@ -81,8 +83,6 @@ export default function VersionHistory() {
   async function handleDownloadVersion(versionId: string) {
     if (!account || !app) return;
     setDownloadingVersion(versionId);
-    setError("");
-    setSuccess("");
     try {
       const { output, updatedCookies } = await getDownloadInfo(
         account,
@@ -104,7 +104,7 @@ export default function VersionHistory() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(getErrorMessage(e, t("search.versions.downloadFailed")));
+      addToast(getErrorMessage(e, t("search.versions.downloadFailed")), "error");
     } finally {
       setDownloadingVersion(null);
     }
@@ -133,8 +133,7 @@ export default function VersionHistory() {
           </div>
         </div>
 
-        {error && <Alert type="error">{error}</Alert>}
-        {success && <Alert type="success">{success}</Alert>}
+        {/* Removed Alert elements / 移除了 Alert 元素 */}
 
         {accounts.length > 0 && (
           <div className="flex items-end gap-3">

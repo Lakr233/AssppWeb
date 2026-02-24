@@ -6,6 +6,8 @@ import { useAccountsStore } from "../../store/accounts";
 import { encryptData, decryptData } from "../../utils/crypto";
 import { countryCodeMap } from "../../apple/config";
 import type { Account } from "../../types";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 interface ServerInfo {
   version?: string;
@@ -21,6 +23,8 @@ const entityTypes = [
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { accounts, addAccount, updateAccount } = useAccountsStore();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const [country, setCountry] = useState(
     () => localStorage.getItem("asspp-default-country") || "US",
@@ -33,12 +37,11 @@ export default function SettingsPage() {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportPassword, setExportPassword] = useState("");
   const [exportConfirmPassword, setExportConfirmPassword] = useState("");
-  const [exportError, setExportError] = useState("");
+  // Removed local error states for modals / 移除了模态框的本地错误状态
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [importPassword, setImportPassword] = useState("");
-  const [importError, setImportError] = useState("");
   const [importFileData, setImportFileData] = useState("");
 
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
@@ -66,7 +69,7 @@ export default function SettingsPage() {
 
   const handleExport = async () => {
     if (exportPassword !== exportConfirmPassword) {
-      setExportError(t("settings.data.passwordMismatch"));
+      addToast(t("settings.data.passwordMismatch"), "error");
       return;
     }
     try {
@@ -82,10 +85,10 @@ export default function SettingsPage() {
       setExportModalOpen(false);
       setExportPassword("");
       setExportConfirmPassword("");
-      setExportError("");
-      alert(t("settings.data.exportSuccess"));
+      // Replace alert with addToast / 用 addToast 替代 alert
+      addToast(t("settings.data.exportSuccess"), "success");
     } catch (e) {
-      setExportError("Export failed.");
+      addToast("Export failed.", "error");
     }
   };
 
@@ -120,10 +123,9 @@ export default function SettingsPage() {
         for (const acc of valid) {
           await addAccount(acc);
         }
-        alert(t("settings.data.importSuccess"));
+        addToast(t("settings.data.importSuccess"), "success");
         setImportModalOpen(false);
         setImportPassword("");
-        setImportError("");
       } else {
         let conflictCount = 0;
         let newCount = 0;
@@ -137,20 +139,18 @@ export default function SettingsPage() {
           setPendingAccounts(valid);
           setImportModalOpen(false);
           setImportPassword("");
-          setImportError("");
           setConflictModalOpen(true);
         } else {
           for (const acc of valid) {
             await addAccount(acc);
           }
-          alert(t("settings.data.importSuccess"));
+          addToast(t("settings.data.importSuccess"), "success");
           setImportModalOpen(false);
           setImportPassword("");
-          setImportError("");
         }
       }
     } catch (e) {
-      setImportError(t("settings.data.incorrectPassword"));
+      addToast(t("settings.data.incorrectPassword"), "error");
     }
   };
 
@@ -165,7 +165,7 @@ export default function SettingsPage() {
     }
     setConflictModalOpen(false);
     setPendingAccounts([]);
-    alert(t("settings.data.importSuccess"));
+    addToast(t("settings.data.importSuccess"), "success");
   };
 
   return (
@@ -304,7 +304,6 @@ export default function SettingsPage() {
             <button
               onClick={() => {
                 setExportModalOpen(true);
-                setExportError("");
               }}
               className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
             >
@@ -379,11 +378,7 @@ export default function SettingsPage() {
               className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             />
           </div>
-          {exportError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {exportError}
-            </p>
-          )}
+          {/* Removed local inline error render / 移除了本地内联错误的渲染 */}
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <button
@@ -419,11 +414,6 @@ export default function SettingsPage() {
               className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             />
           </div>
-          {importError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {importError}
-            </p>
-          )}
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <button

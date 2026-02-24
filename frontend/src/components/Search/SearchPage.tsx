@@ -3,19 +3,23 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import CountrySelect from "../common/CountrySelect";
 import { useSearch } from "../../hooks/useSearch";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function SearchPage() {
   const { t } = useTranslation();
   const { defaultCountry, defaultEntity } = useSettingsStore();
   const { accounts } = useAccounts();
   const initialCountry = firstAccountCountry(accounts) ?? defaultCountry;
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const {
     term,
@@ -27,6 +31,13 @@ export default function SearchPage() {
     search,
     setSearchParam,
   } = useSearch();
+
+  // Watch for errors and show toast / 监听错误并显示 Toast
+  useEffect(() => {
+    if (error) {
+      addToast(error, "error");
+    }
+  }, [error, addToast]);
 
   useEffect(() => {
     if (!country && initialCountry) setSearchParam({ country: initialCountry });
@@ -94,11 +105,7 @@ export default function SearchPage() {
         </div>
       </form>
 
-      {error && (
-        <Alert type="error" className="mb-4">
-          {error}
-        </Alert>
-      )}
+      {/* Removed Alert component block / 移除了 Alert 组件的代码块 */}
 
       {/* Removed transition-colors to prevent dark mode flashing */}
       {results.length === 0 && !loading && !error && (

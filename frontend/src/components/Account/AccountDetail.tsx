@@ -3,11 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { storeIdToCountry } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
@@ -20,12 +22,14 @@ export default function AccountDetail() {
     updateAccount,
     removeAccount,
   } = useAccounts();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
+
   const [showDelete, setShowDelete] = useState(false);
   const [reauthing, setReauthing] = useState(false);
   const [reauthCode, setReauthCode] = useState("");
   const [needsCode, setNeedsCode] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  // Removed error and success local states in favor of global toast / 移除本地错误和成功状态，改用全局 Toast
 
   useEffect(() => {
     loadAccounts();
@@ -60,8 +64,6 @@ export default function AccountDetail() {
 
   async function handleReauth() {
     if (!account) return;
-    setError(null);
-    setSuccess(null);
     setReauthing(true);
 
     try {
@@ -75,13 +77,15 @@ export default function AccountDetail() {
       await updateAccount(updated);
       setNeedsCode(false);
       setReauthCode("");
-      setSuccess(t("accounts.detail.reauthSuccess"));
+      // Show success toast / 显示成功 Toast
+      addToast(t("accounts.detail.reauthSuccess"), "success");
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {
         setNeedsCode(true);
-        setError(err.message);
+        // Show error toast / 显示错误 Toast
+        addToast(err.message, "error");
       } else {
-        setError(getErrorMessage(err, t("accounts.detail.reauthFailed")));
+        addToast(getErrorMessage(err, t("accounts.detail.reauthFailed")), "error");
       }
     } finally {
       setReauthing(false);
@@ -166,18 +170,6 @@ export default function AccountDetail() {
               </button>
             </div>
           </section>
-        )}
-
-        {error && (
-          <Alert type="error" className="p-4">
-            {error}
-          </Alert>
-        )}
-
-        {success && (
-          <Alert type="success" className="p-4">
-            {success}
-          </Alert>
         )}
 
         <div className="flex flex-wrap items-center gap-3">

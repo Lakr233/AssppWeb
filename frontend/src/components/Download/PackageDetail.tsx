@@ -3,11 +3,13 @@ import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
 import { useDownloads } from "../../hooks/useDownloads";
 import { getInstallInfo } from "../../api/install";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +17,8 @@ export default function PackageDetail() {
   const { tasks, deleteDownload, pauseDownload, resumeDownload, hashToEmail } =
     useDownloads();
   const { t } = useTranslation();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const task = tasks.find((t) => t.id === id);
 
@@ -46,16 +50,13 @@ export default function PackageDetail() {
     const urlToShare = installInfo.installUrl;
 
     // 1. Try native share
-    // We only pass the raw URL to the `text` property to ensure receiving apps 
-    // recognize it as a pure, clickable link for auto-installation.
     if (navigator.share) {
       try {
         await navigator.share({ 
           text: urlToShare 
         });
-        return; // Exit if share is successful
+        return; 
       } catch (error: any) {
-        // Ignore AbortError if the user simply closed the share sheet
         if (error.name === 'AbortError') return;
         console.warn("Native share failed, falling back to copy:", error);
       }
@@ -65,7 +66,8 @@ export default function PackageDetail() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(urlToShare);
-        alert(t("downloads.package.copied"));
+        // Use toast instead of alert / 改用全局 Toast 而非浏览器原生弹窗
+        addToast(t("downloads.package.copied"), "success");
         return;
       } catch (err) {
         console.warn("Clipboard API failed, falling back to execCommand:", err);
@@ -76,7 +78,6 @@ export default function PackageDetail() {
     try {
       const textArea = document.createElement("textarea");
       textArea.value = urlToShare;
-      // Move textarea out of viewport to prevent scrolling and flashing
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
@@ -89,7 +90,8 @@ export default function PackageDetail() {
       document.body.removeChild(textArea);
       
       if (successful) {
-        alert(t("downloads.package.copied"));
+        // Use toast instead of alert / 改用全局 Toast
+        addToast(t("downloads.package.copied"), "success");
       } else {
         console.error("Fallback execCommand failed to copy");
       }
@@ -133,7 +135,10 @@ export default function PackageDetail() {
           </div>
         )}
 
-        {task.error && <Alert type="error">{task.error}</Alert>}
+        {/* Change alert to small red text so we get rid of the inline box UI / 将原本的Alert换成了红色的文字渲染 */}
+        {task.error && (
+          <p className="text-sm text-red-500 dark:text-red-400">{task.error}</p>
+        )}
 
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
           <dl className="space-y-3 text-sm">
@@ -185,7 +190,6 @@ export default function PackageDetail() {
                       {t("downloads.package.install")}
                     </a>
                     
-                    {/* Share button with hover QR code */}
                     <div className="relative group flex items-center">
                       <button
                         onClick={handleShare}

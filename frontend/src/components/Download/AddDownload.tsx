@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import CountrySelect from "../common/CountrySelect";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
@@ -19,12 +19,16 @@ import {
 } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
 import type { Software } from "../../types";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function AddDownload() {
   const navigate = useNavigate();
   const { accounts, updateAccount } = useAccounts();
   const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const [bundleId, setBundleId] = useState("");
   const [country, setCountry] = useState(defaultCountry);
@@ -35,7 +39,7 @@ export default function AddDownload() {
   const [selectedVersion, setSelectedVersion] = useState("");
   const [step, setStep] = useState<"lookup" | "ready" | "versions">("lookup");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // Removed error local state / 移除本地错误状态
 
   const availableCountryCodes = Array.from(
     new Set(
@@ -85,17 +89,16 @@ export default function AddDownload() {
     e.preventDefault();
     if (!bundleId.trim()) return;
     setLoading(true);
-    setError("");
     try {
       const result = await lookupApp(bundleId.trim(), country);
       if (!result) {
-        setError(t("downloads.add.notFound"));
+        addToast(t("downloads.add.notFound"), "error");
         return;
       }
       setApp(result);
       setStep("ready");
     } catch (e) {
-      setError(getErrorMessage(e, t("downloads.add.lookupFailed")));
+      addToast(getErrorMessage(e, t("downloads.add.lookupFailed")), "error");
     } finally {
       setLoading(false);
     }
@@ -104,12 +107,11 @@ export default function AddDownload() {
   async function handleGetLicense() {
     if (!account || !app) return;
     setLoading(true);
-    setError("");
     try {
       const result = await purchaseApp(account, app);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      setError(getErrorMessage(e, t("downloads.add.licenseFailed")));
+      addToast(getErrorMessage(e, t("downloads.add.licenseFailed")), "error");
     } finally {
       setLoading(false);
     }
@@ -118,14 +120,13 @@ export default function AddDownload() {
   async function handleLoadVersions() {
     if (!account || !app) return;
     setLoading(true);
-    setError("");
     try {
       const result = await listVersions(account, app);
       setVersions(result.versions);
       await updateAccount({ ...account, cookies: result.updatedCookies });
       setStep("versions");
     } catch (e) {
-      setError(getErrorMessage(e, t("downloads.add.versionsFailed")));
+      addToast(getErrorMessage(e, t("downloads.add.versionsFailed")), "error");
     } finally {
       setLoading(false);
     }
@@ -134,7 +135,6 @@ export default function AddDownload() {
   async function handleDownload() {
     if (!account || !app) return;
     setLoading(true);
-    setError("");
     try {
       const { output, updatedCookies } = await getDownloadInfo(
         account,
@@ -152,7 +152,7 @@ export default function AddDownload() {
       });
       navigate("/downloads");
     } catch (e) {
-      setError(getErrorMessage(e, t("downloads.add.downloadFailed")));
+      addToast(getErrorMessage(e, t("downloads.add.downloadFailed")), "error");
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export default function AddDownload() {
   return (
     <PageContainer title={t("downloads.add.title")}>
       <div className="space-y-6">
-        {error && <Alert type="error">{error}</Alert>}
+        {/* Removed Alert component block / 移除了 Alert 组件的代码块 */}
 
         <form onSubmit={handleLookup} className="space-y-4">
           <div>
@@ -222,7 +222,7 @@ export default function AddDownload() {
         </form>
 
         {/* Removed transition-colors to prevent dark mode flashing */}
-        {!app && !loading && !error && (
+        {!app && !loading && (
           <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">
               <svg

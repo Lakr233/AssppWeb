@@ -3,16 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
-import Alert from "../common/Alert";
+// Removed Alert component / 移除了 Alert 组件
 import { useAccounts } from "../../hooks/useAccounts";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { generateDeviceId } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
+// Import useToastStore / 引入全局 Toast Store
+import { useToastStore } from "../../store/toast";
 
 export default function AddAccountForm() {
   const navigate = useNavigate();
   const { addAccount } = useAccounts();
   const { t } = useTranslation();
+  // Get addToast function / 获取 addToast 方法
+  const addToast = useToastStore((s) => s.addToast);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,11 +24,10 @@ export default function AddAccountForm() {
   const [deviceId, setDeviceId] = useState(() => generateDeviceId());
   const [needsCode, setNeedsCode] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Removed error local state / 移除本地 error 状态
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
@@ -44,9 +47,10 @@ export default function AddAccountForm() {
     } catch (err) {
       if (err instanceof AuthenticationError && err.codeRequired) {
         setNeedsCode(true);
-        setError(err.message);
+        // Show error toast / 显示错误 Toast
+        addToast(err.message, "error");
       } else {
-        setError(getErrorMessage(err, t("accounts.addForm.authFailed")));
+        addToast(getErrorMessage(err, t("accounts.addForm.authFailed")), "error");
       }
     } finally {
       setLoading(false);
@@ -156,12 +160,6 @@ export default function AddAccountForm() {
               </div>
             )}
           </section>
-
-          {error && (
-            <Alert type="error" className="p-4">
-              {error}
-            </Alert>
-          )}
 
           <div className="flex items-center gap-3">
             <button
