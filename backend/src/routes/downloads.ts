@@ -18,9 +18,23 @@ import {
 } from "../utils/route.js";
 
 const router = Router();
+const FORBIDDEN_CREDENTIAL_KEYS = new Set([
+  "password",
+  "passwordtoken",
+  "cookies",
+  "cookie",
+]);
 
 // Start a new download
 router.post("/downloads", (req: Request, res: Response) => {
+  if (req.body && typeof req.body === "object") {
+    const bodyKeys = Object.keys(req.body as Record<string, unknown>);
+    if (bodyKeys.some((key) => FORBIDDEN_CREDENTIAL_KEYS.has(key.toLowerCase()))) {
+      res.status(400).json({ error: "Credential fields are not accepted by backend" });
+      return;
+    }
+  }
+
   const { software, accountHash, downloadURL, sinfs, iTunesMetadata } =
     req.body;
 

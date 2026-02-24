@@ -85,4 +85,21 @@ describe("Wisp Proxy", () => {
 
     expect(rejected).toBe(true);
   });
+
+  it("should reject lookalike wisp paths", async () => {
+    await startServer();
+
+    const ws = new WebSocket(`ws://127.0.0.1:${serverPort}/wisp-evil`);
+
+    const rejected = await new Promise<boolean>((resolve) => {
+      ws.on("error", () => resolve(true));
+      ws.on("close", () => resolve(true));
+      ws.on("open", () => {
+        ws.close();
+        resolve(false);
+      });
+    });
+
+    expect(rejected).toBe(true);
+  });
 });

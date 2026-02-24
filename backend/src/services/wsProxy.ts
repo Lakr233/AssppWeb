@@ -18,7 +18,7 @@ wisp.options.allow_loopback_ips = false;
 
 export function setupWsProxy(server: HttpServer) {
   server.on("upgrade", (req, socket, head) => {
-    if (req.url?.startsWith("/wisp")) {
+    if (req.url === "/wisp/" || req.url?.startsWith("/wisp/?")) {
       wisp.routeRequest(req, socket, head);
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
