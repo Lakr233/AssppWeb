@@ -30,6 +30,27 @@ Requirements:
 
 If your build log fails at `Deploy a container application` with `Unauthorized`, your build token is missing required Containers/Cloudchamber permissions.
 
+### Deploy to Railway
+
+<details>
+<summary>Click to show Railway deployment instructions</summary>
+
+1. Go to [railway.com/new/image](https://railway.com/new/image) → enter `ghcr.io/lakr233/assppweb:latest`
+2. In service **Settings**, set **Healthcheck Path** to `/api/settings` and deploy
+3. Right-click the service → **Attach volume** → mount path: `/data`
+4. In **Variables**, set `DATA_DIR` = `/data` and deploy
+5. In **Settings** → **Networking**, generate a public domain or add a custom domain
+
+**Notes**
+
+- The free trial works but has limitations (volume expiry, network restrictions). **Hobby** plan ($5/month) or above is recommended for reliable use.
+- Enable [**Serverless**](https://docs.railway.com/deployments/serverless) in service settings to scale down to zero during idle periods
+- Railway [auto-updates](https://docs.railway.com/deployments/image-auto-updates) `:latest` images from GHCR — new releases will be deployed automatically within a few hours
+
+> **⚠️ Custom domain with Cloudflare:** Railway's Cloudflare integration creates DNS records with Proxy enabled (orange cloud) by default. After authorizing, go to Cloudflare DNS settings and switch the CNAME record to **DNS only** (gray cloud) — Railway handles TLS automatically. If you keep Cloudflare Proxy on, you must set SSL/TLS mode to **Full** (not Flexible or Full Strict), otherwise you'll get an infinite redirect loop. See [Railway docs](https://docs.railway.com/networking/troubleshooting/ssl#err_too_many_redirects).
+
+</details>
+
 ### Self-Host with Docker Compose
 
 <details>
