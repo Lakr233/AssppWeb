@@ -68,68 +68,43 @@ export default function PackageDetail() {
     
     const urlToShare = installInfo.installUrl;
 
-    // 1. Try native share
+    // First attempt to copy to clipboard directly as a fallback and to ensure user has it / 首先尝试直接复制到剪贴板作为兜底，确保用户已获取
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(urlToShare);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = urlToShare;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.warn("Clipboard fallback failed:", err);
+    }
+
+    // Immediately show the toast notification BEFORE opening native share menu / 在打开原生分享菜单之前，立刻显示通知
+    addToast(
+      t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
+      "success",
+      t("toast.title.shareAcquired")
+    );
+
+    // Then try native share / 然后调起原生分享
     if (navigator.share) {
       try {
         await navigator.share({ 
           text: urlToShare 
         });
-        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
-        addToast(
-          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
-          "success",
-          t("toast.title.shareAcquired")
-        );
-        return; 
       } catch (error: any) {
         if (error.name === 'AbortError') return;
-        console.warn("Native share failed, falling back to copy:", error);
+        console.warn("Native share failed or aborted by user:", error);
       }
-    }
-
-    // 2. Try modern Clipboard API
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(urlToShare);
-        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
-        addToast(
-          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
-          "success",
-          t("toast.title.shareAcquired")
-        );
-        return;
-      } catch (err) {
-        console.warn("Clipboard API failed, falling back to execCommand:", err);
-      }
-    }
-
-    // 3. Ultimate fallback: traditional execCommand
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = urlToShare;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      textArea.style.top = "-999999px";
-      document.body.appendChild(textArea);
-      
-      textArea.focus();
-      textArea.select();
-      
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        // Use detailed share toast with title / 使用带标题和详情信息的分享通知
-        addToast(
-          t("toast.msgShare", { appName, userName, appleId, country: countryStr }),
-          "success",
-          t("toast.title.shareAcquired")
-        );
-      } else {
-        console.error("Fallback execCommand failed to copy");
-      }
-    } catch (err) {
-      console.error("All share/copy methods failed:", err);
     }
   }
 

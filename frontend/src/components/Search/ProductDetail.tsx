@@ -130,13 +130,6 @@ export default function ProductDetail() {
     const rawCountryCode = storeIdToCountry(account.store) || "";
     const countryStr = rawCountryCode ? t(`countries.${rawCountryCode}`, rawCountryCode) : account.store;
 
-    // Notify download started with title / 带标题的下载开始通知
-    addToast(
-      t("toast.msg", { appName, userName, appleId, country: countryStr }),
-      "info",
-      t("toast.title.downloadStarted")
-    );
-
     try {
       const { output, updatedCookies } = await getDownloadInfo(account, app);
       await updateAccount({ ...account, cookies: updatedCookies });
@@ -152,11 +145,12 @@ export default function ProductDetail() {
         sinfs: output.sinfs,
         iTunesMetadata: output.iTunesMetadata,
       });
-      // Notify download success with title / 带标题的下载成功通知
+      
+      // Only show download started when task is successfully submitted to avoid fake success / 仅在任务成功提交后台后显示开始下载，避免提前报虚假成功
       addToast(
         t("toast.msg", { appName, userName, appleId, country: countryStr }),
-        "success",
-        t("toast.title.downloadSuccess")
+        "info",
+        t("toast.title.downloadStarted")
       );
     } catch (e) {
       // Notify download failed with title / 带标题的下载失败通知
