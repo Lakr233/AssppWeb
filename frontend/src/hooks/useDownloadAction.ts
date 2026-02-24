@@ -4,6 +4,7 @@ import { useToastStore } from "../store/toast";
 import { useDownloadsStore } from "../store/downloads";
 import { getDownloadInfo } from "../apple/download";
 import { purchaseApp } from "../apple/purchase";
+import { authenticate } from "../apple/authenticate";
 import { apiPost } from "../api/client";
 import { accountHash } from "../utils/account";
 import { getErrorMessage } from "../utils/error";
@@ -57,8 +58,26 @@ export function useDownloadAction() {
     const ctx = getAccountContext(account, t);
     const appName = app.name;
 
-    const result = await purchaseApp(account, app);
-    await updateAccount({ ...account, cookies: result.updatedCookies });
+    // Silently renew the password token before purchasing.
+    // This prevents "token expired" (2034/2042) errors that would
+    // otherwise require the user to manually re-authenticate.
+    let currentAccount = account;
+    try {
+      const renewed = await authenticate(
+        account.email,
+        account.password,
+        undefined,
+        account.cookies,
+        account.deviceIdentifier,
+      );
+      await updateAccount(renewed);
+      currentAccount = renewed;
+    } catch {
+      // Ignore — proceed with existing token
+    }
+
+    const result = await purchaseApp(currentAccount, app);
+    await updateAccount({ ...currentAccount, cookies: result.updatedCookies });
 
     addToast(
       t("toast.msg", { appName, ...ctx }),
