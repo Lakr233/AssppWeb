@@ -25,14 +25,28 @@ const FORBIDDEN_CREDENTIAL_KEYS = new Set([
   "cookie",
 ]);
 
+function hasForbiddenCredentialKeys(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  if (Array.isArray(value)) {
+    return value.some((item) => hasForbiddenCredentialKeys(item));
+  }
+
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+    if (FORBIDDEN_CREDENTIAL_KEYS.has(key.toLowerCase())) {
+      return true;
+    }
+    if (hasForbiddenCredentialKeys(nested)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Start a new download
 router.post("/downloads", (req: Request, res: Response) => {
-  if (req.body && typeof req.body === "object") {
-    const bodyKeys = Object.keys(req.body as Record<string, unknown>);
-    if (bodyKeys.some((key) => FORBIDDEN_CREDENTIAL_KEYS.has(key.toLowerCase()))) {
-      res.status(400).json({ error: "Credential fields are not accepted by backend" });
-      return;
-    }
+  if (hasForbiddenCredentialKeys(req.body)) {
+    res.status(400).json({ error: "Credential fields are not accepted by backend" });
+    return;
   }
 
   const { software, accountHash, downloadURL, sinfs, iTunesMetadata } =

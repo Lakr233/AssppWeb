@@ -57,6 +57,18 @@ describe("Downloads Route", () => {
     expect(res.body.error).toContain("Credential fields");
   });
 
+  it("POST /api/downloads should reject nested credential-like fields", async () => {
+    const res = await request(app).post("/api/downloads").send({
+      software: { id: 1, cookie: "should-not-be-sent" },
+      accountHash: "abcdef1234567890",
+      downloadURL: "https://example.apple.com/app.ipa",
+      sinfs: [{ id: 1, sinf: "YQ==" }],
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("Credential fields");
+  });
+
   it("GET /api/downloads/:id should return 400 without accountHash", async () => {
     const res = await request(app).get("/api/downloads/nonexistent-id");
     expect(res.status).toBe(400);
