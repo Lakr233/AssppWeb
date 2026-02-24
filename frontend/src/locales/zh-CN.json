@@ -202,12 +202,15 @@
     "title": "设置",
     "language": {
       "title": "语言",
-      "label": "显示语言"
+      "label": "显示语言",
+      "changed": "语言切换成功"
     },
     "defaults": {
       "title": "默认设置",
       "country": "默认国家 / 地区",
-      "entity": "默认设备类型"
+      "entity": "默认设备类型",
+      "countryChanged": "默认国家 / 地区已更新",
+      "entityChanged": "默认设备类型已更新"
     },
     "server": {
       "title": "服务器",
@@ -234,7 +237,8 @@
       "conflictTitle": "发现重复账号",
       "conflictDesc": "在备份中发现 {{conflict}} 个相同的账号以及 {{new}} 个新账号。",
       "conflictOverwrite": "覆盖本地",
-      "conflictSkip": "保留本地 (仅添加新账号)"
+      "conflictSkip": "保留本地 (仅添加新账号)",
+      "cleared": "所有本地数据已清空"
     },
     "about": {
       "title": "关于",

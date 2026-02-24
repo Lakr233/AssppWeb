@@ -202,12 +202,15 @@
     "title": "Settings",
     "language": {
       "title": "Language",
-      "label": "Display Language"
+      "label": "Display Language",
+      "changed": "Language changed successfully"
     },
     "defaults": {
       "title": "Defaults",
       "country": "Default Country / Region",
-      "entity": "Default Entity Type"
+      "entity": "Default Entity Type",
+      "countryChanged": "Default country/region updated",
+      "entityChanged": "Default device type updated"
     },
     "server": {
       "title": "Server",
@@ -234,7 +237,8 @@
       "conflictTitle": "Account Conflicts Detected",
       "conflictDesc": "Found {{conflict}} identical accounts and {{new}} new accounts in the backup.",
       "conflictOverwrite": "Overwrite Local",
-      "conflictSkip": "Keep Local (Add New Only)"
+      "conflictSkip": "Keep Local (Add New Only)",
+      "cleared": "All local data has been cleared"
     },
     "about": {
       "title": "About",

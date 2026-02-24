@@ -186,7 +186,12 @@ export default function SettingsPage() {
               <select
                 id="language"
                 value={i18n.resolvedLanguage || "en-US"}
-                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                onChange={(e) => {
+                  const newLang = e.target.value;
+                  i18n.changeLanguage(newLang);
+                  // Trigger toast with forced language / 使用新选择的语言触发 Toast 通知
+                  addToast(t("settings.language.changed", { lng: newLang }), "success");
+                }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               >
                 <option value="en-US">English (US)</option>
@@ -215,7 +220,11 @@ export default function SettingsPage() {
               <select
                 id="country"
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                onChange={(e) => {
+                  setCountry(e.target.value);
+                  // Notify country change / 触发默认国家修改成功的 Toast 通知
+                  addToast(t("settings.defaults.countryChanged"), "success");
+                }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               >
                 {sortedCountries.map((code) => (
@@ -235,7 +244,11 @@ export default function SettingsPage() {
               <select
                 id="entity"
                 value={entity}
-                onChange={(e) => setEntity(e.target.value)}
+                onChange={(e) => {
+                  setEntity(e.target.value);
+                  // Notify entity change / 触发默认设备类型修改成功的 Toast 通知
+                  addToast(t("settings.defaults.entityChanged"), "success");
+                }}
                 className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               >
                 {entityTypes.map((t) => (
@@ -329,7 +342,11 @@ export default function SettingsPage() {
               if (!confirm(t("settings.data.confirm"))) return;
               localStorage.clear();
               indexedDB.deleteDatabase("asspp-accounts");
-              window.location.href = "/";
+              // Notify data cleared and delay the page reload slightly to show the toast / 提示数据已清空并延迟1秒后刷新页面以展示通知
+              addToast(t("settings.data.cleared"), "success");
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1000);
             }}
             className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
           >

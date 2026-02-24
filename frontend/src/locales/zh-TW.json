@@ -202,12 +202,15 @@
     "title": "設定",
     "language": {
       "title": "語言",
-      "label": "顯示語言"
+      "label": "顯示語言",
+      "changed": "語言切換成功"
     },
     "defaults": {
       "title": "預設設定",
       "country": "預設國家 / 地區",
-      "entity": "預設裝置類型"
+      "entity": "預設裝置類型",
+      "countryChanged": "預設國家 / 地區已更新",
+      "entityChanged": "預設裝置類型已更新"
     },
     "server": {
       "title": "伺服器",
@@ -234,7 +237,8 @@
       "conflictTitle": "發現重複帳號",
       "conflictDesc": "在備份中發現 {{conflict}} 個相同的帳號以及 {{new}} 個新帳號。",
       "conflictOverwrite": "覆蓋本機",
-      "conflictSkip": "保留本機 (僅新增新帳號)"
+      "conflictSkip": "保留本機 (僅新增新帳號)",
+      "cleared": "所有本機資料已清空"
     },
     "about": {
       "title": "關於",

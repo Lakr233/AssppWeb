@@ -202,12 +202,15 @@
     "title": "設定",
     "language": {
       "title": "言語",
-      "label": "表示言語"
+      "label": "表示言語",
+      "changed": "言語を切り替えました"
     },
     "defaults": {
       "title": "デフォルト設定",
       "country": "デフォルトの国 / 地域",
-      "entity": "デフォルトのデバイスタイプ"
+      "entity": "デフォルトのデバイスタイプ",
+      "countryChanged": "デフォルトの国 / 地域を更新しました",
+      "entityChanged": "デフォルトのデバイスタイプを更新しました"
     },
     "server": {
       "title": "サーバー",
@@ -234,7 +237,8 @@
       "conflictTitle": "重複アカウントの検出",
       "conflictDesc": "バックアップに {{conflict}} 個の同一アカウントと {{new}} 個の新規アカウントが見つかりました。",
       "conflictOverwrite": "ローカルを上書き",
-      "conflictSkip": "ローカルを保持 (新規のみ追加)"
+      "conflictSkip": "ローカルを保持 (新規のみ追加)",
+      "cleared": "すべてのローカルデータを消去しました"
     },
     "about": {
       "title": "概要",

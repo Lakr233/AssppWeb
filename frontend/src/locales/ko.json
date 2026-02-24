@@ -202,12 +202,15 @@
     "title": "설정",
     "language": {
       "title": "언어",
-      "label": "표시 언어"
+      "label": "표시 언어",
+      "changed": "언어가 성공적으로 변경되었습니다"
     },
     "defaults": {
       "title": "기본값",
       "country": "기본 국가 / 지역",
-      "entity": "기본 기기 유형"
+      "entity": "기본 기기 유형",
+      "countryChanged": "기본 국가 / 지역이 업데이트되었습니다",
+      "entityChanged": "기본 기기 유형이 업데이트되었습니다"
     },
     "server": {
       "title": "서버",
@@ -234,7 +237,8 @@
       "conflictTitle": "중복 계정 발견",
       "conflictDesc": "백업에서 {{conflict}}개의 동일한 계정과 {{new}}개의 새 계정을 발견했습니다.",
       "conflictOverwrite": "로컬 덮어쓰기",
-      "conflictSkip": "로컬 유지 (새 계정만 추가)"
+      "conflictSkip": "로컬 유지 (새 계정만 추가)",
+      "cleared": "모든 로컬 데이터가 삭제되었습니다"
     },
     "about": {
       "title": "정보",
