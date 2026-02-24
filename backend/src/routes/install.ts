@@ -8,7 +8,7 @@ import { getIdParam } from "../utils/route.js";
 
 const router = Router();
 
-function getBaseUrl(req: Request): string {
+export function getBaseUrl(req: Request): string {
   const configured = normalizeBaseUrl(config.publicBaseUrl);
   if (configured) return configured;
 
@@ -20,6 +20,22 @@ function getBaseUrl(req: Request): string {
 
   // Validate host header to prevent injection
   const sanitizedHost = host.replace(/[^\w.\-:]/g, "");
+
+  // Support X-Forwarded-Port for reverse proxies that strip port from Host header.
+  // Common when deploying HTTPS on non-443 ports (e.g., nginx with $host instead of $http_host).
+  // Without this, manifest plist URLs default to port 443 and iOS cannot fetch the payload.
+  if (!sanitizedHost.includes(":")) {
+    const forwardedPort = req.headers["x-forwarded-port"];
+    if (typeof forwardedPort === "string") {
+      const port = forwardedPort.replace(/\D/g, "");
+      const isDefault =
+        (proto === "https" && port === "443") ||
+        (proto === "http" && port === "80");
+      if (port && !isDefault) {
+        return `${proto}://${sanitizedHost}:${port}`;
+      }
+    }
+  }
 
   return `${proto}://${sanitizedHost}`;
 }

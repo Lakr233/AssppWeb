@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import express from "express";
+import express, { Request, Response } from "express";
 import request from "supertest";
 import { createServer, Server } from "http";
 import settingsRoutes from "../src/routes/settings.js";
 import installRoutes from "../src/routes/install.js";
+import { getBaseUrl } from "../src/routes/install.js";
 import downloadRoutes from "../src/routes/downloads.js";
 
 function createApp() {
@@ -116,5 +117,87 @@ describe("Install Route", () => {
     const res = await request(app).get("/api/install/any-id/icon-large.png");
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("image/png");
+  });
+});
+
+describe("getBaseUrl", () => {
+  function fakeReq(headers: Record<string, string>, secure = false) {
+    return { headers, secure } as unknown as Request;
+  }
+
+  it("uses Host header with port when present", () => {
+    const url = getBaseUrl(
+      fakeReq({ host: "example.com:8443", "x-forwarded-proto": "https" }),
+    );
+    expect(url).toBe("https://example.com:8443");
+  });
+
+  it("uses X-Forwarded-Port when Host lacks port", () => {
+    const url = getBaseUrl(
+      fakeReq({
+        host: "example.com",
+        "x-forwarded-proto": "https",
+        "x-forwarded-port": "8443",
+      }),
+    );
+    expect(url).toBe("https://example.com:8443");
+  });
+
+  it("omits port when X-Forwarded-Port is default 443 for HTTPS", () => {
+    const url = getBaseUrl(
+      fakeReq({
+        host: "example.com",
+        "x-forwarded-proto": "https",
+        "x-forwarded-port": "443",
+      }),
+    );
+    expect(url).toBe("https://example.com");
+  });
+
+  it("omits port when X-Forwarded-Port is default 80 for HTTP", () => {
+    const url = getBaseUrl(
+      fakeReq({
+        host: "example.com",
+        "x-forwarded-port": "80",
+      }),
+    );
+    expect(url).toBe("http://example.com");
+  });
+
+  it("does not override port already in Host header", () => {
+    const url = getBaseUrl(
+      fakeReq({
+        host: "example.com:9000",
+        "x-forwarded-proto": "https",
+        "x-forwarded-port": "8443",
+      }),
+    );
+    expect(url).toBe("https://example.com:9000");
+  });
+
+  it("falls back to http when no forwarded proto and not secure", () => {
+    const url = getBaseUrl(fakeReq({ host: "example.com" }));
+    expect(url).toBe("http://example.com");
+  });
+
+  it("uses https when req.secure is true", () => {
+    const url = getBaseUrl(fakeReq({ host: "example.com" }, true));
+    expect(url).toBe("https://example.com");
+  });
+
+  it("sanitizes invalid characters in Host header", () => {
+    const url = getBaseUrl(fakeReq({ host: "example.com/<script>" }));
+    expect(url).toBe("http://example.comscript");
+  });
+
+  it("ignores non-numeric X-Forwarded-Port", () => {
+    const url = getBaseUrl(
+      fakeReq({
+        host: "example.com",
+        "x-forwarded-proto": "https",
+        "x-forwarded-port": "abc",
+      }),
+    );
+    expect(url).toBe("https://example.com");
   });
 });
