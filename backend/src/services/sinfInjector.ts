@@ -96,14 +96,10 @@ async function listEntries(ipaPath: string): Promise<string[]> {
 
 async function readEntry(ipaPath: string, entryPath: string): Promise<Buffer> {
   // "--" prevents entryPath from being interpreted as flags
-  const { stdout } = await execFile(
-    "unzip",
-    ["-p", "--", ipaPath, entryPath],
-    {
-      encoding: "buffer",
-      maxBuffer: 10 * 1024 * 1024,
-    },
-  );
+  const { stdout } = await execFile("unzip", ["-p", "--", ipaPath, entryPath], {
+    encoding: "buffer",
+    maxBuffer: 10 * 1024 * 1024,
+  });
   return stdout;
 }
 
