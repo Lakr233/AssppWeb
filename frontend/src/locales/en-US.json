@@ -420,10 +420,15 @@
       "installStarted": "Installation Started",
       "shareAcquired": "Link Acquired",
       "downloadIpaStarted": "Downloading IPA",
-      "deleteSuccess": "Delete Success"
+      "deleteSuccess": "Delete Success",
+      "downloadLimit": "Size Limit Exceeded"
     },
     "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nYou can use AirDrop to share it with your friends.",
-    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nError: {{error}}"
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nError: {{error}}",
+    "downloadLimit": {
+      "line2": "App size <strong>{{size}}MB</strong> exceeds the maximum allowed size of <strong>{{limit}}MB</strong>.",
+      "line3": "Please contact the administrator or deploy your own instance to try again."
+    }
   }
 }

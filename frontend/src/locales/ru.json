@@ -420,10 +420,15 @@
       "installStarted": "Начало установки",
       "shareAcquired": "Ссылка получена",
       "downloadIpaStarted": "Начало загрузки IPA",
-      "deleteSuccess": "Успешное удаление"
+      "deleteSuccess": "Успешное удаление",
+      "downloadLimit": "Превышен лимит размера"
     },
     "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nВы можете использовать AirDrop, чтобы поделиться ею с друзьями.",
-    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nОшибка: {{error}}"
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nОшибка: {{error}}",
+    "downloadLimit": {
+      "line2": "Размер приложения <strong>{{size}}MB</strong> превышает максимально допустимый размер <strong>{{limit}}MB</strong>.",
+      "line3": "Пожалуйста, свяжитесь с администратором или разверните свой собственный сервер для повторной попытки."
+    }
   }
 }

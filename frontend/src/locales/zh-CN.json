@@ -420,10 +420,15 @@
       "installStarted": "开始安装",
       "shareAcquired": "链接已获取",
       "downloadIpaStarted": "开始下载 IPA",
-      "deleteSuccess": "删除成功"
+      "deleteSuccess": "删除成功",
+      "downloadLimit": "文件大小超限"
     },
     "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n您可以使用 Airdrop 分享给您的朋友。",
-    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n错误: {{error}}"
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n错误: {{error}}",
+    "downloadLimit": {
+      "line2": "该应用大小 <strong>{{size}}MB</strong> 超过管理员设置的最大可下载大小 <strong>{{limit}}MB</strong>",
+      "line3": "请联系管理员或自行部署后再尝试"
+    }
   }
 }

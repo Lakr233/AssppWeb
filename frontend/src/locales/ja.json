@@ -420,10 +420,15 @@
       "installStarted": "インストール開始",
       "shareAcquired": "リンク取得成功",
       "downloadIpaStarted": "IPA ダウンロード開始",
-      "deleteSuccess": "削除成功"
+      "deleteSuccess": "削除成功",
+      "downloadLimit": "サイズ制限超過"
     },
     "msg": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}",
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nAirDropを使用して友達と共有できます。",
-    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nエラー: {{error}}"
+    "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nエラー: {{error}}",
+    "downloadLimit": {
+      "line2": "アプリのサイズ <strong>{{size}}MB</strong> が最大ダウンロード制限の <strong>{{limit}}MB</strong> を超えています。",
+      "line3": "管理者に連絡するか、ご自身でサーバーを展開して再試行してください。"
+    }
   }
 }

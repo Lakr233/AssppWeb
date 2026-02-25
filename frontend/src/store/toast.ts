@@ -1,17 +1,20 @@
 import { create } from "zustand";
+import type { ReactNode } from "react"; // NEW: Added ReactNode import for custom JSX messages
 
 export type ToastType = "success" | "error" | "info";
 
 export interface Toast {
   id: string;
-  message: string;
+  // NEW: Allow ReactNode for formatted messages
+  // 新增：允许 ReactNode 以支持富文本和加粗等格式
+  message: string | ReactNode; 
   type: ToastType;
-  title?: string;
+  title?: string | ReactNode;
 }
 
 interface ToastStore {
   toasts: Toast[];
-  addToast: (message: string, type: ToastType, title?: string) => void;
+  addToast: (message: string | ReactNode, type: ToastType, title?: string | ReactNode) => void;
   removeToast: (id: string) => void;
 }
 

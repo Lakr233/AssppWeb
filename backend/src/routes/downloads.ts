@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { config } from "../config.js"; // NEW: Imported config for size validation
 import {
   createTask,
   getAllTasks,
@@ -40,6 +41,18 @@ router.post("/downloads", (req: Request, res: Response) => {
       error: err instanceof Error ? err.message : "Invalid download URL",
     });
     return;
+  }
+
+  // NEW: Validate download size limit on the backend if configured
+  // 新增：如果在后端配置了限制，则校验下载文件的大小
+  if (config.maxDownloadMB > 0 && software.fileSizeBytes) {
+    const sizeMB = parseInt(software.fileSizeBytes, 10) / (1024 * 1024);
+    if (sizeMB > config.maxDownloadMB) {
+      res.status(403).json({
+        error: `File size exceeds the maximum limit of ${config.maxDownloadMB}MB`,
+      });
+      return;
+    }
   }
 
   try {
