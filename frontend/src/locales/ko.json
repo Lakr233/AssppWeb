@@ -65,7 +65,8 @@
       "releaseNotes": "릴리스 노트",
       "screenshots": "스크린샷",
       "ratings": "개의 평가",
-      "free": "무료"
+      "free": "무료",
+      "noAccountsForRegion": "해당 지역의 계정을 찾을 수 없습니다"
     },
     "versions": {
       "title": "버전 기록",
@@ -205,10 +206,12 @@
     },
     "server": {
       "title": "서버",
-      "version": "버전",
-      "dataDir": "데이터 디렉토리",
       "uptime": "가동 시간",
-      "offline": "서버에 연결할 수 없습니다."
+      "offline": "서버에 연결할 수 없습니다.",
+      "configuration": "서버 구성",
+      "enabled": "활성화됨",
+      "disabled": "비활성화됨",
+      "notSet": "미설정 (자동 감지)"
     },
     "data": {
       "title": "데이터",
@@ -233,7 +236,9 @@
     },
     "about": {
       "title": "정보",
-      "description": "Asspp Web —— 웹 기반 Apple 앱 다운로드 및 라이선스 관리 인터페이스."
+      "description": "Asspp Web —— 웹 기반 Apple 앱 다운로드 및 라이선스 관리 인터페이스.",
+      "buildCommit": "빌드 커밋",
+      "buildDate": "빌드 날짜"
     }
   },
   "countries": {

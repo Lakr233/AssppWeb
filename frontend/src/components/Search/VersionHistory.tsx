@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useDownloadAction } from "../../hooks/useDownloadAction";
-import { useSettingsStore } from "../../store/settings";
 import { listVersions } from "../../apple/versionFinder";
+import { storeIdToCountry } from "../../apple/config";
 import { getVersionMetadata } from "../../apple/versionLookup";
 import { getErrorMessage } from "../../utils/error";
 import { useToastStore } from "../../store/toast";
@@ -16,7 +16,6 @@ export default function VersionHistory() {
   const { appId } = useParams<{ appId: string }>();
   const location = useLocation();
   const { accounts, updateAccount } = useAccounts();
-  const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   const { startDownload, toastDownloadError } = useDownloadAction();
@@ -24,10 +23,15 @@ export default function VersionHistory() {
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
   const stateCountry = (location.state as { country?: string })?.country;
-  const country = stateCountry ?? defaultCountry;
+  const country = stateCountry ?? "US";
 
   const [app] = useState<Software | null>(stateApp ?? null);
   const [selectedAccount, setSelectedAccount] = useState("");
+
+  const filteredAccounts = useMemo(
+    () => accounts.filter((a) => storeIdToCountry(a.store) === country),
+    [accounts, country],
+  );
   const [versions, setVersions] = useState<string[]>([]);
   const [versionMeta, setVersionMeta] = useState<
     Record<string, VersionMetadata>
@@ -39,12 +43,15 @@ export default function VersionHistory() {
   );
 
   useEffect(() => {
-    if (accounts.length > 0 && !selectedAccount) {
-      setSelectedAccount(accounts[0].email);
+    if (
+      filteredAccounts.length > 0 &&
+      !filteredAccounts.some((a) => a.email === selectedAccount)
+    ) {
+      setSelectedAccount(filteredAccounts[0].email);
     }
-  }, [accounts, selectedAccount]);
+  }, [filteredAccounts, selectedAccount]);
 
-  const account = accounts.find((a) => a.email === selectedAccount);
+  const account = filteredAccounts.find((a) => a.email === selectedAccount);
 
   async function handleLoadVersions() {
     if (!account || !app) return;
@@ -109,34 +116,40 @@ export default function VersionHistory() {
           </div>
         </div>
 
-        {accounts.length > 0 && (
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {t("search.versions.account")}
-              </label>
-              <select
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-                className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-              >
-                {accounts.map((a) => (
-                  <option key={a.email} value={a.email}>
-                    {a.firstName} {a.lastName} ({a.email})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={handleLoadVersions}
-              disabled={loading || !account}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
-            >
-              {loading
-                ? t("search.versions.loading")
-                : t("search.versions.load")}
-            </button>
+        {accounts.length > 0 && filteredAccounts.length === 0 ? (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+            {t("search.product.noAccountsForRegion")}
           </div>
+        ) : (
+          filteredAccounts.length > 0 && (
+            <div className="flex items-end gap-3">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("search.versions.account")}
+                </label>
+                <select
+                  value={selectedAccount}
+                  onChange={(e) => setSelectedAccount(e.target.value)}
+                  className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                >
+                  {filteredAccounts.map((a) => (
+                    <option key={a.email} value={a.email}>
+                      {a.firstName} {a.lastName} ({a.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={handleLoadVersions}
+                disabled={loading || !account}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+              >
+                {loading
+                  ? t("search.versions.loading")
+                  : t("search.versions.load")}
+              </button>
+            </div>
+          )
         )}
 
         {versions.length > 0 && (

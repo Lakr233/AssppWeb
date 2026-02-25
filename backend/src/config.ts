@@ -7,6 +7,9 @@ export const config = {
   // Auto-cleanup: 0 disables
   autoCleanupDays: parseInt(process.env.AUTO_CLEANUP_DAYS || "0", 10) || 0,
   autoCleanupMaxMB: parseInt(process.env.AUTO_CLEANUP_MAX_MB || "0", 10) || 0,
+  // Build info (injected via Docker build args)
+  buildCommit: process.env.BUILD_COMMIT || "unknown",
+  buildDate: process.env.BUILD_DATE || "unknown",
 };
 
 export const MAX_DOWNLOAD_SIZE = 8 * 1024 * 1024 * 1024; // 8 GB

@@ -65,7 +65,8 @@
       "releaseNotes": "更新日志",
       "screenshots": "屏幕截图",
       "ratings": "个评分",
-      "free": "免费"
+      "free": "免费",
+      "noAccountsForRegion": "未找到该地区的账号"
     },
     "versions": {
       "title": "历史版本",
@@ -205,10 +206,12 @@
     },
     "server": {
       "title": "服务器",
-      "version": "版本",
-      "dataDir": "数据目录",
       "uptime": "运行时间",
-      "offline": "无法连接到服务器。"
+      "offline": "无法连接到服务器。",
+      "configuration": "服务器配置",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "notSet": "未设置（自动检测）"
     },
     "data": {
       "title": "数据",
@@ -233,7 +236,9 @@
     },
     "about": {
       "title": "关于",
-      "description": "Asspp Web —— 基于 Web 的 Apple 应用下载和许可证管理界面。"
+      "description": "Asspp Web —— 基于 Web 的 Apple 应用下载和许可证管理界面。",
+      "buildCommit": "构建提交",
+      "buildDate": "构建日期"
     }
   },
   "countries": {

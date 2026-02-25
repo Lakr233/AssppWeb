@@ -65,7 +65,8 @@
       "releaseNotes": "Release Notes",
       "screenshots": "Screenshots",
       "ratings": "ratings",
-      "free": "Free"
+      "free": "Free",
+      "noAccountsForRegion": "No accounts found for this region"
     },
     "versions": {
       "title": "Version History",
@@ -205,10 +206,12 @@
     },
     "server": {
       "title": "Server",
-      "version": "Version",
-      "dataDir": "Data Directory",
       "uptime": "Uptime",
-      "offline": "Unable to connect to server."
+      "offline": "Unable to connect to server.",
+      "configuration": "Configuration",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "notSet": "Not set (auto-detect)"
     },
     "data": {
       "title": "Data",
@@ -233,7 +236,9 @@
     },
     "about": {
       "title": "About",
-      "description": "Asspp Web -- a web-based interface for managing Apple app downloads and licenses."
+      "description": "Asspp Web -- a web-based interface for managing Apple app downloads and licenses.",
+      "buildCommit": "Build Commit",
+      "buildDate": "Build Date"
     }
   },
   "countries": {

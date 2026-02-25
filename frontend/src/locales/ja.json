@@ -65,7 +65,8 @@
       "releaseNotes": "リリースノート",
       "screenshots": "スクリーンショット",
       "ratings": "件の評価",
-      "free": "無料"
+      "free": "無料",
+      "noAccountsForRegion": "この地域のアカウントがありません"
     },
     "versions": {
       "title": "バージョン履歴",
@@ -205,10 +206,12 @@
     },
     "server": {
       "title": "サーバー",
-      "version": "バージョン",
-      "dataDir": "データディレクトリ",
       "uptime": "稼働時間",
-      "offline": "サーバーに接続できません。"
+      "offline": "サーバーに接続できません。",
+      "configuration": "サーバー設定",
+      "enabled": "有効",
+      "disabled": "無効",
+      "notSet": "未設定（自動検出）"
     },
     "data": {
       "title": "データ",
@@ -233,7 +236,9 @@
     },
     "about": {
       "title": "概要",
-      "description": "Asspp Web —— Apple アプリのダウンロードとライセンス管理のためのウェブベースインターフェース。"
+      "description": "Asspp Web —— Apple アプリのダウンロードとライセンス管理のためのウェブベースインターフェース。",
+      "buildCommit": "ビルドコミット",
+      "buildDate": "ビルド日時"
     }
   },
   "countries": {

@@ -65,7 +65,8 @@
       "releaseNotes": "更新日誌",
       "screenshots": "螢幕截圖",
       "ratings": "個評分",
-      "free": "免費"
+      "free": "免費",
+      "noAccountsForRegion": "找不到該地區的帳號"
     },
     "versions": {
       "title": "歷史版本",
@@ -205,10 +206,12 @@
     },
     "server": {
       "title": "伺服器",
-      "version": "版本",
-      "dataDir": "資料目錄",
       "uptime": "運行時間",
-      "offline": "無法連線至伺服器。"
+      "offline": "無法連線至伺服器。",
+      "configuration": "伺服器配置",
+      "enabled": "已啟用",
+      "disabled": "已停用",
+      "notSet": "未設定（自動偵測）"
     },
     "data": {
       "title": "資料",
@@ -233,7 +236,9 @@
     },
     "about": {
       "title": "關於",
-      "description": "Asspp Web —— 基於 Web 的 Apple 應用程式下載與授權管理介面。"
+      "description": "Asspp Web —— 基於 Web 的 Apple 應用程式下載與授權管理介面。",
+      "buildCommit": "構建提交",
+      "buildDate": "構建日期"
     }
   },
   "countries": {

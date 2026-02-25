@@ -1,21 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useDownloadAction } from "../../hooks/useDownloadAction";
-import { useSettingsStore } from "../../store/settings";
 import { lookupApp } from "../../api/search";
 import { storeIdToCountry } from "../../apple/config";
-import { accountStoreCountry, firstAccountCountry } from "../../utils/account";
 import type { Software } from "../../types";
 
 export default function ProductDetail() {
   const { appId } = useParams<{ appId: string }>();
   const location = useLocation();
   const { accounts } = useAccounts();
-  const { defaultCountry } = useSettingsStore();
   const { t } = useTranslation();
   const {
     startDownload,
@@ -27,7 +24,7 @@ export default function ProductDetail() {
   const stateApp = (location.state as { app?: Software; country?: string })
     ?.app;
   const stateCountry = (location.state as { country?: string })?.country;
-  const [country, setCountry] = useState(stateCountry ?? defaultCountry);
+  const [country] = useState(stateCountry ?? "US");
   const [app, setApp] = useState<Software | null>(stateApp ?? null);
   const [loading, setLoading] = useState(!stateApp);
   const [selectedAccount, setSelectedAccount] = useState("");
@@ -35,7 +32,12 @@ export default function ProductDetail() {
     "purchase" | "download" | null
   >(null);
 
-  const account = accounts.find((a) => a.email === selectedAccount);
+  const filteredAccounts = useMemo(
+    () => accounts.filter((a) => storeIdToCountry(a.store) === country),
+    [accounts, country],
+  );
+
+  const account = filteredAccounts.find((a) => a.email === selectedAccount);
 
   useEffect(() => {
     if (!stateApp && appId) {
@@ -52,20 +54,13 @@ export default function ProductDetail() {
   }, [appId, stateApp, country]);
 
   useEffect(() => {
-    if (stateCountry) return;
-    const accountCountry =
-      accountStoreCountry(account) ?? firstAccountCountry(accounts);
-    const nextCountry = accountCountry ?? defaultCountry;
-    if (nextCountry && nextCountry !== country) {
-      setCountry(nextCountry);
+    if (
+      filteredAccounts.length > 0 &&
+      !filteredAccounts.some((a) => a.email === selectedAccount)
+    ) {
+      setSelectedAccount(filteredAccounts[0].email);
     }
-  }, [account, accounts, country, defaultCountry, stateCountry]);
-
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccount) {
-      setSelectedAccount(accounts[0].email);
-    }
-  }, [accounts, selectedAccount]);
+  }, [filteredAccounts, selectedAccount]);
 
   if (loading) {
     return (
@@ -136,6 +131,10 @@ export default function ProductDetail() {
             </Link>{" "}
             {t("search.product.addAccountPrompt")}
           </div>
+        ) : filteredAccounts.length === 0 ? (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+            {t("search.product.noAccountsForRegion")}
+          </div>
         ) : (
           <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 space-y-4">
             <div>
@@ -148,18 +147,11 @@ export default function ProductDetail() {
                 className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={loadingAction !== null}
               >
-                {accounts.map((a) => {
-                  const regionCode = storeIdToCountry(a.store);
-                  const regionDisplay = regionCode
-                    ? t(`countries.${regionCode}`, regionCode)
-                    : a.store;
-                  return (
-                    <option key={a.email} value={a.email}>
-                      {a.firstName} {a.lastName} ({a.email})
-                      {regionDisplay ? ` - ${regionDisplay}` : ""}
-                    </option>
-                  );
-                })}
+                {filteredAccounts.map((a) => (
+                  <option key={a.email} value={a.email}>
+                    {a.firstName} {a.lastName} ({a.email})
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex flex-wrap gap-3">

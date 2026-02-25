@@ -9,9 +9,15 @@ import { countryCodeMap } from "../../apple/config";
 import type { Account } from "../../types";
 
 interface ServerInfo {
-  version?: string;
   uptime?: number;
+  buildCommit?: string;
+  buildDate?: string;
+  port?: number;
   dataDir?: string;
+  publicBaseUrl?: string;
+  disableHttpsRedirect?: boolean;
+  autoCleanupDays?: number;
+  autoCleanupMaxMB?: number;
 }
 
 const entityTypes = [
@@ -259,38 +265,84 @@ export default function SettingsPage() {
             {t("settings.server.title")}
           </h2>
           {serverInfo ? (
-            <dl className="space-y-3">
-              {serverInfo.version && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {t("settings.server.version")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-gray-200">
-                    {serverInfo.version}
-                  </dd>
-                </div>
-              )}
-              {serverInfo.dataDir && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {t("settings.server.dataDir")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
-                    {serverInfo.dataDir}
-                  </dd>
-                </div>
-              )}
-              {serverInfo.uptime != null && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {t("settings.server.uptime")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-gray-200">
-                    {formatUptime(serverInfo.uptime)}
-                  </dd>
-                </div>
-              )}
-            </dl>
+            <div className="space-y-6">
+              <dl className="space-y-3">
+                {serverInfo.uptime != null && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      {t("settings.server.uptime")}
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200">
+                      {formatUptime(serverInfo.uptime)}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  {t("settings.server.configuration")}
+                </h3>
+                <dl className="space-y-3">
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      PORT
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.port}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      DATA_DIR
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.dataDir}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      PUBLIC_BASE_URL
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.publicBaseUrl || (
+                        <span className="text-gray-400 dark:text-gray-500 italic">
+                          {t("settings.server.notSet")}
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      UNSAFE_DANGEROUSLY_DISABLE_HTTPS_REDIRECT
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.disableHttpsRedirect
+                        ? t("settings.server.enabled")
+                        : t("settings.server.disabled")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      AUTO_CLEANUP_DAYS
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.autoCleanupDays ||
+                        t("settings.server.disabled")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      AUTO_CLEANUP_MAX_MB
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.autoCleanupMaxMB ||
+                        t("settings.server.disabled")}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {t("settings.server.offline")}
@@ -351,9 +403,31 @@ export default function SettingsPage() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {t("settings.about.description")}
           </p>
-          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-            v0.0.1
-          </p>
+          {serverInfo && (
+            <dl className="mt-3 space-y-2">
+              {serverInfo.buildCommit &&
+                serverInfo.buildCommit !== "unknown" && (
+                  <div>
+                    <dt className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                      {t("settings.about.buildCommit")}
+                    </dt>
+                    <dd className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                      {serverInfo.buildCommit.slice(0, 7)}
+                    </dd>
+                  </div>
+                )}
+              {serverInfo.buildDate && serverInfo.buildDate !== "unknown" && (
+                <div>
+                  <dt className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                    {t("settings.about.buildDate")}
+                  </dt>
+                  <dd className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(serverInfo.buildDate).toLocaleString()}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          )}
         </section>
       </div>
 
