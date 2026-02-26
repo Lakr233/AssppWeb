@@ -1,7 +1,18 @@
 import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-const SESSION_KEY = "auth-verified";
+const SESSION_KEY = "auth-token";
+
+export function getAccessToken(): string | null {
+  return sessionStorage.getItem(SESSION_KEY);
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const data = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export default function PasswordGate({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -16,7 +27,7 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
     fetch("/api/auth/status")
       .then((r) => r.json())
       .then((data: { required: boolean }) => {
-        if (!data.required || sessionStorage.getItem(SESSION_KEY) === "true") {
+        if (!data.required || sessionStorage.getItem(SESSION_KEY)) {
           setStatus("verified");
         } else {
           setStatus("required");
@@ -34,15 +45,16 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
     setSubmitting(true);
 
     try {
+      const hash = await hashPassword(password);
       const res = await fetch("/api/auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ token: hash }),
       });
       const data = (await res.json()) as { ok: boolean };
 
       if (data.ok) {
-        sessionStorage.setItem(SESSION_KEY, "true");
+        sessionStorage.setItem(SESSION_KEY, hash);
         setStatus("verified");
       } else {
         setError(t("auth.error"));

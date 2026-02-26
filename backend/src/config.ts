@@ -1,3 +1,6 @@
+import { createHash } from "crypto";
+import { timingSafeEqual } from "crypto";
+
 export const config = {
   port: parseInt(process.env.PORT || "8080"),
   dataDir: process.env.DATA_DIR || "./data",
@@ -15,6 +18,17 @@ export const config = {
   // Access password protection (empty = disabled)
   accessPassword: process.env.ACCESS_PASSWORD || "",
 };
+
+export const accessPasswordHash = config.accessPassword
+  ? createHash("sha256").update(config.accessPassword).digest("hex")
+  : "";
+
+/** Timing-safe comparison of a client-supplied token against the precomputed hash. */
+export function verifyAccessToken(token: string): boolean {
+  const expected = Buffer.from(accessPasswordHash, "utf8");
+  const actual = Buffer.from(token, "utf8");
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
 
 export const MAX_DOWNLOAD_SIZE = 8 * 1024 * 1024 * 1024; // 8 GB
 export const DOWNLOAD_TIMEOUT_MS = 8 * 60 * 60 * 1000; // 8 hours

@@ -16,7 +16,9 @@ describe("api/client", () => {
 
       const result = await apiGet("/api/test");
       expect(result).toEqual(mockData);
-      expect(fetch).toHaveBeenCalledWith("/api/test");
+      expect(fetch).toHaveBeenCalledWith("/api/test", {
+        headers: {},
+      });
     });
 
     it("should throw on non-ok response", async () => {
@@ -68,7 +70,10 @@ describe("api/client", () => {
       } as Response);
 
       await apiDelete("/api/test/123");
-      expect(fetch).toHaveBeenCalledWith("/api/test/123", { method: "DELETE" });
+      expect(fetch).toHaveBeenCalledWith("/api/test/123", {
+        method: "DELETE",
+        headers: {},
+      });
     });
 
     it("should throw on non-ok response", async () => {

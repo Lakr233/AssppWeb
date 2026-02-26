@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
-import { timingSafeEqual } from "crypto";
-import { config } from "../config.js";
+import { config, accessPasswordHash, verifyAccessToken } from "../config.js";
 
 const router = Router();
 
@@ -9,25 +8,19 @@ router.get("/auth/status", (_req: Request, res: Response) => {
 });
 
 router.post("/auth/verify", (req: Request, res: Response) => {
-  const { password } = req.body as { password?: string };
+  const { token } = req.body as { token?: string };
 
-  if (!config.accessPassword) {
+  if (!accessPasswordHash) {
     res.json({ ok: true });
     return;
   }
 
-  if (!password || typeof password !== "string") {
+  if (!token || typeof token !== "string") {
     res.json({ ok: false });
     return;
   }
 
-  const expected = Buffer.from(config.accessPassword, "utf8");
-  const actual = Buffer.from(password, "utf8");
-
-  const ok =
-    expected.length === actual.length && timingSafeEqual(expected, actual);
-
-  res.json({ ok });
+  res.json({ ok: verifyAccessToken(token) });
 });
 
 export default router;
