@@ -150,6 +150,7 @@
     "checkingUpdates": "확인 중...",
     "checkUpdatesStarted": "백그라운드에서 업데이트를 확인 중입니다...",
     "checkUpdatesCompleted": "업데이트 확인 완료. {{count}}개의 패키지를 업데이트합니다.",
+    "checkUpdatesDesc": "속도 제한을 방지하기 위해 앱을 하나씩 확인하고 있습니다. 몇 분 정도 걸릴 수 있습니다.",
     "status": {
       "all": "전체",
       "downloading": "다운로드 중",

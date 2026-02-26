@@ -150,6 +150,7 @@
     "checkingUpdates": "Checking...",
     "checkUpdatesStarted": "Checking for updates in background...",
     "checkUpdatesCompleted": "Update check complete. Found and updating {{count}} packages.",
+    "checkUpdatesDesc": "To prevent rate limits, we're checking apps one by one. This may take a few minutes.",
     "status": {
       "all": "All",
       "downloading": "Downloading",

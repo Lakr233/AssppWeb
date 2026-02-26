@@ -276,9 +276,9 @@ export default function DownloadList() {
                 ></div>
               </div>
               
-              {/* Optional: Add a descriptive text about the delay / 可选：添加关于延迟的描述文本 */}
+              {/* Localized the description text for the bulk update check process / 本地化批量更新检查过程的描述文本 */}
               <p className="text-xs text-gray-400 dark:text-gray-500 text-center max-w-xs">
-                To prevent rate limits, we're checking apps one by one. This may take a few minutes.
+                {t("downloads.checkUpdatesDesc")}
               </p>
             </div>
           </div>

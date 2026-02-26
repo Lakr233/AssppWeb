@@ -150,6 +150,7 @@
     "checkingUpdates": "检查中...",
     "checkUpdatesStarted": "正在后台检查更新...",
     "checkUpdatesCompleted": "更新检查完成。发现并正在更新 {{count}} 个安装包。",
+    "checkUpdatesDesc": "为防止触发速率限制，我们正在逐一检查应用。这可能需要几分钟时间。",
     "status": {
       "all": "全部",
       "downloading": "下载中",
