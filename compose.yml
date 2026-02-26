@@ -8,6 +8,8 @@ services:
     environment:
       - DATA_DIR=/data
       - PORT=8080
+      # - DOWNLOAD_THREADS=8
+      # - ACCESS_PASSWORD=your_password_here
     restart: unless-stopped
     logging:
       driver: "json-file"

@@ -6,6 +6,7 @@ import { config } from "./config.js";
 import { httpsRedirect } from "./middleware/httpsRedirect.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { setupWsProxy } from "./services/wsProxy.js";
+import authRoutes from "./routes/auth.js";
 import searchRoutes from "./routes/search.js";
 import downloadRoutes from "./routes/downloads.js";
 import packageRoutes from "./routes/packages.js";
@@ -20,6 +21,7 @@ app.use(httpsRedirect);
 app.use(express.json({ limit: "50mb" }));
 
 // API routes
+app.use("/api", authRoutes);
 app.use("/api", searchRoutes);
 app.use("/api", downloadRoutes);
 app.use("/api", packageRoutes);

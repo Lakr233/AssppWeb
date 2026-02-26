@@ -1,5 +1,12 @@
 {
   "loading": "Loading...",
+  "auth": {
+    "title": "Access Password",
+    "placeholder": "Enter access password",
+    "submit": "Unlock",
+    "error": "Incorrect password",
+    "loading": "Verifying..."
+  },
   "theme": {
     "light": "Light Mode",
     "dark": "Dark Mode",
