@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { config } from "../config.js";
+import { config, DOWNLOAD_THREADS } from "../config.js";
 
 const router = Router();
 const startedAt = Date.now();
@@ -16,6 +16,7 @@ router.get("/settings", (_req: Request, res: Response) => {
     autoCleanupDays: config.autoCleanupDays,
     autoCleanupMaxMB: config.autoCleanupMaxMB,
     maxDownloadMB: config.maxDownloadMB,
+    downloadThreads: DOWNLOAD_THREADS,
   });
 });
 

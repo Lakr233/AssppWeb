@@ -19,3 +19,11 @@ export const DOWNLOAD_TIMEOUT_MS = 8 * 60 * 60 * 1000; // 8 hours
 export const BAG_TIMEOUT_MS = 15_000; // 15 seconds
 export const BAG_MAX_BYTES = 1024 * 1024; // 1 MB
 export const MIN_ACCOUNT_HASH_LENGTH = 8;
+
+// Chunked download settings
+export const DOWNLOAD_THREADS = Math.max(
+  1,
+  Math.min(32, parseInt(process.env.DOWNLOAD_THREADS || "8", 10) || 8),
+);
+export const CHUNK_RETRY_COUNT = 3;
+export const CHUNK_RETRY_DELAY_MS = 2000;

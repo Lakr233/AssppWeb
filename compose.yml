@@ -1,6 +1,6 @@
 services:
   asspp:
-    image: ghcr.io/lakr233/assppweb:latest
+    build: .
     ports:
       - "8080:8080"
     volumes:
@@ -8,6 +8,7 @@ services:
     environment:
       - DATA_DIR=/data
       - PORT=8080
+      # - DOWNLOAD_THREADS=8
     restart: unless-stopped
     logging:
       driver: "json-file"

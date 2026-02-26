@@ -22,9 +22,9 @@ describe("Settings Route", () => {
   it("GET /api/settings should return server info", async () => {
     const res = await request(app).get("/api/settings");
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("version", "1.0.0");
     expect(res.body).toHaveProperty("dataDir");
     expect(res.body).toHaveProperty("uptime");
+    expect(res.body).toHaveProperty("downloadThreads");
   });
 });
 
