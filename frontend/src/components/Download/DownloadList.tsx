@@ -16,6 +16,9 @@ import { useDownloadAction } from "../../hooks/useDownloadAction";
 
 type StatusFilter = "all" | DownloadTask["status"];
 
+// Helper function to create a delay to avoid rate limits / 创建一个延迟函数的辅助工具，避免触发速率限制
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function DownloadList() {
   const { t } = useTranslation();
   const {
@@ -33,6 +36,9 @@ export default function DownloadList() {
 
   // State to manage the loading status of the bulk update process
   const [checkingAll, setCheckingAll] = useState(false);
+  
+  // State to track the progress of the bulk update check / 用于跟踪批量更新检查进度的状态
+  const [checkProgress, setCheckProgress] = useState({ current: 0, total: 0 });
 
   const filtered =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -69,12 +75,24 @@ export default function DownloadList() {
     let count = 0;
     const completedTasks = tasks.filter((t) => t.status === "completed");
     
-    for (const task of completedTasks) {
+    // Initialize the progress state / 初始化进度状态
+    setCheckProgress({ current: 0, total: completedTasks.length });
+    
+    for (let i = 0; i < completedTasks.length; i++) {
+      const task = completedTasks[i];
       const accountEmail = hashToEmail[task.accountHash];
       const account = accounts.find((a) => a.email === accountEmail);
-      if (!account) continue;
+      
+      if (!account) {
+        // Update progress even if skipped / 即使跳过也更新进度
+        setCheckProgress((prev) => ({ ...prev, current: i + 1 }));
+        continue;
+      }
 
       try {
+        // Add a delay to prevent hitting Apple's API rate limits / 添加延迟以防止触发苹果API的速率限制
+        await delay(1500);
+
         const country = storeIdToCountry(account.store);
         const latestApp = await lookupApp(task.software.bundleID, country);
         
@@ -87,6 +105,9 @@ export default function DownloadList() {
       } catch (err) {
         // Silently continue with the next item on error
       }
+      
+      // Update progress after each item is processed / 处理完每个项目后更新进度
+      setCheckProgress((prev) => ({ ...prev, current: i + 1 }));
     }
     
     setCheckingAll(false);
@@ -97,23 +118,40 @@ export default function DownloadList() {
     <PageContainer
       title={t("downloads.title")}
       action={
-        <div className="flex gap-2">
-          {/* Check All Updates Button */}
-          <button
-            onClick={handleCheckAllUpdates}
-            disabled={checkingAll}
-            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-          >
-            {checkingAll
-              ? t("downloads.checkingUpdates")
-              : t("downloads.checkUpdates")}
-          </button>
-          <Link
-            to="/downloads/add"
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-          >
-            {t("downloads.new")}
-          </Link>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex gap-2">
+            {/* Check All Updates Button */}
+            <button
+              onClick={handleCheckAllUpdates}
+              disabled={checkingAll}
+              className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              {checkingAll
+                ? t("downloads.checkingUpdates")
+                : t("downloads.checkUpdates")}
+            </button>
+            <Link
+              to="/downloads/add"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            >
+              {t("downloads.new")}
+            </Link>
+          </div>
+          
+          {/* Progress bar container shown only when checking updates / 仅在检查更新时显示的进度条容器 */}
+          {checkingAll && checkProgress.total > 0 && (
+            <div className="w-full max-w-[200px] flex flex-col gap-1">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-green-500 h-1.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${(checkProgress.current / checkProgress.total) * 100}%` }}
+                ></div>
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right font-medium">
+                {checkProgress.current} / {checkProgress.total}
+              </div>
+            </div>
+          )}
         </div>
       }
     >
