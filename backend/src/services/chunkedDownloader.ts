@@ -1,13 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-import { pipeline } from 'stream/promises';
-import { Readable } from 'stream';
+import fs from "fs";
+import path from "path";
+import { pipeline } from "stream/promises";
+import { Readable } from "stream";
 import {
   DOWNLOAD_THREADS,
   CHUNK_RETRY_COUNT,
   CHUNK_RETRY_DELAY_MS,
   MAX_DOWNLOAD_SIZE,
-} from '../config.js';
+} from "../config.js";
 
 interface ChunkRange {
   index: number;
@@ -33,7 +33,7 @@ export class ChunkedDownloader {
   private readonly threads: number;
   private readonly onProgress?: ProgressCallback;
 
-  private abortControllers: AbortController[] = [];
+  private abortControllers = new Set<AbortController>();
   private aborted = false;
   private chunkBytes: number[] = [];
   private totalSize = 0;
@@ -56,14 +56,21 @@ export class ChunkedDownloader {
     supportsRange: boolean;
     contentLength: number;
   }> {
-    const res = await fetch(this.url, { method: 'HEAD', signal, redirect: 'follow' });
+    const res = await fetch(this.url, {
+      method: "HEAD",
+      signal,
+      redirect: "follow",
+    });
     if (!res.ok) {
       throw new Error(`HEAD failed: HTTP ${res.status}`);
     }
 
-    const acceptRanges = res.headers.get('accept-ranges');
-    const contentLength = parseInt(res.headers.get('content-length') || '0', 10);
-    const supportsRange = acceptRanges === 'bytes' && contentLength > 0;
+    const acceptRanges = res.headers.get("accept-ranges");
+    const contentLength = parseInt(
+      res.headers.get("content-length") || "0",
+      10,
+    );
+    const supportsRange = acceptRanges === "bytes" && contentLength > 0;
 
     return { supportsRange, contentLength };
   }
@@ -82,24 +89,26 @@ export class ChunkedDownloader {
   }
 
   /** Download a single chunk with retries, writing to a .part file. */
-  private async downloadChunk(chunk: ChunkRange, signal: AbortSignal): Promise<void> {
+  private async downloadChunk(
+    chunk: ChunkRange,
+    signal: AbortSignal,
+  ): Promise<void> {
     const partPath = `${this.destPath}.part${chunk.index}`;
+    const expectedBytes = chunk.end - chunk.start + 1;
     let lastErr: Error | undefined;
 
     for (let attempt = 0; attempt < CHUNK_RETRY_COUNT; attempt++) {
-      if (this.aborted) throw new Error('Aborted');
+      if (this.aborted) throw new Error("Aborted");
+
+      const ac = new AbortController();
+      this.abortControllers.add(ac);
+      const onAbort = () => ac.abort();
+      signal.addEventListener("abort", onAbort, { once: true });
 
       try {
-        const ac = new AbortController();
-        this.abortControllers.push(ac);
-
-        // Link parent signal to chunk controller
-        const onAbort = () => ac.abort();
-        signal.addEventListener('abort', onAbort, { once: true });
-
         const res = await fetch(this.url, {
           signal: ac.signal,
-          redirect: 'follow',
+          redirect: "follow",
           headers: { Range: `bytes=${chunk.start}-${chunk.end}` },
         });
 
@@ -114,6 +123,7 @@ export class ChunkedDownloader {
         const reader = res.body.getReader();
         const chunkBytesRef = this.chunkBytes;
         const chunkIndex = chunk.index;
+        let chunkDownloaded = 0;
 
         const readable = new Readable({
           async read() {
@@ -123,7 +133,14 @@ export class ChunkedDownloader {
                 this.push(null);
                 return;
               }
-              chunkBytesRef[chunkIndex] += value.byteLength;
+              chunkDownloaded += value.byteLength;
+              if (chunkDownloaded > expectedBytes * 2) {
+                this.destroy(
+                  new Error(`Chunk ${chunkIndex}: exceeded expected size`),
+                );
+                return;
+              }
+              chunkBytesRef[chunkIndex] = chunkDownloaded;
               this.push(Buffer.from(value));
             } catch (err) {
               this.destroy(err instanceof Error ? err : new Error(String(err)));
@@ -132,15 +149,16 @@ export class ChunkedDownloader {
         });
 
         await pipeline(readable, ws);
-        signal.removeEventListener('abort', onAbort);
         return; // success
       } catch (err) {
         lastErr = err instanceof Error ? err : new Error(String(err));
-        if (lastErr.name === 'AbortError' || this.aborted) throw lastErr;
-        // Wait before retry
+        if (lastErr.name === "AbortError" || this.aborted) throw lastErr;
         if (attempt < CHUNK_RETRY_COUNT - 1) {
           await new Promise((r) => setTimeout(r, CHUNK_RETRY_DELAY_MS));
         }
+      } finally {
+        signal.removeEventListener("abort", onAbort);
+        this.abortControllers.delete(ac);
       }
     }
 
@@ -157,11 +175,10 @@ export class ChunkedDownloader {
     }
     ws.end();
     await new Promise<void>((resolve, reject) => {
-      ws.on('finish', resolve);
-      ws.on('error', reject);
+      ws.on("finish", resolve);
+      ws.on("error", reject);
     });
 
-    // Clean up part files
     this.cleanPartFiles(chunkCount);
   }
 
@@ -179,11 +196,14 @@ export class ChunkedDownloader {
 
   /** Single-stream fallback download. */
   private async downloadSingleStream(signal: AbortSignal): Promise<void> {
-    const res = await fetch(this.url, { signal, redirect: 'follow' });
+    const res = await fetch(this.url, { signal, redirect: "follow" });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    if (!res.body) throw new Error('No response body');
+    if (!res.body) throw new Error("No response body");
 
-    const contentLength = parseInt(res.headers.get('content-length') || '0', 10);
+    const contentLength = parseInt(
+      res.headers.get("content-length") || "0",
+      10,
+    );
     if (contentLength > MAX_DOWNLOAD_SIZE) {
       throw new Error(
         `File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`,
@@ -208,7 +228,7 @@ export class ChunkedDownloader {
           }
           downloaded += value.byteLength;
           if (downloaded > MAX_DOWNLOAD_SIZE) {
-            this.destroy(new Error('Download exceeded maximum size'));
+            this.destroy(new Error("Download exceeded maximum size"));
             return;
           }
           this.push(Buffer.from(value));
@@ -218,7 +238,6 @@ export class ChunkedDownloader {
       },
     });
 
-    // Progress reporting for single-stream
     const progressInterval = setInterval(() => {
       const now = Date.now();
       const elapsed = now - lastTime;
@@ -240,16 +259,15 @@ export class ChunkedDownloader {
       clearInterval(progressInterval);
     }
 
-    // Final progress
-    this.onProgress?.({ downloaded, total: this.totalSize, speed: '0 B/s' });
+    this.onProgress?.({ downloaded, total: this.totalSize, speed: "0 B/s" });
   }
 
   /**
    * Execute the download.
-   * Probes for Range support, then either downloads in parallel chunks or falls back to single-stream.
+   * Probes for Range support, then either downloads in parallel chunks
+   * or falls back to single-stream.
    */
   async download(signal: AbortSignal): Promise<void> {
-    // Probe
     let supportsRange = false;
     let contentLength = 0;
     try {
@@ -257,18 +275,15 @@ export class ChunkedDownloader {
       supportsRange = probeResult.supportsRange;
       contentLength = probeResult.contentLength;
     } catch {
-      // If HEAD fails, fall back to single-stream
-      supportsRange = false;
+      // HEAD failed — fall back to single-stream
     }
 
-    // Size check
     if (contentLength > MAX_DOWNLOAD_SIZE) {
       throw new Error(
         `File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`,
       );
     }
 
-    // Single thread or no Range support → single-stream
     if (!supportsRange || this.threads <= 1) {
       await this.downloadSingleStream(signal);
       return;
@@ -278,7 +293,6 @@ export class ChunkedDownloader {
     const chunks = this.splitChunks(contentLength);
     this.chunkBytes = new Array(chunks.length).fill(0);
 
-    // Progress aggregation
     this.lastProgressTime = Date.now();
     this.lastProgressBytes = 0;
     const progressInterval = setInterval(() => {
@@ -286,7 +300,7 @@ export class ChunkedDownloader {
       const totalDownloaded = this.chunkBytes.reduce((a, b) => a + b, 0);
       const elapsed = now - this.lastProgressTime;
 
-      let speed = '0 B/s';
+      let speed = "0 B/s";
       if (elapsed > 0) {
         const bytesPerSec =
           ((totalDownloaded - this.lastProgressBytes) / elapsed) * 1000;
@@ -303,23 +317,20 @@ export class ChunkedDownloader {
     }, 500);
 
     try {
-      // Download all chunks in parallel
-      await Promise.all(chunks.map((chunk) => this.downloadChunk(chunk, signal)));
+      await Promise.all(
+        chunks.map((chunk) => this.downloadChunk(chunk, signal)),
+      );
 
       clearInterval(progressInterval);
-
-      // Merge chunks
       await this.mergeChunks(chunks.length);
 
-      // Final progress
       this.onProgress?.({
         downloaded: this.totalSize,
         total: this.totalSize,
-        speed: '0 B/s',
+        speed: "0 B/s",
       });
     } catch (err) {
       clearInterval(progressInterval);
-      // Clean up part files on failure
       this.cleanPartFiles(chunks.length);
       throw err;
     }
@@ -335,16 +346,15 @@ export class ChunkedDownloader {
         // ignore
       }
     }
-    this.abortControllers = [];
+    this.abortControllers.clear();
 
-    // Clean up any part files
+    // Clean up any .part files by scanning directory
     try {
       const dir = path.dirname(this.destPath);
       const base = path.basename(this.destPath);
       if (fs.existsSync(dir)) {
-        const entries = fs.readdirSync(dir);
-        for (const entry of entries) {
-          if (entry.startsWith(base + '.part')) {
+        for (const entry of fs.readdirSync(dir)) {
+          if (entry.startsWith(base + ".part")) {
             try {
               fs.unlinkSync(path.join(dir, entry));
             } catch {
