@@ -147,6 +147,7 @@
     "searchApps": "다운로드할 앱 검색",
     "deleteConfirm": "이 다운로드를 삭제하시겠습니까?",
     "checkUpdates": "업데이트 확인",
+    "checkingApp": "현재 확인 중: ",
     "checkingUpdates": "확인 중...",
     "checkUpdatesStarted": "백그라운드에서 업데이트를 확인 중입니다...",
     "checkUpdatesCompleted": "업데이트 확인 완료. {{count}}개의 패키지를 업데이트합니다.",

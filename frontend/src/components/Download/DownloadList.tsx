@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
@@ -37,8 +37,11 @@ export default function DownloadList() {
   // State to manage the loading status of the bulk update process
   const [checkingAll, setCheckingAll] = useState(false);
   
-  // State to track the progress of the bulk update check / 用于跟踪批量更新检查进度的状态
-  const [checkProgress, setCheckProgress] = useState({ current: 0, total: 0 });
+  // Ref to immediately intercept and cancel the checking loop / 用于立即拦截并取消检查循环的引用
+  const cancelCheckRef = useRef(false);
+  
+  // State to track the progress and current app name / 用于跟踪进度和当前应用名称的状态
+  const [checkProgress, setCheckProgress] = useState({ current: 0, total: 0, appName: "" });
 
   const filtered =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -68,20 +71,33 @@ export default function DownloadList() {
     deleteDownload(id);
   }
 
+  // Cancel the ongoing bulk update check / 取消正在进行的批量更新检查
+  function handleCancelCheck() {
+    cancelCheckRef.current = true;
+    setCheckingAll(false);
+  }
+
   // Handle checking and applying updates for all completed tasks
   async function handleCheckAllUpdates() {
+    cancelCheckRef.current = false;
     setCheckingAll(true);
     addToast(t("downloads.checkUpdatesStarted"), "info");
     let count = 0;
     const completedTasks = tasks.filter((t) => t.status === "completed");
     
     // Initialize the progress state / 初始化进度状态
-    setCheckProgress({ current: 0, total: completedTasks.length });
+    setCheckProgress({ current: 0, total: completedTasks.length, appName: "" });
     
     for (let i = 0; i < completedTasks.length; i++) {
+      // Break the loop if user clicked cancel / 如果用户点击了取消，则中断循环
+      if (cancelCheckRef.current) break;
+        
       const task = completedTasks[i];
       const accountEmail = hashToEmail[task.accountHash];
       const account = accounts.find((a) => a.email === accountEmail);
+      
+      // Update the name of the app currently being checked / 更新当前正在检查的应用名称
+      setCheckProgress((prev) => ({ ...prev, appName: task.software.name }));
       
       if (!account) {
         // Update progress even if skipped / 即使跳过也更新进度
@@ -92,6 +108,9 @@ export default function DownloadList() {
       try {
         // Add a delay to prevent hitting Apple's API rate limits / 添加延迟以防止触发苹果API的速率限制
         await delay(1500);
+        
+        // Double check cancellation after delay / 延迟后再次检查是否取消
+        if (cancelCheckRef.current) break;
 
         const country = storeIdToCountry(account.store);
         const latestApp = await lookupApp(task.software.bundleID, country);
@@ -110,8 +129,11 @@ export default function DownloadList() {
       setCheckProgress((prev) => ({ ...prev, current: i + 1 }));
     }
     
-    setCheckingAll(false);
-    addToast(t("downloads.checkUpdatesCompleted", { count }), "success");
+    // Only show success message if it wasn't cancelled / 仅在未取消时显示成功消息
+    if (!cancelCheckRef.current) {
+      setCheckingAll(false);
+      addToast(t("downloads.checkUpdatesCompleted", { count }), "success");
+    }
   }
 
   return (
@@ -137,8 +159,6 @@ export default function DownloadList() {
               {t("downloads.new")}
             </Link>
           </div>
-          
-          {/* Removed previous inline progress bar / 移除了之前的行内进度条 */}
         </div>
       }
     >
@@ -258,14 +278,28 @@ export default function DownloadList() {
                 </svg>
               </div>
 
-              {/* Status Text and Count / 状态文本与计数 */}
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              {/* Status Text, App Name and Count / 状态文本、应用名称与计数 */}
+              <div className="text-center w-full">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   {t("downloads.checkingUpdates")}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium monospaced">
-                  {checkProgress.current} / {checkProgress.total}
-                </p>
+                <div className="bg-gray-50 dark:bg-gray-800/50 py-2 px-4 rounded-lg inline-block w-full max-w-[280px]">
+                  <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 truncate">
+                    {checkProgress.appName ? (
+                      <>
+                        <span className="text-gray-500 dark:text-gray-400 font-normal mr-1">
+                          {t("downloads.checkingApp")}
+                        </span>
+                        {checkProgress.appName}
+                      </>
+                    ) : (
+                      "..."
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">
+                    {checkProgress.current} / {checkProgress.total}
+                  </p>
+                </div>
               </div>
 
               {/* Progress Bar Container / 进度条容器 */}
@@ -277,9 +311,17 @@ export default function DownloadList() {
               </div>
               
               {/* Localized the description text for the bulk update check process / 本地化批量更新检查过程的描述文本 */}
-              <p className="text-xs text-gray-400 dark:text-gray-500 text-center max-w-xs">
+              <p className="text-xs text-gray-400 dark:text-gray-500 text-center max-w-xs leading-relaxed">
                 {t("downloads.checkUpdatesDesc")}
               </p>
+
+              {/* Cancel Button / 取消按钮 */}
+              <button
+                onClick={handleCancelCheck}
+                className="mt-2 px-6 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all active:scale-95"
+              >
+                {t("settings.data.cancel")}
+              </button>
             </div>
           </div>
         </div>

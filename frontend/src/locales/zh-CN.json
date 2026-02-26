@@ -147,6 +147,7 @@
     "searchApps": "搜索要下载的应用",
     "deleteConfirm": "删除此下载？",
     "checkUpdates": "一键检查更新",
+    "checkingApp": "当前正在检查：",
     "checkingUpdates": "检查中...",
     "checkUpdatesStarted": "正在后台检查更新...",
     "checkUpdatesCompleted": "更新检查完成。发现并正在更新 {{count}} 个安装包。",

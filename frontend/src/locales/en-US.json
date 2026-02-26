@@ -147,6 +147,7 @@
     "searchApps": "Search for apps to download",
     "deleteConfirm": "Delete this download?",
     "checkUpdates": "Check Updates",
+    "checkingApp": "Checking: ",
     "checkingUpdates": "Checking...",
     "checkUpdatesStarted": "Checking for updates in background...",
     "checkUpdatesCompleted": "Update check complete. Found and updating {{count}} packages.",

@@ -147,6 +147,7 @@
     "searchApps": "ダウンロードするアプリを検索",
     "deleteConfirm": "このダウンロードを削除しますか？",
     "checkUpdates": "アップデートを確認",
+    "checkingApp": "確認中: ",
     "checkingUpdates": "確認中...",
     "checkUpdatesStarted": "バックグラウンドでアップデートを確認しています...",
     "checkUpdatesCompleted": "アップデートの確認が完了しました。{{count}} 個のパッケージを更新します。",

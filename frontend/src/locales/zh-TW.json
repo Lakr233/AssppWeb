@@ -147,6 +147,7 @@
     "searchApps": "搜尋要下載的應用程式",
     "deleteConfirm": "刪除此下載？",
     "checkUpdates": "一鍵檢查更新",
+    "checkingApp": "當前正在檢查：",
     "checkingUpdates": "檢查中...",
     "checkUpdatesStarted": "正在背景檢查更新...",
     "checkUpdatesCompleted": "更新檢查完成。發現並正在更新 {{count}} 個安裝包。",

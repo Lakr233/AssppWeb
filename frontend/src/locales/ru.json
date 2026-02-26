@@ -147,6 +147,7 @@
     "searchApps": "Поиск приложений для загрузки",
     "deleteConfirm": "Удалить эту загрузку?",
     "checkUpdates": "Проверить обновления",
+    "checkingApp": "Проверка: ",
     "checkingUpdates": "Проверка...",
     "checkUpdatesStarted": "Проверка обновлений в фоновом режиме...",
     "checkUpdatesCompleted": "Проверка обновлений завершена. Найдено и обновляется пакетов: {{count}}.",
