@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
@@ -42,6 +42,13 @@ export default function DownloadList() {
   
   // State to track the progress and current app name / 用于跟踪进度和当前应用名称的状态
   const [checkProgress, setCheckProgress] = useState({ current: 0, total: 0, appName: "" });
+
+  // Cleanup effect: Cancel the check if the component unmounts (user navigates away) / 清理副作用：如果组件卸载（用户离开页面），则取消检查
+  useEffect(() => {
+    return () => {
+      cancelCheckRef.current = true;
+    };
+  }, []);
 
   const filtered =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -89,7 +96,7 @@ export default function DownloadList() {
     setCheckProgress({ current: 0, total: completedTasks.length, appName: "" });
     
     for (let i = 0; i < completedTasks.length; i++) {
-      // Break the loop if user clicked cancel / 如果用户点击了取消，则中断循环
+      // Break the loop if user clicked cancel or left the page / 如果用户点击了取消或离开页面，则中断循环
       if (cancelCheckRef.current) break;
         
       const task = completedTasks[i];
@@ -131,8 +138,14 @@ export default function DownloadList() {
     
     // Only show success message if it wasn't cancelled / 仅在未取消时显示成功消息
     if (!cancelCheckRef.current) {
-      setCheckingAll(false);
-      addToast(t("downloads.checkUpdatesCompleted", { count }), "success");
+      // Add a small 500ms delay so the user can see the progress bar hit 100% before it vanishes / 添加 500ms 延迟让用户能看清进度条走到 100%
+      await delay(500);
+      
+      // Safety check again in case component unmounted during the 500ms wait / 再次安全检查以防在 500ms 等待期间组件被卸载
+      if (!cancelCheckRef.current) {
+        setCheckingAll(false);
+        addToast(t("downloads.checkUpdatesCompleted", { count }), "success");
+      }
     }
   }
 
