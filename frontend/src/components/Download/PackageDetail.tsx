@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
@@ -5,11 +6,19 @@ import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
+import Modal from "../common/Modal";
 import { useDownloads } from "../../hooks/useDownloads";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useToastStore } from "../../store/toast";
 import { getInstallInfo } from "../../api/install";
 import { getAccountContext } from "../../utils/toast";
+
+// Added imports for the version check and update functionality
+import { lookupApp } from "../../api/search";
+import { storeIdToCountry } from "../../apple/config";
+import { useDownloadAction } from "../../hooks/useDownloadAction";
+import { listVersions } from "../../apple/versionFinder";
+import type { Software } from "../../types";
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +28,14 @@ export default function PackageDetail() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   const { accounts } = useAccounts();
+  const { startDownload } = useDownloadAction();
+
+  // States for handling the update check modal and version selection
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [latestApp, setLatestApp] = useState<Software | null>(null);
+  const [availableVersions, setAvailableVersions] = useState<string[]>([]);
+  const [selectedVersion, setSelectedVersion] = useState<string>("");
 
   const task = tasks.find((t) => t.id === id);
 
@@ -92,6 +109,45 @@ export default function PackageDetail() {
           return;
         console.warn("Native share failed or aborted by user:", error);
       }
+    }
+  }
+
+  // Handle checking for specific package updates
+  async function handleCheckUpdate() {
+    if (!task || !account) return;
+    setCheckingUpdate(true);
+    try {
+      const country = storeIdToCountry(account.store);
+      const app = await lookupApp(task.software.bundleID, country);
+      
+      // Compare the store version with current task version
+      if (app && app.version !== task.software.version) {
+        setLatestApp(app);
+        const result = await listVersions(account, app);
+        setAvailableVersions(result.versions);
+        setSelectedVersion(result.versions[0] || "");
+        setShowUpdateModal(true);
+      } else {
+        addToast(t("downloads.package.noUpdate"), "info");
+      }
+    } catch (e) {
+      addToast(t("downloads.package.checkUpdateFailed"), "error");
+    } finally {
+      setCheckingUpdate(false);
+    }
+  }
+
+  // Handle confirming the specific version update process
+  async function handleConfirmUpdate() {
+    if (!task || !account || !latestApp) return;
+    setShowUpdateModal(false);
+    try {
+      const isLatest = availableVersions.length > 0 && selectedVersion === availableVersions[0];
+      await startDownload(account, latestApp, isLatest ? undefined : selectedVersion);
+      await deleteDownload(task.id);
+      navigate("/downloads");
+    } catch (e) {
+      addToast(t("downloads.package.updateFailed"), "error");
     }
   }
 
@@ -175,6 +231,16 @@ export default function PackageDetail() {
           <div className="flex flex-wrap gap-3">
             {isCompleted && (
               <>
+                {/* Individual check update button */}
+                <button
+                  onClick={handleCheckUpdate}
+                  disabled={checkingUpdate}
+                  className="px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 disabled:opacity-50 transition-colors"
+                >
+                  {checkingUpdate
+                    ? t("downloads.package.checkingUpdate")
+                    : t("downloads.package.checkUpdate")}
+                </button>
                 {installInfo && (
                   <>
                     <a
@@ -243,6 +309,55 @@ export default function PackageDetail() {
           </div>
         </div>
       </div>
+
+      {/* Modal for selecting update version */}
+      <Modal
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        title={t("downloads.package.updateAvailable")}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {t("downloads.package.updatePrompt", {
+              version: latestApp?.version,
+            })}
+          </p>
+          {availableVersions.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t("downloads.package.selectVersion")}
+              </label>
+              <select
+                value={selectedVersion}
+                onChange={(e) => setSelectedVersion(e.target.value)}
+                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-900 dark:text-white"
+              >
+                {availableVersions.map((v, i) => (
+                  <option key={v} value={v}>
+                    {i === 0
+                      ? t("downloads.package.latestVersion", { id: v })
+                      : v}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              onClick={() => setShowUpdateModal(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              {t("common.cancel")}
+            </button>
+            <button
+              onClick={handleConfirmUpdate}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            >
+              {t("downloads.package.update")}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </PageContainer>
   );
 }

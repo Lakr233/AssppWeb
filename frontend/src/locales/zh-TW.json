@@ -146,6 +146,10 @@
     "emptyFilterDesc": "沒有符合該狀態的下載記錄。",
     "searchApps": "搜尋要下載的應用程式",
     "deleteConfirm": "刪除此下載？",
+    "checkUpdates": "一鍵檢查更新",
+    "checkingUpdates": "檢查中...",
+    "checkUpdatesStarted": "正在背景檢查更新...",
+    "checkUpdatesCompleted": "更新檢查完成。發現並正在更新 {{count}} 個安裝包。",
     "status": {
       "all": "全部",
       "downloading": "下載中",
@@ -194,7 +198,17 @@
       "downloadIpa": "下載 IPA",
       "pause": "暫停",
       "resume": "繼續",
-      "delete": "刪除"
+      "delete": "刪除",
+      "checkUpdate": "檢查更新",
+      "checkingUpdate": "檢查中...",
+      "noUpdate": "已經是最新的版本。",
+      "checkUpdateFailed": "檢查更新失敗。",
+      "updateAvailable": "發現新版本",
+      "updatePrompt": "發現新版本 (v{{version}})，是否立即更新？",
+      "selectVersion": "選擇要更新的版本",
+      "latestVersion": "最新版 ({{id}})",
+      "update": "立即更新",
+      "updateFailed": "開始更新失敗。"
     }
   },
   "settings": {

@@ -9,6 +9,11 @@ import { useToastStore } from "../../store/toast";
 import { getAccountContext } from "../../utils/toast";
 import type { DownloadTask } from "../../types";
 
+// Added imports for the update check feature
+import { lookupApp } from "../../api/search";
+import { storeIdToCountry } from "../../apple/config";
+import { useDownloadAction } from "../../hooks/useDownloadAction";
+
 type StatusFilter = "all" | DownloadTask["status"];
 
 export default function DownloadList() {
@@ -24,6 +29,10 @@ export default function DownloadList() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const addToast = useToastStore((s) => s.addToast);
   const { accounts } = useAccounts();
+  const { startDownload } = useDownloadAction();
+
+  // State to manage the loading status of the bulk update process
+  const [checkingAll, setCheckingAll] = useState(false);
 
   const filtered =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -53,16 +62,59 @@ export default function DownloadList() {
     deleteDownload(id);
   }
 
+  // Handle checking and applying updates for all completed tasks
+  async function handleCheckAllUpdates() {
+    setCheckingAll(true);
+    addToast(t("downloads.checkUpdatesStarted"), "info");
+    let count = 0;
+    const completedTasks = tasks.filter((t) => t.status === "completed");
+    
+    for (const task of completedTasks) {
+      const accountEmail = hashToEmail[task.accountHash];
+      const account = accounts.find((a) => a.email === accountEmail);
+      if (!account) continue;
+
+      try {
+        const country = storeIdToCountry(account.store);
+        const latestApp = await lookupApp(task.software.bundleID, country);
+        
+        // If a newer version is found, start download and replace the old one
+        if (latestApp && latestApp.version !== task.software.version) {
+          await startDownload(account, latestApp);
+          await deleteDownload(task.id);
+          count++;
+        }
+      } catch (err) {
+        // Silently continue with the next item on error
+      }
+    }
+    
+    setCheckingAll(false);
+    addToast(t("downloads.checkUpdatesCompleted", { count }), "success");
+  }
+
   return (
     <PageContainer
       title={t("downloads.title")}
       action={
-        <Link
-          to="/downloads/add"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          {t("downloads.new")}
-        </Link>
+        <div className="flex gap-2">
+          {/* Check All Updates Button */}
+          <button
+            onClick={handleCheckAllUpdates}
+            disabled={checkingAll}
+            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+          >
+            {checkingAll
+              ? t("downloads.checkingUpdates")
+              : t("downloads.checkUpdates")}
+          </button>
+          <Link
+            to="/downloads/add"
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            {t("downloads.new")}
+          </Link>
+        </div>
       }
     >
       <div className="mb-4 flex gap-2 flex-wrap">

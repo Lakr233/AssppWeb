@@ -146,6 +146,10 @@
     "emptyFilterDesc": "이 상태와 일치하는 다운로드 기록이 없습니다.",
     "searchApps": "다운로드할 앱 검색",
     "deleteConfirm": "이 다운로드를 삭제하시겠습니까?",
+    "checkUpdates": "업데이트 확인",
+    "checkingUpdates": "확인 중...",
+    "checkUpdatesStarted": "백그라운드에서 업데이트를 확인 중입니다...",
+    "checkUpdatesCompleted": "업데이트 확인 완료. {{count}}개의 패키지를 업데이트합니다.",
     "status": {
       "all": "전체",
       "downloading": "다운로드 중",
@@ -194,7 +198,17 @@
       "downloadIpa": "IPA 다운로드",
       "pause": "일시 정지",
       "resume": "재개",
-      "delete": "삭제"
+      "delete": "삭제",
+      "checkUpdate": "업데이트 확인",
+      "checkingUpdate": "확인 중...",
+      "noUpdate": "이미 최신 버전입니다.",
+      "checkUpdateFailed": "업데이트를 확인하지 못했습니다.",
+      "updateAvailable": "업데이트 가능",
+      "updatePrompt": "새로운 버전(v{{version}})이 있습니다. 업데이트하시겠습니까?",
+      "selectVersion": "업데이트할 버전 선택",
+      "latestVersion": "최신 ({{id}})",
+      "update": "지금 업데이트",
+      "updateFailed": "업데이트를 시작하지 못했습니다."
     }
   },
   "settings": {

@@ -146,6 +146,10 @@
     "emptyFilterDesc": "No download records match this status.",
     "searchApps": "Search for apps to download",
     "deleteConfirm": "Delete this download?",
+    "checkUpdates": "Check Updates",
+    "checkingUpdates": "Checking...",
+    "checkUpdatesStarted": "Checking for updates in background...",
+    "checkUpdatesCompleted": "Update check complete. Found and updating {{count}} packages.",
     "status": {
       "all": "All",
       "downloading": "Downloading",
@@ -194,7 +198,17 @@
       "downloadIpa": "Download IPA",
       "pause": "Pause",
       "resume": "Resume",
-      "delete": "Delete"
+      "delete": "Delete",
+      "checkUpdate": "Check Update",
+      "checkingUpdate": "Checking...",
+      "noUpdate": "Already the latest version.",
+      "checkUpdateFailed": "Failed to check for updates.",
+      "updateAvailable": "Update Available",
+      "updatePrompt": "A newer version (v{{version}}) is available. Do you want to update?",
+      "selectVersion": "Select Version to Update",
+      "latestVersion": "Latest ({{id}})",
+      "update": "Update Now",
+      "updateFailed": "Failed to start update."
     }
   },
   "settings": {

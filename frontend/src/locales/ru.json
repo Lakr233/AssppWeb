@@ -146,6 +146,10 @@
     "emptyFilterDesc": "Нет загрузок, соответствующих этому статусу.",
     "searchApps": "Поиск приложений для загрузки",
     "deleteConfirm": "Удалить эту загрузку?",
+    "checkUpdates": "Проверить обновления",
+    "checkingUpdates": "Проверка...",
+    "checkUpdatesStarted": "Проверка обновлений в фоновом режиме...",
+    "checkUpdatesCompleted": "Проверка обновлений завершена. Найдено и обновляется пакетов: {{count}}.",
     "status": {
       "all": "Все",
       "downloading": "Загрузка",
@@ -194,7 +198,17 @@
       "downloadIpa": "Скачать IPA",
       "pause": "Пауза",
       "resume": "Продолжить",
-      "delete": "Удалить"
+      "delete": "Удалить",
+      "checkUpdate": "Проверить обновление",
+      "checkingUpdate": "Проверка...",
+      "noUpdate": "Уже установлена последняя версия.",
+      "checkUpdateFailed": "Не удалось проверить наличие обновлений.",
+      "updateAvailable": "Доступно обновление",
+      "updatePrompt": "Доступна новая версия (v{{version}}). Хотите обновить?",
+      "selectVersion": "Выберите версию для обновления",
+      "latestVersion": "Последняя ({{id}})",
+      "update": "Обновить сейчас",
+      "updateFailed": "Не удалось начать обновление."
     }
   },
   "settings": {

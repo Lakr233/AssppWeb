@@ -146,6 +146,10 @@
     "emptyFilterDesc": "このステータスに一致するダウンロード記録はありません。",
     "searchApps": "ダウンロードするアプリを検索",
     "deleteConfirm": "このダウンロードを削除しますか？",
+    "checkUpdates": "アップデートを確認",
+    "checkingUpdates": "確認中...",
+    "checkUpdatesStarted": "バックグラウンドでアップデートを確認しています...",
+    "checkUpdatesCompleted": "アップデートの確認が完了しました。{{count}} 個のパッケージを更新します。",
     "status": {
       "all": "すべて",
       "downloading": "ダウンロード中",
@@ -194,7 +198,17 @@
       "downloadIpa": "IPA をダウンロード",
       "pause": "一時停止",
       "resume": "再開",
-      "delete": "削除"
+      "delete": "削除",
+      "checkUpdate": "アップデートを確認",
+      "checkingUpdate": "確認中...",
+      "noUpdate": "すでに最新バージョンです。",
+      "checkUpdateFailed": "アップデートの確認に失敗しました。",
+      "updateAvailable": "アップデートが利用可能です",
+      "updatePrompt": "新しいバージョン (v{{version}}) が利用可能です。アップデートしますか？",
+      "selectVersion": "アップデートするバージョンを選択",
+      "latestVersion": "最新 ({{id}})",
+      "update": "今すぐアップデート",
+      "updateFailed": "アップデートの開始に失敗しました。"
     }
   },
   "settings": {
