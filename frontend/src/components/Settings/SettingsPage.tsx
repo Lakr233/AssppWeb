@@ -18,6 +18,7 @@ interface ServerInfo {
   disableHttpsRedirect?: boolean;
   autoCleanupDays?: number;
   autoCleanupMaxMB?: number;
+  downloadThreads?: number;
 }
 
 const entityTypes = [
@@ -338,6 +339,14 @@ export default function SettingsPage() {
                     <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
                       {serverInfo.autoCleanupMaxMB ||
                         t("settings.server.disabled")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      DOWNLOAD_THREADS
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-gray-200 font-mono">
+                      {serverInfo.downloadThreads ?? 8}
                     </dd>
                   </div>
                 </dl>
