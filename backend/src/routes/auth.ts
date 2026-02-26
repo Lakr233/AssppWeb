@@ -1,34 +1,33 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { timingSafeEqual } from "crypto";
 import { config } from "../config.js";
 
 const router = Router();
 
-// Check if password protection is enabled
-router.get("/auth/status", (_req, res) => {
+router.get("/auth/status", (_req: Request, res: Response) => {
   res.json({ required: config.accessPassword.length > 0 });
 });
 
-// Verify access password
-router.post("/auth/verify", (req, res) => {
+router.post("/auth/verify", (req: Request, res: Response) => {
   const { password } = req.body as { password?: string };
 
   if (!config.accessPassword) {
-    return res.json({ ok: true });
+    res.json({ ok: true });
+    return;
   }
 
   if (!password || typeof password !== "string") {
-    return res.json({ ok: false });
+    res.json({ ok: false });
+    return;
   }
 
-  // Timing-safe comparison to prevent timing attacks
   const expected = Buffer.from(config.accessPassword, "utf8");
   const actual = Buffer.from(password, "utf8");
 
   const ok =
     expected.length === actual.length && timingSafeEqual(expected, actual);
 
-  return res.json({ ok });
+  res.json({ ok });
 });
 
 export default router;

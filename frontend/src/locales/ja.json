@@ -5,7 +5,7 @@
     "placeholder": "アクセスパスワードを入力",
     "submit": "ロック解除",
     "error": "パスワードが正しくありません",
-    "loading": "確認中..."
+    "verifying": "確認中..."
   },
   "theme": {
     "light": "ライトモード",

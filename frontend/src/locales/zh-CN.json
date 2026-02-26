@@ -5,7 +5,7 @@
     "placeholder": "请输入访问密码",
     "submit": "解锁",
     "error": "密码错误",
-    "loading": "验证中..."
+    "verifying": "验证中..."
   },
   "theme": {
     "light": "日间模式",

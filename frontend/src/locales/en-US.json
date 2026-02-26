@@ -5,7 +5,7 @@
     "placeholder": "Enter access password",
     "submit": "Unlock",
     "error": "Incorrect password",
-    "loading": "Verifying..."
+    "verifying": "Verifying..."
   },
   "theme": {
     "light": "Light Mode",
