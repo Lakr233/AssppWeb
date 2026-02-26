@@ -15,8 +15,6 @@ router.get("/settings", (_req: Request, res: Response) => {
     disableHttpsRedirect: config.disableHttpsRedirect,
     autoCleanupDays: config.autoCleanupDays,
     autoCleanupMaxMB: config.autoCleanupMaxMB,
-    // NEW: Expose max download size limit to the frontend
-    // 新增：向前端暴露最大下载大小限制
     maxDownloadMB: config.maxDownloadMB,
   });
 });

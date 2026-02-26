@@ -427,8 +427,7 @@
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nAirDrop을 사용하여 친구와 공유할 수 있습니다.",
     "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n오류: {{error}}",
     "downloadLimit": {
-      "line2": "앱 크기 <strong>{{size}}MB</strong>가 최대 허용 크기 <strong>{{limit}}MB</strong>를 초과했습니다.",
-      "line3": "관리자에게 문의하거나 자체 인스턴스를 배포하여 다시 시도하십시오."
+      "message": "{{appName}}\n앱 크기 {{size}} MB가 서버 제한 {{limit}} MB를 초과했습니다.\n관리자에게 문의하거나 자체 인스턴스를 배포하여 다시 시도하십시오."
     }
   }
 }

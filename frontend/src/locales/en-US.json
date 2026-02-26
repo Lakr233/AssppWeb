@@ -427,8 +427,7 @@
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nYou can use AirDrop to share it with your friends.",
     "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\nError: {{error}}",
     "downloadLimit": {
-      "line2": "App size <strong>{{size}}MB</strong> exceeds the maximum allowed size of <strong>{{limit}}MB</strong>.",
-      "line3": "Please contact the administrator or deploy your own instance to try again."
+      "message": "{{appName}}\nApp size {{size}} MB exceeds the server limit of {{limit}} MB.\nPlease contact the administrator or deploy your own instance."
     }
   }
 }

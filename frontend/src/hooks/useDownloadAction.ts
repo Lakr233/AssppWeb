@@ -1,4 +1,3 @@
-import { createElement } from "react"; // NEW: Imported createElement to avoid JSX syntax in .ts file
 import { useTranslation } from "react-i18next";
 import { useAccounts } from "./useAccounts";
 import { useToastStore } from "../store/toast";
@@ -30,39 +29,25 @@ export function useDownloadAction() {
     const ctx = getAccountContext(account, t);
     const appName = app.name;
 
-    // Check server download limit before processing Apple APIs
-    // 在调用 Apple 接口前检查服务器下载限制大小
     try {
-      const serverSettings = await apiGet<{ maxDownloadMB: number }>("/api/settings");
-      if (serverSettings.maxDownloadMB > 0 && app.fileSizeBytes) {
+      const settings = await apiGet<{ maxDownloadMB: number }>("/api/settings");
+      if (settings.maxDownloadMB > 0 && app.fileSizeBytes) {
         const sizeMB = parseInt(app.fileSizeBytes, 10) / (1024 * 1024);
-        if (sizeMB > serverSettings.maxDownloadMB) {
-          const formattedSize = sizeMB.toFixed(2);
-          
-          // NEW: Use React.createElement instead of JSX to bypass esbuild restrictions in .ts files
-          // 新增：使用 React.createElement 替代 JSX 语法，解决 .ts 文件在 Vite 中的构建报错
-          const msg = createElement(
-            "div",
-            { className: "flex flex-col gap-1" },
-            createElement("div", null, appName),
-            createElement("div", {
-              dangerouslySetInnerHTML: {
-                __html: t("toast.downloadLimit.line2", {
-                  size: formattedSize,
-                  limit: serverSettings.maxDownloadMB,
-                }),
-              },
+        if (sizeMB > settings.maxDownloadMB) {
+          addToast(
+            t("toast.downloadLimit.message", {
+              appName,
+              size: sizeMB.toFixed(2),
+              limit: settings.maxDownloadMB,
             }),
-            createElement("div", null, t("toast.downloadLimit.line3"))
+            "error",
+            t("toast.title.downloadLimit"),
           );
-
-          addToast(msg, "error", t("toast.title.downloadLimit"));
-          return; // Abort the download request
+          return;
         }
       }
-    } catch (err) {
-      // Ignore settings fetch error and proceed naturally
-      console.error("Failed to fetch server settings for limit check:", err);
+    } catch {
+      // Settings fetch failed — backend will still enforce the limit
     }
 
     const { output, updatedCookies } = await getDownloadInfo(

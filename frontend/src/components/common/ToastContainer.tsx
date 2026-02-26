@@ -105,13 +105,11 @@ export default function ToastContainer() {
                   {toast.title}
                 </h4>
               )}
-              {/* NEW: Changed <p> to <div> to validly wrap potential ReactNode block elements */}
-              {/* 新增：将 <p> 改为 <div> 以合法地包裹可能存在的 ReactNode 块级元素 */}
-              <div
+              <p
                 className={`text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-pre-line break-words ${toast.title ? "leading-relaxed" : ""}`}
               >
                 {toast.message}
-              </div>
+              </p>
             </div>
 
             <div className="flex items-start pt-3 pr-3">

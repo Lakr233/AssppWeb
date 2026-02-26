@@ -427,8 +427,7 @@
     "msgShare": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n您可以使用 Airdrop 分享给您的朋友。",
     "msgFailed": "{{appName}}\n{{userName}} / {{appleId}} - {{country}}\n\n错误: {{error}}",
     "downloadLimit": {
-      "line2": "该应用大小 <strong>{{size}}MB</strong> 超过管理员设置的最大可下载大小 <strong>{{limit}}MB</strong>",
-      "line3": "请联系管理员或自行部署后再尝试"
+      "message": "{{appName}}\n应用大小 {{size}} MB 超过服务器限制 {{limit}} MB。\n请联系管理员或自行部署后再尝试。"
     }
   }
 }
