@@ -138,20 +138,7 @@ export default function DownloadList() {
             </Link>
           </div>
           
-          {/* Progress bar container shown only when checking updates / 仅在检查更新时显示的进度条容器 */}
-          {checkingAll && checkProgress.total > 0 && (
-            <div className="w-full max-w-[200px] flex flex-col gap-1">
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                <div
-                  className="bg-green-500 h-1.5 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${(checkProgress.current / checkProgress.total) * 100}%` }}
-                ></div>
-              </div>
-              <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right font-medium">
-                {checkProgress.current} / {checkProgress.total}
-              </div>
-            </div>
-          )}
+          {/* Removed previous inline progress bar / 移除了之前的行内进度条 */}
         </div>
       }
     >
@@ -255,6 +242,46 @@ export default function DownloadList() {
               onDelete={handleDelete}
             />
           ))}
+        </div>
+      )}
+
+      {/* Bulk Update Progress Modal Overlay / 批量更新进度模态遮罩层 */}
+      {checkingAll && checkProgress.total > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/50 transition-opacity duration-300">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 p-8 w-full max-w-md transform transition-all scale-100 opacity-100">
+            <div className="flex flex-col items-center gap-6">
+              {/* Spinning Loader Icon / 旋转的加载图标 */}
+              <div className="relative flex items-center justify-center">
+                <svg className="animate-spin h-10 w-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+
+              {/* Status Text and Count / 状态文本与计数 */}
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  {t("downloads.checkingUpdates")}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium monospaced">
+                  {checkProgress.current} / {checkProgress.total}
+                </p>
+              </div>
+
+              {/* Progress Bar Container / 进度条容器 */}
+              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
+                <div
+                  className="bg-green-500 h-full rounded-full transition-all duration-300 ease-out shadow"
+                  style={{ width: `${(checkProgress.current / checkProgress.total) * 100}%` }}
+                ></div>
+              </div>
+              
+              {/* Optional: Add a descriptive text about the delay / 可选：添加关于延迟的描述文本 */}
+              <p className="text-xs text-gray-400 dark:text-gray-500 text-center max-w-xs">
+                To prevent rate limits, we're checking apps one by one. This may take a few minutes.
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </PageContainer>
