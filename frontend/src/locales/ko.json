@@ -1,5 +1,12 @@
 {
   "loading": "로딩 중...",
+  "auth": {
+    "title": "접근 비밀번호",
+    "placeholder": "접근 비밀번호를 입력하세요",
+    "submit": "잠금 해제",
+    "error": "비밀번호가 올바르지 않습니다",
+    "loading": "확인 중..."
+  },
   "theme": {
     "light": "라이트 모드",
     "dark": "다크 모드",

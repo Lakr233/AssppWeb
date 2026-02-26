@@ -1,5 +1,12 @@
 {
   "loading": "載入中...",
+  "auth": {
+    "title": "存取密碼",
+    "placeholder": "請輸入存取密碼",
+    "submit": "解鎖",
+    "error": "密碼錯誤",
+    "loading": "驗證中..."
+  },
   "theme": {
     "light": "日間模式",
     "dark": "夜間模式",

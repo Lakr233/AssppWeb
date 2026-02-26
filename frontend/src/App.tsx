@@ -8,6 +8,7 @@ import MobileNav from "./components/Layout/MobileNav";
 import MobileHeader from "./components/Layout/MobileHeader";
 import ToastContainer from "./components/common/ToastContainer";
 import GlobalDownloadNotifier from "./components/common/GlobalDownloadNotifier";
+import PasswordGate from "./components/Auth/PasswordGate";
 
 const HomePage = lazy(() => import("./components/Welcome/HomePage"));
 const AccountList = lazy(() => import("./components/Account/AccountList"));
@@ -57,6 +58,7 @@ export default function App() {
   }, [theme]);
 
   return (
+    <PasswordGate>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex text-gray-900 dark:text-gray-100 transition-colors duration-200">
       <ToastContainer />
       <GlobalDownloadNotifier />
@@ -85,5 +87,6 @@ export default function App() {
       </main>
       <MobileNav />
     </div>
+    </PasswordGate>
   );
 }

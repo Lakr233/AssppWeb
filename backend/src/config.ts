@@ -12,6 +12,8 @@ export const config = {
   // Build info (injected via Docker build args)
   buildCommit: process.env.BUILD_COMMIT || "unknown",
   buildDate: process.env.BUILD_DATE || "unknown",
+  // Access password protection (empty = disabled)
+  accessPassword: process.env.ACCESS_PASSWORD || "",
 };
 
 export const MAX_DOWNLOAD_SIZE = 8 * 1024 * 1024 * 1024; // 8 GB
