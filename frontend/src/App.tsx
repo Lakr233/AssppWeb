@@ -23,6 +23,7 @@ const DownloadList = lazy(() => import("./components/Download/DownloadList"));
 const AddDownload = lazy(() => import("./components/Download/AddDownload"));
 const PackageDetail = lazy(() => import("./components/Download/PackageDetail"));
 const SettingsPage = lazy(() => import("./components/Settings/SettingsPage"));
+const Signing = lazy(() => import("./pages/Signing"));
 
 function Loading() {
   const { t } = useTranslation();
@@ -82,6 +83,7 @@ export default function App() {
               <Route path="/downloads/add" element={<AddDownload />} />
               <Route path="/downloads/:id" element={<PackageDetail />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/signing/*" element={<Signing />} />
             </Routes>
           </Suspense>
         </main>

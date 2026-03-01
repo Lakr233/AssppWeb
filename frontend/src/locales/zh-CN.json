@@ -21,6 +21,7 @@
     "accounts": "账号",
     "search": "搜索",
     "downloads": "下载",
+    "signing": "签名",
     "settings": "设置"
   },
   "home": {
@@ -262,6 +263,27 @@
       "description": "Asspp Web —— 基于 Web 的 Apple 应用下载和许可证管理界面。",
       "buildCommit": "构建提交",
       "buildDate": "构建日期"
+    }
+  },
+  "signing": {
+    "title": "开发者签名",
+    "login": {
+      "title": "开发者账号",
+      "setupDevice": "设备设置",
+      "setupDesc": "初始化设备以进行 Apple 认证。只需执行一次。",
+      "setupBtn": "设置设备",
+      "signIn": "登录",
+      "appleId": "Apple ID",
+      "password": "密码",
+      "twoFactor": "双重认证",
+      "twoFactorDesc": "输入发送到您受信任设备的 6 位验证码。",
+      "verify": "验证"
+    },
+    "accounts": {
+      "title": "开发者账号",
+      "certificates": "个证书",
+      "devices": "个设备",
+      "remove": "移除"
     }
   },
   "countries": {

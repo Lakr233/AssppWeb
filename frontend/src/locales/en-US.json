@@ -21,6 +21,7 @@
     "accounts": "Accounts",
     "search": "Search",
     "downloads": "Downloads",
+    "signing": "Signing",
     "settings": "Settings"
   },
   "home": {
@@ -262,6 +263,27 @@
       "description": "Asspp Web -- a web-based interface for managing Apple app downloads and licenses.",
       "buildCommit": "Build Commit",
       "buildDate": "Build Date"
+    }
+  },
+  "signing": {
+    "title": "Developer Signing",
+    "login": {
+      "title": "Developer Account",
+      "setupDevice": "Device Setup",
+      "setupDesc": "Initialize the device for Apple authentication. This only needs to be done once.",
+      "setupBtn": "Setup Device",
+      "signIn": "Sign In",
+      "appleId": "Apple ID",
+      "password": "Password",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorDesc": "Enter the 6-digit verification code sent to your trusted device.",
+      "verify": "Verify"
+    },
+    "accounts": {
+      "title": "Developer Accounts",
+      "certificates": "certificates",
+      "devices": "devices",
+      "remove": "Remove"
     }
   },
   "countries": {

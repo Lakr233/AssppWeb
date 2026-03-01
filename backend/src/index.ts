@@ -7,6 +7,7 @@ import { httpsRedirect } from "./middleware/httpsRedirect.js";
 import { accessAuth } from "./middleware/accessAuth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { setupWsProxy } from "./services/wsProxy.js";
+import { prepareAnisetteAssets } from "./services/anisetteAssets.js";
 import authRoutes from "./routes/auth.js";
 import searchRoutes from "./routes/search.js";
 import downloadRoutes from "./routes/downloads.js";
@@ -14,6 +15,7 @@ import packageRoutes from "./routes/packages.js";
 import installRoutes from "./routes/install.js";
 import settingsRoutes from "./routes/settings.js";
 import bagRoutes from "./routes/bag.js";
+import signingRoutes from "./routes/signing.js";
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use("/api", packageRoutes);
 app.use("/api", installRoutes);
 app.use("/api", settingsRoutes);
 app.use("/api", bagRoutes);
+app.use("/api", signingRoutes);
 
 // Serve static frontend files
 const publicDir = path.resolve(import.meta.dirname, "../public");
@@ -57,12 +60,24 @@ const server = createServer(app);
 // WebSocket proxy for Apple TCP connections
 setupWsProxy(server);
 
-// Ensure data directory exists
-fs.mkdirSync(config.dataDir, { recursive: true });
+async function bootstrap() {
+  // Ensure data directory exists
+  fs.mkdirSync(config.dataDir, { recursive: true });
 
-server.listen(config.port, () => {
-  console.log(`Server listening on port ${config.port}`);
-  console.log(`Data directory: ${path.resolve(config.dataDir)}`);
+  await prepareAnisetteAssets(publicDir);
+
+  server.listen(config.port, () => {
+    console.log(`Server listening on port ${config.port}`);
+    console.log(`Data directory: ${path.resolve(config.dataDir)}`);
+  });
+}
+
+bootstrap().catch((err) => {
+  console.error(
+    "Startup failed:",
+    err instanceof Error ? err.message : String(err),
+  );
+  process.exit(1);
 });
 
 export { app, server };

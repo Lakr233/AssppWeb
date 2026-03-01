@@ -1,6 +1,12 @@
 import { storeIdToCountry } from "../apple/config";
 import type { Account } from "../types";
 
+interface AccountIdentity {
+  directoryServicesIdentifier?: string;
+  appleId?: string;
+  email?: string;
+}
+
 function normalizeStorefront(store?: string): string | undefined {
   if (!store) return undefined;
   const [storeId] = store.split("-");
@@ -23,10 +29,20 @@ export function firstAccountCountry(accounts: Account[]): string | undefined {
   return undefined;
 }
 
-export async function accountHash(account: Account): Promise<string> {
+export async function hashAccountIdentity(
+  identity: AccountIdentity,
+): Promise<string> {
   const source =
-    account.directoryServicesIdentifier || account.appleId || account.email;
+    identity.directoryServicesIdentifier || identity.appleId || identity.email;
+  if (!source) {
+    throw new Error("Unable to determine account identity");
+  }
+
   return sha256Hex(source);
+}
+
+export async function accountHash(account: Account): Promise<string> {
+  return hashAccountIdentity(account);
 }
 
 async function sha256Hex(value: string): Promise<string> {
