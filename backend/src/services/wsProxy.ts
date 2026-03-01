@@ -4,10 +4,14 @@ import { accessPasswordHash, verifyAccessToken } from "../config.js";
 
 // Allow only Apple hosts required by bag/auth/purchase/version flows.
 wisp.options.hostname_whitelist = [
+  // iTunes Store API (existing)
   /^auth\.itunes\.apple\.com$/,
   /^buy\.itunes\.apple\.com$/,
   /^init\.itunes\.apple\.com$/,
   /^p\d+-buy\.itunes\.apple\.com$/,
+  // Apple Developer API (AltSign)
+  /^gsa\.apple\.com$/,
+  /^developerservices2\.apple\.com$/,
 ];
 wisp.options.port_whitelist = [443];
 wisp.options.allow_direct_ip = false;

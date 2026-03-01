@@ -20,13 +20,29 @@ const LEGACY_DOWNLOADS_FILE = path.join(config.dataDir, "downloads.json");
 const SAFE_SEGMENT_RE = /^[a-zA-Z0-9._-]+$/;
 
 /** Validate and sanitize a path segment. Rejects traversal, replaces unsafe chars. */
-function safePathSegment(value: string, label: string): string {
-  if (!value || value === "." || value === "..") {
+export function encodePathSegment(
+  value: string,
+  label: string,
+  minLength = 1,
+): string {
+  const normalized = value.trim();
+  if (
+    normalized.length < minLength ||
+    normalized === "." ||
+    normalized === ".."
+  ) {
     throw new Error(`Invalid ${label}`);
   }
-  if (SAFE_SEGMENT_RE.test(value)) return value;
-  const cleaned = value.replace(/[^a-zA-Z0-9._-]/g, "_");
-  if (!cleaned || cleaned === "." || cleaned === "..") {
+  if (SAFE_SEGMENT_RE.test(normalized)) {
+    return normalized;
+  }
+
+  const cleaned = normalized.replace(/[^a-zA-Z0-9._-]/g, "_");
+  if (
+    cleaned.length < minLength ||
+    cleaned === "." ||
+    cleaned === ".."
+  ) {
     throw new Error(`Invalid ${label}`);
   }
   return cleaned;
@@ -309,6 +325,43 @@ export function getTask(id: string): DownloadTask | undefined {
   return tasks.get(id);
 }
 
+export function registerUploadedTask(
+  software: Software,
+  accountHash: string,
+  filePath: string,
+  id?: string,
+): DownloadTask {
+  encodePathSegment(accountHash, "accountHash");
+  encodePathSegment(software.bundleID, "bundleID");
+  encodePathSegment(software.version, "version");
+
+  const resolved = path.resolve(filePath);
+  const packagesBase = path.resolve(PACKAGES_DIR);
+  if (!resolved.startsWith(packagesBase + path.sep)) {
+    throw new Error("Invalid file path");
+  }
+  if (!fs.existsSync(resolved)) {
+    throw new Error("Uploaded file not found");
+  }
+
+  const task: DownloadTask = {
+    id: id ?? uuidv4(),
+    software,
+    accountHash,
+    downloadURL: "",
+    sinfs: [],
+    status: "completed",
+    progress: 100,
+    speed: "0 B/s",
+    filePath: resolved,
+    createdAt: new Date().toISOString(),
+  };
+
+  tasks.set(task.id, task);
+  persistTasks();
+  return task;
+}
+
 export function deleteTask(id: string): boolean {
   const task = tasks.get(id);
   if (!task) return false;
@@ -394,9 +447,9 @@ export function createTask(
   validateDownloadURL(downloadURL);
 
   // Validate path segments
-  safePathSegment(accountHash, "accountHash");
-  safePathSegment(software.bundleID, "bundleID");
-  safePathSegment(software.version, "version");
+  encodePathSegment(accountHash, "accountHash");
+  encodePathSegment(software.bundleID, "bundleID");
+  encodePathSegment(software.version, "version");
 
   const task: DownloadTask = {
     id: uuidv4(),
@@ -434,9 +487,9 @@ async function startDownload(task: DownloadTask) {
   notifyProgress(task);
 
   // Sanitize path segments
-  const safeAccountHash = safePathSegment(task.accountHash, "accountHash");
-  const safeBundleID = safePathSegment(task.software.bundleID, "bundleID");
-  const safeVersion = safePathSegment(task.software.version, "version");
+  const safeAccountHash = encodePathSegment(task.accountHash, "accountHash");
+  const safeBundleID = encodePathSegment(task.software.bundleID, "bundleID");
+  const safeVersion = encodePathSegment(task.software.version, "version");
 
   const dir = path.join(
     PACKAGES_DIR,
