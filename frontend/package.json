@@ -11,9 +11,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@lbr77/anisette-js": "^0.1.2",
+    "@lbr77/anisette-js": "^0.1.3",
     "@lbr77/zsign-wasm-resigner-wrapper": "^0.1.5",
-    "altsign.js": "^0.1.1",
+    "altsign.js": "^0.1.2",
     "fflate": "^0.8.2",
     "i18next": "^23.10.0",
     "i18next-browser-languagedetector": "^7.2.0",
