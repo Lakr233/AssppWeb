@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageContainer from '../../components/Layout/PageContainer';
-import Alert from '../../components/common/Alert';
-import Spinner from '../../components/common/Spinner';
-import { SigningIcon } from '../../components/common/icons';
-import { useSigningStore } from '../../stores/signingStore';
+import { useTranslation } from 'react-i18next';
+import PageContainer from '../Layout/PageContainer';
+import Alert from '../common/Alert';
+import Spinner from '../common/Spinner';
+import { SigningIcon } from '../common/icons';
+import { useSigningStore } from '../../store/signing';
 import { authenticate } from '../../apple/auth';
 import { provisionAnisette, getAnisetteData } from '../../apple/anisetteService';
 import { fetchTeam, fetchCertificates, fetchDevices } from '../../apple/developerApi';
 import type { VerificationHandler } from '../../apple/auth';
 
 export default function SigningLogin() {
+  const { t } = useTranslation();
   const { addAccount, setAnisetteData, setIsProvisioned, isProvisioned } = useSigningStore();
   const navigate = useNavigate();
 
@@ -26,9 +28,9 @@ export default function SigningLogin() {
   const canSubmitLogin = !loading && email.trim().length > 0 && password.trim().length > 0;
   const canSubmit2FA = !loading && code.length === 6;
   const setupSteps = [
-    { step: 1, title: 'Device' },
-    { step: 2, title: 'Sign In' },
-    { step: 3, title: '2FA' },
+    { step: 1, title: t('signing.login.stepDevice') },
+    { step: 2, title: t('signing.login.stepSignIn') },
+    { step: 3, title: t('signing.login.step2FA') },
   ];
 
   const handleProvision = async () => {
@@ -40,7 +42,7 @@ export default function SigningLogin() {
       setAnisetteData(data);
       setIsProvisioned(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to provision anisette');
+      setError(err instanceof Error ? err.message : t('signing.login.errorProvision'));
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export default function SigningLogin() {
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Please enter email and password');
+      setError(t('signing.login.errorEmailPassword'));
       return;
     }
 
@@ -92,7 +94,7 @@ export default function SigningLogin() {
       setCode('');
       navigate('/signing/accounts');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('signing.login.errorLogin'));
     } finally {
       setLoading(false);
     }
@@ -106,7 +108,7 @@ export default function SigningLogin() {
     try {
       await submitCode(code.trim());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid verification code');
+      setError(err instanceof Error ? err.message : t('signing.login.errorCode'));
       setLoading(false);
     }
   };
@@ -117,7 +119,7 @@ export default function SigningLogin() {
   };
 
   return (
-    <PageContainer title="Developer Account">
+    <PageContainer title={t('signing.login.title')}>
       <div className="mx-auto max-w-lg space-y-6">
         {error && (
           <Alert type="error" onClose={() => setError(null)}>
@@ -132,11 +134,10 @@ export default function SigningLogin() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                Local developer signing workspace
+                {t('signing.login.workspaceTitle')}
               </p>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Credentials stay in your browser. We only cache team, certificate, and device data
-                for signing.
+                {t('signing.login.workspaceDesc')}
               </p>
             </div>
           </div>
@@ -144,9 +145,9 @@ export default function SigningLogin() {
 
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-900 dark:text-white">Setup Progress</h2>
+            <h2 className="text-sm font-medium text-gray-900 dark:text-white">{t('signing.login.setupProgress')}</h2>
             <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-              Step {currentStep} / 3
+              {t('signing.login.stepOf', { current: currentStep, total: 3 })}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -166,7 +167,7 @@ export default function SigningLogin() {
                 >
                   <div className="flex items-center justify-center gap-2">
                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current text-[11px]">
-                      {isDone ? '✓' : item.step}
+                      {isDone ? '\u2713' : item.step}
                     </span>
                     <p className="text-xs font-medium">{item.title}</p>
                   </div>
@@ -179,17 +180,17 @@ export default function SigningLogin() {
         {!isProvisioned && (
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h2 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
-              Device Setup
+              {t('signing.login.setupDevice')}
             </h2>
             <p className="mb-5 text-sm text-gray-600 dark:text-gray-400">
-              Initialize the device for Apple authentication. This only needs to be done once.
+              {t('signing.login.setupDesc')}
             </p>
             <button
               onClick={handleProvision}
               disabled={loading}
               className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? <Spinner /> : 'Setup Device'}
+              {loading ? <Spinner /> : t('signing.login.setupBtn')}
             </button>
           </div>
         )}
@@ -197,9 +198,9 @@ export default function SigningLogin() {
         {isProvisioned && !needs2FA && (
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-700 dark:border-green-900 dark:bg-green-900/20 dark:text-green-300">
-              Device is ready. Sign in with your Apple ID to load team, certificates, and devices.
+              {t('signing.login.deviceReady')}
             </div>
-            <h2 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">Sign In</h2>
+            <h2 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">{t('signing.login.signIn')}</h2>
             <form
               className="space-y-4"
               onSubmit={(event) => {
@@ -212,7 +213,7 @@ export default function SigningLogin() {
                   htmlFor="email"
                   className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Apple ID
+                  {t('signing.login.appleId')}
                 </label>
                 <input
                   type="email"
@@ -229,7 +230,7 @@ export default function SigningLogin() {
                   htmlFor="password"
                   className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Password
+                  {t('signing.login.password')}
                 </label>
                 <input
                   type="password"
@@ -238,7 +239,6 @@ export default function SigningLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                  placeholder="Your password"
                 />
               </div>
               <div className="flex items-center justify-end">
@@ -247,7 +247,7 @@ export default function SigningLogin() {
                   disabled={!canSubmitLogin}
                   className="inline-flex min-w-28 items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading ? <Spinner /> : 'Sign In'}
+                  {loading ? <Spinner /> : t('signing.login.signIn')}
                 </button>
               </div>
             </form>
@@ -257,10 +257,10 @@ export default function SigningLogin() {
         {needs2FA && (
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h2 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
-              Two-Factor Authentication
+              {t('signing.login.twoFactor')}
             </h2>
             <p className="mb-5 text-sm text-gray-600 dark:text-gray-400">
-              Enter the 6-digit verification code sent to your trusted device.
+              {t('signing.login.twoFactorDesc')}
             </p>
             <form
               className="space-y-4"
@@ -285,7 +285,7 @@ export default function SigningLogin() {
                   disabled={!canSubmit2FA}
                   className="inline-flex min-w-28 items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading ? <Spinner /> : 'Verify'}
+                  {loading ? <Spinner /> : t('signing.login.verify')}
                 </button>
               </div>
             </form>

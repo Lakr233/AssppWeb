@@ -20,7 +20,7 @@ const LEGACY_DOWNLOADS_FILE = path.join(config.dataDir, "downloads.json");
 const SAFE_SEGMENT_RE = /^[a-zA-Z0-9._-]+$/;
 
 /** Validate and sanitize a path segment. Rejects traversal, replaces unsafe chars. */
-export function encodePathSegment(
+export function safePathSegment(
   value: string,
   label: string,
   minLength = 1,
@@ -331,9 +331,9 @@ export function registerUploadedTask(
   filePath: string,
   id?: string,
 ): DownloadTask {
-  encodePathSegment(accountHash, "accountHash");
-  encodePathSegment(software.bundleID, "bundleID");
-  encodePathSegment(software.version, "version");
+  safePathSegment(accountHash, "accountHash");
+  safePathSegment(software.bundleID, "bundleID");
+  safePathSegment(software.version, "version");
 
   const resolved = path.resolve(filePath);
   const packagesBase = path.resolve(PACKAGES_DIR);
@@ -447,9 +447,9 @@ export function createTask(
   validateDownloadURL(downloadURL);
 
   // Validate path segments
-  encodePathSegment(accountHash, "accountHash");
-  encodePathSegment(software.bundleID, "bundleID");
-  encodePathSegment(software.version, "version");
+  safePathSegment(accountHash, "accountHash");
+  safePathSegment(software.bundleID, "bundleID");
+  safePathSegment(software.version, "version");
 
   const task: DownloadTask = {
     id: uuidv4(),
@@ -487,9 +487,9 @@ async function startDownload(task: DownloadTask) {
   notifyProgress(task);
 
   // Sanitize path segments
-  const safeAccountHash = encodePathSegment(task.accountHash, "accountHash");
-  const safeBundleID = encodePathSegment(task.software.bundleID, "bundleID");
-  const safeVersion = encodePathSegment(task.software.version, "version");
+  const safeAccountHash = safePathSegment(task.accountHash, "accountHash");
+  const safeBundleID = safePathSegment(task.software.bundleID, "bundleID");
+  const safeVersion = safePathSegment(task.software.version, "version");
 
   const dir = path.join(
     PACKAGES_DIR,

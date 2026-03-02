@@ -64,11 +64,17 @@ async function bootstrap() {
   // Ensure data directory exists
   fs.mkdirSync(config.dataDir, { recursive: true });
 
-  await prepareAnisetteAssets(publicDir);
-
   server.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);
     console.log(`Data directory: ${path.resolve(config.dataDir)}`);
+  });
+
+  // Download/refresh anisette .so assets in background — do not block startup
+  prepareAnisetteAssets(publicDir).catch((err) => {
+    console.error(
+      "[Anisette] Background asset preparation failed:",
+      err instanceof Error ? err.message : String(err),
+    );
   });
 }
 

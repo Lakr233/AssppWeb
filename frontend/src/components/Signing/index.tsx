@@ -2,7 +2,7 @@ import { Navigate, Routes, Route } from 'react-router-dom';
 import SigningLogin from './SigningLogin';
 import SigningAccounts from './SigningAccounts';
 import SigningIpa from './SigningIpa';
-import { useSigningStore } from '../../stores/signingStore';
+import { useSigningStore } from '../../store/signing';
 
 function SigningEntry() {
   const hasAccounts = useSigningStore((state) => state.accounts.length > 0);

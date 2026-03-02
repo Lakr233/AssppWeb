@@ -10,7 +10,7 @@ import {
   MIN_ACCOUNT_HASH_LENGTH,
 } from "../config.js";
 import {
-  encodePathSegment,
+  safePathSegment,
   registerUploadedTask,
   sanitizeTaskForResponse,
 } from "../services/downloadManager.js";
@@ -94,13 +94,13 @@ router.post("/signing/upload", async (req: Request, res: Response) => {
   let appName: string;
 
   try {
-    accountHash = encodePathSegment(
+    accountHash = safePathSegment(
       getQueryString(req, "accountHash"),
       "accountHash",
       MIN_ACCOUNT_HASH_LENGTH,
     );
-    bundleID = encodePathSegment(getQueryString(req, "bundleID"), "bundleID");
-    version = encodePathSegment(
+    bundleID = safePathSegment(getQueryString(req, "bundleID"), "bundleID");
+    version = safePathSegment(
       getQueryString(req, "version") || "1.0.0",
       "version",
     );

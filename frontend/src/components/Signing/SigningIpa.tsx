@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageContainer from '../../components/Layout/PageContainer';
-import Alert from '../../components/common/Alert';
-import ProgressBar from '../../components/common/ProgressBar';
-import Spinner from '../../components/common/Spinner';
+import { useTranslation } from 'react-i18next';
+import { createResigner } from '@lbr77/zsign-wasm-resigner-wrapper';
+import PageContainer from '../Layout/PageContainer';
+import Alert from '../common/Alert';
+import ProgressBar from '../common/ProgressBar';
+import Spinner from '../common/Spinner';
 import { useToastStore } from '../../store/toast';
-import { useSigningStore } from '../../stores/signingStore';
+import { useSigningStore } from '../../store/signing';
 import { uploadSignedIpa } from '../../api/signing';
 import {
   addAppID,
@@ -19,7 +21,7 @@ import { getAnisetteData } from '../../apple/anisetteService';
 import { readIpaInfo } from '../../apple/ipaInfo';
 import { hashAccountIdentity } from '../../utils/account';
 import { getErrorMessage } from '../../utils/error';
-import { createResigner } from '@lbr77/zsign-wasm-resigner-wrapper';
+
 interface SigningLog {
   id: number;
   text: string;
@@ -92,6 +94,7 @@ function isSessionExpiredError(error: unknown): boolean {
 }
 
 export default function SigningIpa() {
+  const { t } = useTranslation();
   const { accounts, currentAccountId, updateAccount } = useSigningStore();
   const addToast = useToastStore((state) => state.addToast);
   const navigate = useNavigate();
@@ -134,7 +137,11 @@ export default function SigningIpa() {
   const canSign = !!currentAccount && !!ipaFile && bundleId.trim().length > 0 && !isSigning;
   const fileSizeMB = ipaFile ? `${(ipaFile.size / 1024 / 1024).toFixed(2)} MB` : null;
   const progressState =
-    progress >= 100 ? 'Completed' : isSigning ? 'Signing in progress' : 'Ready to start';
+    progress >= 100
+      ? t('signing.ipa.completed')
+      : isSigning
+        ? t('signing.ipa.inProgress')
+        : t('signing.ipa.ready');
 
   const appendLog = (text: string) => {
     setLogs((prev) => [...prev, { id: Date.now() + Math.floor(Math.random() * 1000), text }]);
@@ -156,7 +163,6 @@ export default function SigningIpa() {
     try {
       const ipaBytes = new Uint8Array(await file.arrayBuffer());
       const info = readIpaInfo(ipaBytes);
-      console.log('Parsed IPA info:', info);
       if (info.bundleId) {
         setBundleId(info.bundleId);
       }
@@ -166,12 +172,12 @@ export default function SigningIpa() {
       }
 
       if (info.bundleId) {
-        setIpaMetadataNotice(`Detected Bundle ID from Info.plist: ${info.bundleId}`);
+        setIpaMetadataNotice(t('signing.ipa.metadataDetected', { bundleId: info.bundleId }));
       } else {
-        setIpaMetadataNotice('Info.plist loaded, but CFBundleIdentifier was not found.');
+        setIpaMetadataNotice(t('signing.ipa.metadataNotFound'));
       }
     } catch {
-      setIpaMetadataNotice('Unable to read Info.plist from this IPA. Please enter Bundle ID manually.');
+      setIpaMetadataNotice(t('signing.ipa.metadataReadError'));
     }
   };
 
@@ -190,22 +196,22 @@ export default function SigningIpa() {
     }
 
     try {
-      updateProgress(8, 'Reading IPA from browser...');
+      updateProgress(8, t('signing.ipa.logReading'));
       const ipaData = new Uint8Array(await ipaFile.arrayBuffer());
 
-      updateProgress(16, 'Refreshing anisette data...');
+      updateProgress(16, t('signing.ipa.logAnisette'));
       const anisetteData = await getAnisetteData();
       const session = { ...currentAccount.session, anisetteData };
 
-      updateProgress(24, 'Validating session and fetching team...');
+      updateProgress(24, t('signing.ipa.logValidating'));
       const team = await fetchTeam(session);
       updateAccount(currentAccount.id, { session, team });
 
       if (!team) {
-        throw new Error('No team available for this account.');
+        throw new Error(t('signing.ipa.errorNoTeam'));
       }
 
-      updateProgress(32, 'Fetching latest certificates...');
+      updateProgress(32, t('signing.ipa.logCertificates'));
       const latestCertificates = await fetchCertificates(session, team);
       const localPrivateKeyById = new Map<string, Uint8Array>();
       for (const item of currentAccount.certificates) {
@@ -229,7 +235,7 @@ export default function SigningIpa() {
       let privateKey = certificate?.privateKey ?? currentAccount.privateKey;
 
       if (!certificate || !privateKey) {
-        updateProgress(42, 'Creating development certificate...');
+        updateProgress(42, t('signing.ipa.logCreatingCert'));
         const created = await addCertificate(session, team, `AssppWeb-${Date.now()}`);
 
         privateKey = created.privateKey;
@@ -246,36 +252,36 @@ export default function SigningIpa() {
       }
 
       if (!certificate || !privateKey) {
-        throw new Error('Missing certificate/private key for signing.');
+        throw new Error(t('signing.ipa.errorMissingCert'));
       }
 
-      updateProgress(55, 'Checking App ID...');
+      updateProgress(55, t('signing.ipa.logCheckingAppId'));
       const normalizedBundleId = bundleId.trim();
       const finalBundleId = buildTeamScopedBundleId(normalizedBundleId, team.identifier);
       if (finalBundleId !== normalizedBundleId) {
-        appendLog(`Using team-scoped bundle ID: ${finalBundleId}`);
+        appendLog(t('signing.ipa.logTeamScoped', { bundleId: finalBundleId }));
       }
 
       const appIDs = await fetchAppIDs(session, team);
       let appID = appIDs.find((item) => item.bundleIdentifier === finalBundleId);
 
       if (!appID) {
-        updateProgress(64, 'Creating App ID...');
+        updateProgress(64, t('signing.ipa.logCreatingAppId'));
         try {
           appID = await addAppID(session, team, displayName.trim() || 'Signed App', finalBundleId);
         } catch (error) {
           const reason = getErrorMessage(error, 'unknown reason');
-          throw new Error(`Failed to add App ID (${finalBundleId}): ${reason}`);
+          throw new Error(t('signing.ipa.errorAddAppId', { bundleId: finalBundleId, reason }));
         }
       }
 
-      updateProgress(73, 'Fetching provisioning profile...');
+      updateProgress(73, t('signing.ipa.logProfile'));
       const profile = await fetchProvisioningProfile(session, team, appID);
 
-      updateProgress(82, 'Initializing signer WASM...');
+      updateProgress(82, t('signing.ipa.logInitSigner'));
       const resigner = await getResigner();
 
-      updateProgress(90, 'Signing IPA in browser...');
+      updateProgress(90, t('signing.ipa.logSigning'));
       const signedResult = await resigner.signIpa(ipaData, {
         cert: certificate.publicKey,
         pkey: privateKey,
@@ -286,7 +292,7 @@ export default function SigningIpa() {
         forceSign: true,
       });
 
-      updateProgress(96, 'Building downloadable file...');
+      updateProgress(96, t('signing.ipa.logBuilding'));
       const outputName = buildOutputName(ipaFile.name);
       const signedData = signedResult.data;
       const signedBuffer = new ArrayBuffer(signedData.byteLength);
@@ -298,7 +304,7 @@ export default function SigningIpa() {
       setDownloadName(outputName);
       setDownloadUrl(objectUrl);
 
-      updateProgress(98, 'Uploading signed IPA to backend...');
+      updateProgress(98, t('signing.ipa.logUploading'));
       const uploadAccountHash = await hashAccountIdentity({
         directoryServicesIdentifier: currentAccount.session.dsid,
         appleId: currentAccount.account.email,
@@ -312,17 +318,17 @@ export default function SigningIpa() {
       });
 
       setProgress(100);
-      appendLog(`Uploaded to backend (task: ${uploadedTask.id}).`);
-      appendLog('Signing complete.');
-      addToast(`Signed IPA uploaded: ${uploadName}`, 'success', 'Upload Completed');
-      addToast(`Signed IPA ready: ${outputName}`, 'success', 'Signing Completed');
+      appendLog(t('signing.ipa.logUploaded', { taskId: uploadedTask.id }));
+      appendLog(t('signing.ipa.logComplete'));
+      addToast(t('signing.ipa.toastUploaded', { name: uploadName }), 'success', 'Upload Completed');
+      addToast(t('signing.ipa.toastSigned', { name: outputName }), 'success', 'Signing Completed');
     } catch (signError) {
       const message = getErrorMessage(signError, 'Signing failed.');
       setError(message);
       appendLog(`Error: ${message}`);
 
       if (isSessionExpiredError(signError)) {
-        addToast('Session expired. Please sign in again.', 'info', 'Session Expired');
+        addToast(t('signing.ipa.errorSessionExpired'), 'info', 'Session Expired');
       }
     } finally {
       setIsSigning(false);
@@ -331,14 +337,14 @@ export default function SigningIpa() {
 
   return (
     <PageContainer
-      title="Sign IPA"
+      title={t('signing.ipa.title')}
       action={
         <button
           type="button"
           onClick={() => navigate('/signing/accounts')}
           className="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
         >
-          Back to Accounts
+          {t('signing.ipa.backToAccounts')}
         </button>
       }
     >
@@ -349,17 +355,16 @@ export default function SigningIpa() {
           <div className="space-y-4">
             <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Upload an IPA, then sign locally in browser with your active Apple Developer
-                account.
+                {t('signing.ipa.description')}
               </p>
               {currentAccount && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                    Account: {currentAccount.email}
+                    {t('signing.ipa.accountLabel', { email: currentAccount.email })}
                   </span>
                   {currentAccount.team && (
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                      Team: {currentAccount.team.identifier}
+                      {t('signing.ipa.teamLabel', { id: currentAccount.team.identifier })}
                     </span>
                   )}
                 </div>
@@ -373,7 +378,7 @@ export default function SigningIpa() {
                     htmlFor="ipa-file"
                     className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    IPA File
+                    {t('signing.ipa.ipaFile')}
                   </label>
                   <div className="rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/30">
                     <input
@@ -386,7 +391,9 @@ export default function SigningIpa() {
                       className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     />
                     <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      {ipaFile ? `${ipaFile.name}${fileSizeMB ? ` (${fileSizeMB})` : ''}` : 'No file selected'}
+                      {ipaFile
+                        ? t('signing.ipa.fileInfo', { name: ipaFile.name, size: fileSizeMB ?? '' })
+                        : t('signing.ipa.noFile')}
                     </p>
                     {ipaMetadataNotice && (
                       <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">{ipaMetadataNotice}</p>
@@ -399,7 +406,7 @@ export default function SigningIpa() {
                     htmlFor="bundle-id"
                     className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Bundle ID
+                    {t('signing.ipa.bundleId')}
                   </label>
                   <input
                     id="bundle-id"
@@ -415,7 +422,7 @@ export default function SigningIpa() {
                     htmlFor="display-name"
                     className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Display Name
+                    {t('signing.ipa.displayName')}
                   </label>
                   <input
                     id="display-name"
@@ -433,7 +440,7 @@ export default function SigningIpa() {
                     onClick={() => void handleSign()}
                     className="inline-flex min-w-36 items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isSigning ? <Spinner /> : 'Start Signing'}
+                    {isSigning ? <Spinner /> : t('signing.ipa.startSigning')}
                   </button>
                   {downloadUrl && (
                     <a
@@ -441,7 +448,7 @@ export default function SigningIpa() {
                       download={downloadName}
                       className="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
-                      Download Signed IPA
+                      {t('signing.ipa.downloadSigned')}
                     </a>
                   )}
                 </div>
@@ -452,14 +459,14 @@ export default function SigningIpa() {
           <div className="space-y-4">
             <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Signing Progress</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{t('signing.ipa.progress')}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{progress}%</p>
               </div>
               <ProgressBar progress={progress} />
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{progressState}</p>
               <div className="mt-3 max-h-72 space-y-1 overflow-y-auto rounded-md bg-gray-50 p-3 dark:bg-gray-800/50">
                 {logs.length === 0 ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No logs yet.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('signing.ipa.noLogs')}</p>
                 ) : (
                   logs.map((log) => (
                     <p
@@ -476,11 +483,10 @@ export default function SigningIpa() {
             {downloadUrl && (
               <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-900/20">
                 <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                  Signed package is ready
+                  {t('signing.ipa.packageReady')}
                 </p>
                 <p className="mt-1 text-xs text-green-700 dark:text-green-300">
-                  Use the download button to save{' '}
-                  <span className="font-mono">{downloadName}</span> locally.
+                  {t('signing.ipa.packageReadyDesc', { name: downloadName })}
                 </p>
               </div>
             )}

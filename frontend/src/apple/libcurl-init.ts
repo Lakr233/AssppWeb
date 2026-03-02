@@ -1,5 +1,4 @@
-//@ts-ignore
-import { libcurl } from "../../public/anisette/libcurl_full.mjs"; // TODO: pack and import using npm
+import { libcurl } from "libcurl.js/bundled";
 import { getAccessToken } from "../components/Auth/PasswordGate";
 
 let initialized = false;

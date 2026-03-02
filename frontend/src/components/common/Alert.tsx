@@ -10,17 +10,29 @@ const styles = {
 export default function Alert({
   type,
   children,
-  className = "",
+  className = '',
+  onClose,
 }: {
   type: keyof typeof styles;
   children: React.ReactNode;
   className?: string;
+  onClose?: () => void;
 }) {
   return (
     <div
-      className={`p-3 border rounded-lg text-sm ${styles[type]} ${className}`}
+      className={`p-3 border rounded-lg text-sm ${onClose ? 'flex items-start gap-2' : ''} ${styles[type]} ${className}`}
     >
-      {children}
+      {onClose ? <div className="flex-1">{children}</div> : children}
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="opacity-70 hover:opacity-100 transition-opacity cursor-pointer shrink-0"
+          aria-label="Dismiss"
+        >
+          &#215;
+        </button>
+      )}
     </div>
   );
 }
