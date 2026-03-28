@@ -2,6 +2,32 @@ import { Router, Request, Response } from "express";
 
 const router = Router();
 
+// Allowlisted parameters for iTunes search/lookup API
+const ALLOWED_SEARCH_PARAMS = new Set([
+  "term",
+  "country",
+  "media",
+  "entity",
+  "attribute",
+  "limit",
+  "lang",
+  "version",
+  "explicit",
+  "id",
+  "bundleId",
+]);
+
+function sanitizeParams(query: Record<string, any>): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const key of ALLOWED_SEARCH_PARAMS) {
+    const value = query[key];
+    if (value !== undefined && typeof value === "string") {
+      params.set(key, value);
+    }
+  }
+  return params;
+}
+
 // Map iTunes API fields to our Software type, matching Swift CodingKeys
 function mapSoftware(item: Record<string, any>) {
   return {
@@ -28,7 +54,11 @@ function mapSoftware(item: Record<string, any>) {
 
 router.get("/search", async (req: Request, res: Response) => {
   try {
-    const params = new URLSearchParams(req.query as Record<string, string>);
+    const params = sanitizeParams(req.query);
+    if (!params.has("term")) {
+      res.status(400).json({ error: "Missing required parameter: term" });
+      return;
+    }
     const response = await fetch(
       `https://itunes.apple.com/search?${params.toString()}`,
     );
@@ -43,7 +73,11 @@ router.get("/search", async (req: Request, res: Response) => {
 
 router.get("/lookup", async (req: Request, res: Response) => {
   try {
-    const params = new URLSearchParams(req.query as Record<string, string>);
+    const params = sanitizeParams(req.query);
+    if (!params.has("id") && !params.has("bundleId")) {
+      res.status(400).json({ error: "Missing required parameter: id or bundleId" });
+      return;
+    }
     const response = await fetch(
       `https://itunes.apple.com/lookup?${params.toString()}`,
     );
