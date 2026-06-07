@@ -5,8 +5,19 @@ export interface BagOutput {
   authURL: string;
 }
 
+// The native "fast" auth endpoint. Apple's newer bag responses point auth at
+// auth.itunes.apple.com, and the native auth flow requires the /fast sub-path.
 export const defaultAuthURL =
-  "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate";
+  "https://auth.itunes.apple.com/auth/v1/native/fast";
+
+// Apple's newer auth endpoint base (auth.itunes.apple.com) requires the /fast
+// sub-path. Append it when missing so the native auth flow resolves correctly.
+function normalizeAuthURL(url: string): string {
+  if (url.includes("auth.itunes.apple.com") && !url.endsWith("/fast")) {
+    return `${url}/fast`;
+  }
+  return url;
+}
 
 // Fetches the bag via the backend proxy.
 // The backend fetches it using Node.js native HTTPS.
@@ -27,14 +38,12 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
     const xml = await resp.text();
     const dict = parsePlist(xml) as Record<string, any>;
 
-    // authenticateAccount may be at top level or inside a urlBag dict
-    let authURL: string | undefined;
-    const urlBag = dict.urlBag as Record<string, any> | undefined;
-    if (urlBag) {
-      authURL = urlBag.authenticateAccount as string | undefined;
-    }
+    // authenticateAccount may be at top level or inside a urlBag dict.
+    // Prefer the top-level value, falling back to the urlBag entry.
+    let authURL = dict.authenticateAccount as string | undefined;
     if (!authURL) {
-      authURL = dict.authenticateAccount as string | undefined;
+      const urlBag = dict.urlBag as Record<string, any> | undefined;
+      authURL = urlBag?.authenticateAccount as string | undefined;
     }
 
     if (!authURL) {
@@ -44,7 +53,7 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       return { authURL: defaultAuthURL };
     }
 
-    return { authURL };
+    return { authURL: normalizeAuthURL(authURL) };
   } catch (error) {
     console.warn(
       `[Bag] Failed to fetch/parse bag, using default auth endpoint: ${
