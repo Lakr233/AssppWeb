@@ -116,3 +116,5 @@ For friends who helped with testing and feedback:
 
 - [@lbr77](https://github.com/lbr77)
 - [@akinazuki](https://github.com/akinazuki)
+
+<img src="./Artworks/fable5.jpg" alt="Fable 5 Verified" width="240">
