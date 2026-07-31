@@ -2,6 +2,8 @@ export default function Spinner() {
   return (
     <svg
       // 这里的 text-white 替换为 text-current，使其能自动继承父元素（比如按钮）的文本颜色，适配性更好
+      aria-hidden="true"
+      focusable="false"
       className="animate-spin h-4 w-4 text-current"
       fill="none"
       viewBox="0 0 24 24"

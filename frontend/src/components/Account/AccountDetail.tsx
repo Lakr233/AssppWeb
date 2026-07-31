@@ -6,8 +6,8 @@ import Spinner from "../common/Spinner";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
-import { storeIdToCountry } from "../../apple/config";
 import { getErrorMessage } from "../../utils/error";
+import { storeIdToCountry } from "../../apple/config";
 
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
@@ -103,9 +103,9 @@ export default function AccountDetail() {
 
   return (
     <PageContainer title={t("accounts.detail.title")}>
-      <div className="max-w-lg space-y-6">
-        <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <dl className="space-y-4">
+      <div className="max-w-2xl space-y-6">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
+          <dl className="divide-y divide-gray-100 dark:divide-gray-800">
             <DetailRow
               label={t("accounts.detail.name")}
               value={`${account.firstName} ${account.lastName}`}
@@ -137,14 +137,14 @@ export default function AccountDetail() {
         </section>
 
         {needsCode && (
-          <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
             <label
               htmlFor="reauth-code"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               {t("accounts.detail.code")}
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
               <input
                 id="reauth-code"
                 type="text"
@@ -155,13 +155,13 @@ export default function AccountDetail() {
                 onChange={(e) => setReauthCode(e.target.value)}
                 disabled={reauthing}
                 placeholder="000000"
-                className="block flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800/50 transition-colors"
+                className="min-h-11 w-full min-w-0 flex-1 rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60 dark:bg-gray-800 dark:text-white"
                 autoFocus
               />
               <button
                 onClick={handleReauth}
                 disabled={reauthing || !reauthCode}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {reauthing && <Spinner />}
                 {t("accounts.detail.verify")}
@@ -174,7 +174,7 @@ export default function AccountDetail() {
           <button
             onClick={handleReauth}
             disabled={reauthing}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="flex min-h-11 items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {reauthing && <Spinner />}
             {t("accounts.detail.reauth")}
@@ -183,7 +183,7 @@ export default function AccountDetail() {
           {!showDelete ? (
             <button
               onClick={() => setShowDelete(true)}
-              className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+              className="min-h-11 rounded-full bg-red-50 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/70"
             >
               {t("accounts.detail.delete")}
             </button>
@@ -194,13 +194,13 @@ export default function AccountDetail() {
               </span>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                className="min-h-11 rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
               >
                 {t("accounts.detail.confirmDelete")}
               </button>
               <button
                 onClick={() => setShowDelete(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="min-h-11 rounded-full bg-gray-200 px-5 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {t("accounts.detail.cancel")}
               </button>
@@ -210,7 +210,7 @@ export default function AccountDetail() {
 
         <button
           onClick={() => navigate("/accounts")}
-          className="px-4 py-2 mt-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-block"
+          className="mt-2 inline-block min-h-11 rounded-full bg-gray-200 px-5 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           {t("accounts.detail.back")}
         </button>
@@ -221,7 +221,7 @@ export default function AccountDetail() {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="py-3 first:pt-0 last:pb-0">
       <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
         {label}
       </dt>

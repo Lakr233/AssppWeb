@@ -25,7 +25,7 @@
   },
   "home": {
     "welcome": "欢迎来到 Asspp Web",
-    "subtitle": "在浏览器中管理 Apple 账号，搜索 App Store 并下载应用。",
+    "subtitle": "管理 Apple 账号，搜索并下载应用。",
     "stats": {
       "accounts": "账号",
       "downloads": "下载",
@@ -46,7 +46,7 @@
     "button": "搜索",
     "searching": "搜索中...",
     "empty": "搜索应用以开始。",
-    "emptyDesc": "输入应用名称或 Bundle ID，快速在 App Store 中查找并获取应用详情与许可证。",
+    "emptyDesc": "输入名称或 Bundle ID，查找应用与许可证。",
     "free": "免费",
     "product": {
       "title": "应用详情",
@@ -93,7 +93,7 @@
     "add": "添加账号",
     "loading": "加载账号中...",
     "empty": "暂未添加账号。",
-    "emptyDesc": "在这里统一管理您的 Apple 账号，随时获取应用下载许可证。",
+    "emptyDesc": "管理 Apple 账号，随时获取下载许可证。",
     "addFirst": "添加您的第一个账号",
     "addForm": {
       "title": "添加账号",
@@ -139,14 +139,16 @@
     "title": "下载",
     "new": "新建下载",
     "warning": "安装包是临时的，将在服务器重启时被清除。请及时下载或安装。",
+    "warningShort": "临时安装包，重启即清除，请及时保存。",
     "loading": "加载下载中...",
     "emptyAll": "暂无下载。",
     "emptyAllDesc": "您的下载队列为空。前往搜索页面探索并下载您需要的应用吧。",
+    "emptyAllDescShort": "下载队列为空，请前往搜索页面获取应用。",
     "emptyFilter": "暂无{{status}}下载。",
     "emptyFilterDesc": "没有符合该状态的下载记录。",
     "searchApps": "搜索要下载的应用",
     "deleteConfirm": "删除此下载？",
-    "checkUpdates": "一键检查更新",
+    "checkUpdates": "检查更新",
     "checkingApp": "当前正在检查：",
     "checkingUpdates": "检查中...",
     "checkUpdatesStarted": "正在后台检查更新...",
@@ -238,7 +240,7 @@
     },
     "data": {
       "title": "数据",
-      "description": "清除此浏览器中存储的所有本地数据，包括账号、凭据和设置。",
+      "description": "清除本地账号、凭据和设置。",
       "confirm": "这将删除所有账号、凭据和设置，且无法恢复。是否继续？",
       "button": "重置所有数据",
       "exportBtn": "导出账号",
@@ -259,7 +261,7 @@
     },
     "about": {
       "title": "关于",
-      "description": "Asspp Web —— 基于 Web 的 Apple 应用下载和许可证管理界面。",
+      "description": "Asspp Web —— Apple 应用与许可证管理。",
       "buildCommit": "构建提交",
       "buildDate": "构建日期"
     }

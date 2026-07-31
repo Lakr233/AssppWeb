@@ -104,47 +104,55 @@ export default function ProductDetail() {
 
   return (
     <PageContainer>
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
-          <AppIcon url={app.artworkUrl} name={app.name} size="lg" />
+      <div className="min-w-0 space-y-5 [overflow-wrap:anywhere]">
+        <section className="flex min-w-0 items-start gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:gap-5 sm:p-6">
+          <div className="shrink-0">
+            <AppIcon url={app.artworkUrl} name={app.name} size="lg" />
+          </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
               {app.name}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">{app.artistName}</p>
-            <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
-              <span>{app.formattedPrice ?? t("search.product.free")}</span>
-              <span>{app.primaryGenreName}</span>
-              <span>v{app.version}</span>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+              <span className="rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-800">
+                {app.formattedPrice ?? t("search.product.free")}
+              </span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-800">
+                {app.primaryGenreName}
+              </span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-800">
+                v{app.version}
+              </span>
               <span>
-                {app.averageUserRating.toFixed(1)} ({app.userRatingCount}{" "}
+                ★ {app.averageUserRating.toFixed(1)} ({app.userRatingCount}{" "}
                 {t("search.product.ratings")})
               </span>
             </div>
           </div>
-        </div>
+        </section>
 
         {accounts.length === 0 ? (
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+          <div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-800 ring-1 ring-yellow-200/70 dark:bg-yellow-950/30 dark:text-yellow-300 dark:ring-yellow-800/50">
             <Link to="/accounts/add" className="font-medium underline">
               {t("search.product.addAccountLink")}
             </Link>{" "}
             {t("search.product.addAccountPrompt")}
           </div>
         ) : filteredAccounts.length === 0 ? (
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+          <div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-800 ring-1 ring-yellow-200/70 dark:bg-yellow-950/30 dark:text-yellow-300 dark:ring-yellow-800/50">
             {t("search.product.noAccountsForRegion")}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 space-y-4">
-            <div>
+          <section className="space-y-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
+            <div className="min-w-0">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t("search.product.account")}
               </label>
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                className="min-h-11 w-full min-w-0 rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 dark:bg-gray-800 dark:text-white"
                 disabled={loadingAction !== null}
               >
                 {filteredAccounts.map((a) => (
@@ -159,7 +167,7 @@ export default function ProductDetail() {
                 <button
                   onClick={handlePurchase}
                   disabled={loadingAction !== null}
-                  className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  className="rounded-full bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:bg-blue-950/60 dark:text-blue-400 dark:hover:bg-blue-950"
                 >
                   {loadingAction === "purchase"
                     ? t("search.product.processing")
@@ -169,7 +177,7 @@ export default function ProductDetail() {
               <button
                 onClick={handleDownload}
                 disabled={loadingAction !== null}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
               >
                 {loadingAction === "download"
                   ? t("search.product.processing")
@@ -178,15 +186,15 @@ export default function ProductDetail() {
               <Link
                 to={`/search/${app.id}/versions`}
                 state={{ app, country }}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="rounded-full bg-gray-100 px-5 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {t("search.product.versionHistory")}
               </Link>
             </div>
-          </div>
+          </section>
         )}
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
           <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
             {t("search.product.details")}
           </h2>
@@ -228,47 +236,47 @@ export default function ProductDetail() {
               {new Date(app.releaseDate).toLocaleDateString()}
             </dd>
           </dl>
-        </div>
+        </section>
 
         {app.description && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.description")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
               {app.description}
             </p>
-          </div>
+          </section>
         )}
 
         {app.releaseNotes && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.releaseNotes")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
               {app.releaseNotes}
             </p>
-          </div>
+          </section>
         )}
 
         {app.screenshotUrls && app.screenshotUrls.length > 0 && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
               {t("search.product.screenshots")}
             </h2>
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {app.screenshotUrls.map((url, i) => (
                 <img
                   key={i}
                   src={url}
                   alt={`Screenshot ${i + 1}`}
-                  className="h-48 sm:h-64 rounded-lg object-contain flex-shrink-0"
+                  className="h-64 shrink-0 snap-start snap-always rounded-3xl object-contain sm:h-80"
                   loading="lazy"
                 />
               ))}
             </div>
-          </div>
+          </section>
         )}
       </div>
     </PageContainer>

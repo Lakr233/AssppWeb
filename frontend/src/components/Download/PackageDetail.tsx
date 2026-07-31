@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
@@ -155,23 +155,32 @@ export default function PackageDetail() {
 
   return (
     <PageContainer title={t("downloads.package.title")}>
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
+      <div className="min-w-0 space-y-6">
+        <div className="flex min-w-0 items-start gap-4">
           <AppIcon
             url={task.software.artworkUrl}
             name={task.software.name}
             size="lg"
           />
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="min-w-0 flex-1">
+            <h2
+              title={task.software.name}
+              className="break-words text-xl font-bold text-gray-900 [overflow-wrap:anywhere] dark:text-white"
+            >
               {task.software.name}
             </h2>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p
+              title={task.software.artistName}
+              className="break-words text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400"
+            >
               {task.software.artistName}
             </p>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
               <Badge status={task.status} />
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span
+                title={task.software.version}
+                className="min-w-0 break-all text-sm text-gray-500 dark:text-gray-400"
+              >
                 v{task.software.version}
               </span>
             </div>
@@ -179,64 +188,67 @@ export default function PackageDetail() {
         </div>
 
         {(isActive || isPaused) && (
-          <div>
-            <ProgressBar progress={task.progress} />
-            <div className="flex justify-between mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <div className="min-w-0">
+            <ProgressBar
+              progress={task.progress}
+              label={task.software.name}
+            />
+            <div className="mt-1 flex min-w-0 justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
               <span>{Math.round(task.progress)}%</span>
-              {task.speed && isActive && <span>{task.speed}</span>}
+              {task.speed && isActive && (
+                <span className="min-w-0 break-all text-right">
+                  {task.speed}
+                </span>
+              )}
             </div>
           </div>
         )}
 
         {task.error && (
-          <p className="text-sm text-red-500 dark:text-red-400">{task.error}</p>
+          <p
+            role="alert"
+            className="min-w-0 break-words rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 [overflow-wrap:anywhere] dark:bg-red-950/30 dark:text-red-400"
+          >
+            {task.error}
+          </p>
         )}
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
-          <dl className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400 flex-shrink-0">
-                {t("downloads.package.bundleId")}
-              </dt>
-              <dd className="text-gray-900 dark:text-gray-200 min-w-0 truncate ml-4">
-                {task.software.bundleID}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400 flex-shrink-0">
-                {t("downloads.package.version")}
-              </dt>
-              <dd className="text-gray-900 dark:text-gray-200">
-                {task.software.version}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400 flex-shrink-0">
-                {t("downloads.package.account")}
-              </dt>
-              <dd className="text-gray-900 dark:text-gray-200 min-w-0 truncate ml-4">
-                {accountEmail || task.accountHash}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400 flex-shrink-0">
-                {t("downloads.package.created")}
-              </dt>
-              <dd className="text-gray-900 dark:text-gray-200">
-                {new Date(task.createdAt).toLocaleString()}
-              </dd>
-            </div>
+        <div className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <dl className="min-w-0 divide-y divide-gray-100 text-sm dark:divide-gray-800">
+            <PackageDetailRow
+              label={t("downloads.package.bundleId")}
+              valueTitle={task.software.bundleID}
+              mono
+            >
+              {task.software.bundleID}
+            </PackageDetailRow>
+            <PackageDetailRow
+              label={t("downloads.package.version")}
+              valueTitle={task.software.version}
+              mono
+            >
+              {task.software.version}
+            </PackageDetailRow>
+            <PackageDetailRow
+              label={t("downloads.package.account")}
+              valueTitle={accountEmail || task.accountHash}
+            >
+              {accountEmail || task.accountHash}
+            </PackageDetailRow>
+            <PackageDetailRow label={t("downloads.package.created")}>
+              {new Date(task.createdAt).toLocaleString()}
+            </PackageDetailRow>
           </dl>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-3">
+        <div className="min-w-0 space-y-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:flex sm:flex-wrap">
             {isCompleted && (
               <>
                 <button
                   onClick={handleCheckUpdate}
                   disabled={checkingUpdate}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                  className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   {checkingUpdate
                     ? t("downloads.package.checkingUpdate")
@@ -247,29 +259,34 @@ export default function PackageDetail() {
                     <a
                       href={installInfo.installUrl}
                       onClick={() => toastAction("toast.title.installStarted")}
-                      className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      className="flex min-h-11 min-w-0 items-center justify-center whitespace-normal break-words rounded-lg bg-green-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
                     >
                       {t("downloads.package.install")}
                     </a>
 
-                    <div className="relative group flex items-center">
+                    <div className="group relative flex min-w-0 items-center sm:w-auto">
                       <button
                         onClick={handleShare}
-                        className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                        aria-describedby="install-qr-tooltip"
+                        className="min-h-11 w-full min-w-0 cursor-pointer whitespace-normal break-words rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 sm:w-auto"
                       >
                         {t("downloads.package.share")}
                       </button>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 z-50 pointer-events-none">
-                        <div className="bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex flex-col items-center">
+                      <div
+                        id="install-qr-tooltip"
+                        role="tooltip"
+                        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 opacity-0 transition-opacity duration-200 md:block md:invisible md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100"
+                      >
+                        <div className="flex flex-col items-center rounded-lg border border-gray-200 bg-white p-2 shadow-xl">
                           <QRCodeSVG
                             value={installInfo.installUrl}
                             size={128}
                             className="mb-1"
                           />
-                          <span className="text-xs text-gray-500 mt-1 whitespace-nowrap">
+                          <span className="mt-1 whitespace-nowrap text-xs text-gray-500">
                             {t("downloads.package.scan")}
                           </span>
-                          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-gray-200 transform rotate-45"></div>
+                          <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-gray-200 bg-white" />
                         </div>
                       </div>
                     </div>
@@ -297,7 +314,7 @@ export default function PackageDetail() {
                       addToast(t("downloads.package.downloadFailed"), "error");
                     }
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
                 >
                   {t("downloads.package.downloadIpa")}
                 </button>
@@ -306,7 +323,7 @@ export default function PackageDetail() {
             {isActive && (
               <button
                 onClick={() => pauseDownload(task.id)}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 {t("downloads.package.pause")}
               </button>
@@ -314,14 +331,14 @@ export default function PackageDetail() {
             {isPaused && (
               <button
                 onClick={() => resumeDownload(task.id)}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
               >
                 {t("downloads.package.resume")}
               </button>
             )}
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+              className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:w-auto"
             >
               {t("downloads.package.delete")}
             </button>
@@ -334,21 +351,21 @@ export default function PackageDetail() {
         onClose={() => setShowUpdateModal(false)}
         title={t("downloads.package.updateAvailable")}
       >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="min-w-0 space-y-4">
+          <p className="min-w-0 break-words text-sm text-gray-600 [overflow-wrap:anywhere] dark:text-gray-300">
             {t("downloads.package.updatePrompt", {
               version: latestApp?.version,
             })}
           </p>
           {availableVersions.length > 0 && (
-            <div>
+            <div className="min-w-0">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t("downloads.package.selectVersion")}
               </label>
               <select
                 value={selectedVersion}
                 onChange={(e) => setSelectedVersion(e.target.value)}
-                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-900 dark:text-white"
+                className="min-h-11 w-full min-w-0 max-w-full truncate rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               >
                 {availableVersions.map((v, i) => (
                   <option key={v} value={v}>
@@ -360,16 +377,16 @@ export default function PackageDetail() {
               </select>
             </div>
           )}
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="mt-6 flex min-w-0 flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
             <button
               onClick={() => setShowUpdateModal(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               {t("settings.data.cancel")}
             </button>
             <button
               onClick={handleConfirmUpdate}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              className="min-h-11 min-w-0 whitespace-normal break-words rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
               {t("downloads.package.update")}
             </button>
@@ -377,5 +394,33 @@ export default function PackageDetail() {
         </div>
       </Modal>
     </PageContainer>
+  );
+}
+
+function PackageDetailRow({
+  label,
+  children,
+  mono = false,
+  valueTitle,
+}: {
+  label: string;
+  children: ReactNode;
+  mono?: boolean;
+  valueTitle?: string;
+}) {
+  return (
+    <div className="grid min-w-0 grid-cols-1 gap-1 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] sm:items-start sm:gap-6">
+      <dt className="min-w-0 break-words text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
+        {label}
+      </dt>
+      <dd
+        title={valueTitle}
+        className={`min-w-0 max-w-full whitespace-pre-wrap break-all text-gray-900 sm:text-right dark:text-gray-200 ${
+          mono ? "font-mono" : ""
+        }`}
+      >
+        {children}
+      </dd>
+    </div>
   );
 }

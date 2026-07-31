@@ -96,41 +96,45 @@ export default function VersionHistory() {
   if (!app) {
     return (
       <PageContainer title={t("search.versions.title")}>
-        <p className="text-gray-500">{t("search.versions.unavailable")}</p>
+        <p className="text-gray-500 [overflow-wrap:anywhere]">
+          {t("search.versions.unavailable")}
+        </p>
       </PageContainer>
     );
   }
 
   return (
     <PageContainer title={t("search.versions.title")}>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <AppIcon url={app.artworkUrl} name={app.name} size="md" />
-          <div>
-            <h2 className="font-medium text-gray-900 dark:text-white">
+      <div className="min-w-0 space-y-6">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="shrink-0">
+            <AppIcon url={app.artworkUrl} name={app.name} size="md" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white">
               {app.name}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
               {app.bundleID}
             </p>
           </div>
         </div>
 
         {accounts.length > 0 && filteredAccounts.length === 0 ? (
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700 [overflow-wrap:anywhere] dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
             {t("search.product.noAccountsForRegion")}
           </div>
         ) : (
           filteredAccounts.length > 0 && (
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
+            <div className="flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:items-end">
+              <div className="min-w-0 flex-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {t("search.versions.account")}
                 </label>
                 <select
                   value={selectedAccount}
                   onChange={(e) => setSelectedAccount(e.target.value)}
-                  className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white w-full focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  className="w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 >
                   {filteredAccounts.map((a) => (
                     <option key={a.email} value={a.email}>
@@ -142,7 +146,7 @@ export default function VersionHistory() {
               <button
                 onClick={handleLoadVersions}
                 disabled={loading || !account}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+                className="w-full shrink-0 whitespace-normal rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 sm:w-auto sm:whitespace-nowrap"
               >
                 {loading
                   ? t("search.versions.loading")
@@ -153,7 +157,7 @@ export default function VersionHistory() {
         )}
 
         {versions.length > 0 && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
+          <div className="min-w-0 divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900">
             {versions.map((versionId) => {
               const meta = versionMeta[versionId];
               const isLoadingMeta = loadingMeta[versionId];
@@ -162,27 +166,27 @@ export default function VersionHistory() {
               return (
                 <div
                   key={versionId}
-                  className="p-4 flex items-center justify-between"
+                  className="flex min-w-0 items-center justify-between gap-3 p-4"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white">
                       {meta ? `v${meta.displayVersion}` : `ID: ${versionId}`}
                     </p>
                     {meta && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
                         {new Date(meta.releaseDate).toLocaleDateString()}
                       </p>
                     )}
                     {!meta && !isLoadingMeta && (
                       <button
                         onClick={() => handleLoadMeta(versionId)}
-                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-1 transition-colors"
+                        className="max-w-full py-1 text-left text-xs text-blue-600 [overflow-wrap:anywhere] transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       >
                         {t("search.versions.loadDetails")}
                       </button>
                     )}
                     {isLoadingMeta && (
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span className="text-xs text-gray-400 [overflow-wrap:anywhere] dark:text-gray-500">
                         {t("search.versions.loading")}
                       </span>
                     )}
@@ -190,7 +194,7 @@ export default function VersionHistory() {
                   <button
                     onClick={() => handleDownloadVersion(versionId)}
                     disabled={isDownloading || downloadingVersion !== null}
-                    className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    className="max-w-[45%] shrink-0 rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-medium leading-tight text-white [overflow-wrap:anywhere] transition-colors hover:bg-blue-700 disabled:opacity-50"
                   >
                     {isDownloading
                       ? t("search.versions.downloading")

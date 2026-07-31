@@ -25,7 +25,7 @@ export default function DownloadItem({
   const isCompleted = task.status === "completed";
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+    <article className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
       <div className="flex gap-3">
         <AppIcon
           url={task.software.artworkUrl}
@@ -38,7 +38,7 @@ export default function DownloadItem({
             <div className="min-w-0 flex-1">
               <Link
                 to={`/downloads/${task.id}`}
-                className="font-medium text-sm text-gray-900 dark:text-white truncate block hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="block truncate text-sm font-semibold text-gray-900 transition-colors hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
               >
                 {task.software.name}
               </Link>
@@ -54,16 +54,23 @@ export default function DownloadItem({
 
           {(isActive || isPaused) && (
             <div className="mt-2.5">
-              <ProgressBar progress={task.progress} />
+              <ProgressBar
+                progress={task.progress}
+                label={task.software.name}
+              />
               <div className="flex justify-between mt-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
                 <span>{Math.round(task.progress)}%</span>
-                {task.speed && isActive && <span>{task.speed}</span>}
+                {task.speed && isActive && (
+                  <span className="max-w-[55%] truncate text-right">
+                    {task.speed}
+                  </span>
+                )}
               </div>
             </div>
           )}
 
           {task.error && (
-            <p className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 p-2 rounded-md border border-red-100 dark:border-red-900/30">
+            <p className="mt-2 break-words rounded-xl bg-red-50 p-2.5 text-xs font-medium text-red-600 dark:bg-red-950/40 dark:text-red-400">
               {task.error}
             </p>
           )}
@@ -73,7 +80,7 @@ export default function DownloadItem({
             {isActive && (
               <button
                 onClick={() => onPause(task.id)}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-colors"
+                className="rounded-full bg-gray-100 px-3.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {t("downloads.package.pause")}
               </button>
@@ -81,7 +88,7 @@ export default function DownloadItem({
             {isPaused && (
               <button
                 onClick={() => onResume(task.id)}
-                className="px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/60 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30 shadow-sm transition-colors"
+                className="rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:hover:bg-blue-950"
               >
                 {t("downloads.package.resume")}
               </button>
@@ -89,20 +96,20 @@ export default function DownloadItem({
             {isCompleted && task.hasFile && (
               <Link
                 to={`/downloads/${task.id}`}
-                className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/60 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30 shadow-sm transition-colors"
+                className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:hover:bg-blue-950"
               >
                 {t("downloads.item.viewPackage")}
               </Link>
             )}
             <button
               onClick={() => onDelete(task.id)}
-              className="px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800/50 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 shadow-sm transition-colors"
+              className="rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/70"
             >
               {t("downloads.package.delete")}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

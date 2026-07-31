@@ -17,7 +17,7 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       defaultCountry: "US",
       defaultEntity: "iPhone",
-      theme: "system",
+      theme: "light",
       setDefaultCountry: (country) => set({ defaultCountry: country }),
       setDefaultEntity: (entity) => set({ defaultEntity: entity }),
       setTheme: (theme) => set({ theme }),
