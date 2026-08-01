@@ -50,6 +50,9 @@
     "free": "Free",
     "product": {
       "title": "App Details",
+      "previewBadge": "Interactive Preview",
+      "previewDescription": "This app and account are fictional. Actions will not contact Apple or create real tasks.",
+      "previewActionComplete": "Simulated action completed. No real data was changed.",
       "notFound": "Could not find the requested app.",
       "licenseSuccess": "License acquired successfully",
       "purchaseFailed": "Purchase failed",
@@ -163,6 +166,12 @@
       "failed": "Failed",
       "injecting": "Injecting"
     },
+    "preview": {
+      "badge": "Preview",
+      "description": "Sample packages are shown for design preview only.",
+      "actionHint": "Preview actions do not affect real downloads.",
+      "account": "Preview account"
+    },
     "item": {
       "viewPackage": "View Package"
     },
@@ -196,10 +205,22 @@
       "account": "Account",
       "created": "Created",
       "install": "Install on Device",
+      "installShort": "Install",
       "share": "Share",
       "copied": "Link copied to clipboard",
       "scan": "Scan to install",
       "downloadIpa": "Download IPA",
+      "downloadShort": "Download",
+      "quickActions": "Quick Actions",
+      "shareFailed": "Could not share the install link.",
+      "downloadFailed": "Could not download the IPA.",
+      "information": "Package Information",
+      "size": "Size",
+      "minOs": "Minimum iOS",
+      "category": "Category",
+      "released": "Released",
+      "developer": "Developer",
+      "fileUnavailable": "The package file is unavailable.",
       "pause": "Pause",
       "resume": "Resume",
       "delete": "Delete",

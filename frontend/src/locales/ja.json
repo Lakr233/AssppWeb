@@ -50,6 +50,9 @@
     "free": "無料",
     "product": {
       "title": "アプリの詳細",
+      "previewBadge": "インタラクティブプレビュー",
+      "previewDescription": "このアプリとアカウントは架空のものです。操作によって Apple に接続したり、実際のタスクを作成したりすることはありません。",
+      "previewActionComplete": "シミュレーション操作が完了しました。実際のデータは変更されていません。",
       "notFound": "リクエストされたアプリが見つかりません。",
       "licenseSuccess": "ライセンスの取得に成功しました",
       "purchaseFailed": "購入に失敗しました",
@@ -163,6 +166,12 @@
       "failed": "失敗",
       "injecting": "注入中"
     },
+    "preview": {
+      "badge": "プレビュー",
+      "description": "デザイン確認用のサンプルパッケージを表示しています。",
+      "actionHint": "プレビュー操作は実際のダウンロードには影響しません。",
+      "account": "プレビューアカウント"
+    },
     "item": {
       "viewPackage": "パッケージを表示"
     },
@@ -196,10 +205,22 @@
       "account": "アカウント",
       "created": "作成日時",
       "install": "デバイスにインストール",
+      "installShort": "インストール",
       "share": "共有",
       "copied": "リンクをクリップボードにコピーしました",
       "scan": "スキャンしてインストール",
       "downloadIpa": "IPA をダウンロード",
+      "downloadShort": "ダウンロード",
+      "quickActions": "クイック操作",
+      "shareFailed": "インストールリンクを共有できませんでした。",
+      "downloadFailed": "IPA をダウンロードできませんでした。",
+      "information": "パッケージ情報",
+      "size": "サイズ",
+      "minOs": "必要な iOS",
+      "category": "カテゴリ",
+      "released": "リリース日",
+      "developer": "開発元",
+      "fileUnavailable": "パッケージファイルを利用できません。",
       "pause": "一時停止",
       "resume": "再開",
       "delete": "削除",

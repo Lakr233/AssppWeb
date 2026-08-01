@@ -50,6 +50,9 @@
     "free": "免费",
     "product": {
       "title": "应用详情",
+      "previewBadge": "交互预览",
+      "previewDescription": "这是虚构应用和账号；操作不会联系 Apple，也不会创建真实任务。",
+      "previewActionComplete": "模拟操作已完成，未更改任何真实数据。",
       "notFound": "找不到请求的应用。",
       "licenseSuccess": "许可证获取成功",
       "purchaseFailed": "购买失败",
@@ -163,6 +166,12 @@
       "failed": "已失败",
       "injecting": "注入中"
     },
+    "preview": {
+      "badge": "预览",
+      "description": "当前显示的是仅供界面预览的模拟安装包。",
+      "actionHint": "预览操作不会影响真实下载。",
+      "account": "预览账号"
+    },
     "item": {
       "viewPackage": "查看安装包"
     },
@@ -196,10 +205,22 @@
       "account": "账号",
       "created": "创建时间",
       "install": "在设备上安装",
+      "installShort": "安装",
       "share": "分享",
       "copied": "链接已复制到剪贴板",
       "scan": "扫码安装",
       "downloadIpa": "下载 IPA",
+      "downloadShort": "下载",
+      "quickActions": "快捷操作",
+      "shareFailed": "无法分享安装链接。",
+      "downloadFailed": "无法下载 IPA。",
+      "information": "安装包信息",
+      "size": "大小",
+      "minOs": "最低 iOS 版本",
+      "category": "类别",
+      "released": "发布日期",
+      "developer": "开发者",
+      "fileUnavailable": "安装包文件不可用。",
       "pause": "暂停",
       "resume": "恢复",
       "delete": "删除",

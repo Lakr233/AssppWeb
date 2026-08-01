@@ -50,6 +50,9 @@
     "free": "무료",
     "product": {
       "title": "앱 세부 정보",
+      "previewBadge": "인터랙티브 미리보기",
+      "previewDescription": "이 앱과 계정은 가상 데이터입니다. 작업을 실행해도 Apple에 연결하거나 실제 작업을 생성하지 않습니다.",
+      "previewActionComplete": "모의 작업이 완료되었습니다. 실제 데이터는 변경되지 않았습니다.",
       "notFound": "요청한 앱을 찾을 수 없습니다.",
       "licenseSuccess": "라이선스 획득 성공",
       "purchaseFailed": "구매 실패",
@@ -163,6 +166,12 @@
       "failed": "실패함",
       "injecting": "주입 중"
     },
+    "preview": {
+      "badge": "미리보기",
+      "description": "디자인 미리보기용 샘플 패키지가 표시됩니다.",
+      "actionHint": "미리보기 작업은 실제 다운로드에 영향을 주지 않습니다.",
+      "account": "미리보기 계정"
+    },
     "item": {
       "viewPackage": "패키지 보기"
     },
@@ -196,10 +205,22 @@
       "account": "계정",
       "created": "생성됨",
       "install": "기기에 설치",
+      "installShort": "설치",
       "share": "공유",
       "copied": "링크가 클립보드에 복사되었습니다",
       "scan": "스캔하여 설치",
       "downloadIpa": "IPA 다운로드",
+      "downloadShort": "다운로드",
+      "quickActions": "빠른 작업",
+      "shareFailed": "설치 링크를 공유하지 못했습니다.",
+      "downloadFailed": "IPA를 다운로드하지 못했습니다.",
+      "information": "패키지 정보",
+      "size": "크기",
+      "minOs": "최소 iOS 버전",
+      "category": "카테고리",
+      "released": "출시일",
+      "developer": "개발자",
+      "fileUnavailable": "패키지 파일을 사용할 수 없습니다.",
       "pause": "일시 정지",
       "resume": "재개",
       "delete": "삭제",

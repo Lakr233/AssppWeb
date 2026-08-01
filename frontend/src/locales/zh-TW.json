@@ -50,6 +50,9 @@
     "free": "免費",
     "product": {
       "title": "應用程式詳情",
+      "previewBadge": "互動預覽",
+      "previewDescription": "這是虛構的應用程式與帳號；操作不會連線至 Apple，也不會建立實際任務。",
+      "previewActionComplete": "模擬操作已完成，未變更任何實際資料。",
       "notFound": "找不到請求的應用程式。",
       "licenseSuccess": "授權獲取成功",
       "purchaseFailed": "購買失敗",
@@ -163,6 +166,12 @@
       "failed": "已失敗",
       "injecting": "注入中"
     },
+    "preview": {
+      "badge": "預覽",
+      "description": "目前顯示的是僅供介面預覽的模擬安裝包。",
+      "actionHint": "預覽操作不會影響實際下載。",
+      "account": "預覽帳號"
+    },
     "item": {
       "viewPackage": "查看安裝包"
     },
@@ -196,10 +205,22 @@
       "account": "帳號",
       "created": "建立時間",
       "install": "在裝置上安裝",
+      "installShort": "安裝",
       "share": "分享",
       "copied": "連結已複製到剪貼簿",
       "scan": "掃碼安裝",
       "downloadIpa": "下載 IPA",
+      "downloadShort": "下載",
+      "quickActions": "快速操作",
+      "shareFailed": "無法分享安裝連結。",
+      "downloadFailed": "無法下載 IPA。",
+      "information": "安裝包資訊",
+      "size": "大小",
+      "minOs": "最低 iOS 版本",
+      "category": "類別",
+      "released": "發佈日期",
+      "developer": "開發者",
+      "fileUnavailable": "安裝包檔案無法使用。",
       "pause": "暫停",
       "resume": "繼續",
       "delete": "刪除",

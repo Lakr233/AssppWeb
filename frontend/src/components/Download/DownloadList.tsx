@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Modal from "../common/Modal";
 import ProgressBar from "../common/ProgressBar";
 import Spinner from "../common/Spinner";
 import DownloadItem from "./DownloadItem";
+import {
+  isDownloadPreviewEnabled,
+  isPreviewDownloadTask,
+  previewDownloadTasks,
+} from "./previewTasks";
 import { useDownloads } from "../../hooks/useDownloads";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useDownloadAction } from "../../hooks/useDownloadAction";
@@ -22,6 +27,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function DownloadList() {
   const { t } = useTranslation();
+  const location = useLocation();
   const {
     tasks,
     loading,
@@ -34,6 +40,8 @@ export default function DownloadList() {
   const addToast = useToastStore((s) => s.addToast);
   const { accounts } = useAccounts();
   const { startDownload } = useDownloadAction();
+  const previewEnabled = isDownloadPreviewEnabled(location.search);
+  const displayTasks = previewEnabled ? previewDownloadTasks : tasks;
 
   const [checkingAll, setCheckingAll] = useState(false);
   const cancelCheckRef = useRef(false);
@@ -50,7 +58,9 @@ export default function DownloadList() {
   }, []);
 
   const filtered =
-    filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
+    filter === "all"
+      ? displayTasks
+      : displayTasks.filter((task) => task.status === filter);
 
   const sortedTasks = [...filtered].sort((a, b) => {
     const timeA = new Date(a.createdAt || 0).getTime();
@@ -59,9 +69,14 @@ export default function DownloadList() {
   });
 
   function handleDelete(id: string) {
+    const task = displayTasks.find((item) => item.id === id);
+    if (task && isPreviewDownloadTask(task)) {
+      showPreviewNotice();
+      return;
+    }
+
     if (!confirm(t("downloads.deleteConfirm"))) return;
 
-    const task = tasks.find((t) => t.id === id);
     if (task) {
       const accountEmail = hashToEmail[task.accountHash];
       const account = accounts.find((a) => a.email === accountEmail);
@@ -77,12 +92,41 @@ export default function DownloadList() {
     deleteDownload(id);
   }
 
+  function showPreviewNotice() {
+    addToast(
+      t("downloads.preview.actionHint"),
+      "info",
+      t("downloads.preview.badge"),
+    );
+  }
+
+  function handlePause(id: string) {
+    if (previewEnabled) {
+      showPreviewNotice();
+      return;
+    }
+    pauseDownload(id);
+  }
+
+  function handleResume(id: string) {
+    if (previewEnabled) {
+      showPreviewNotice();
+      return;
+    }
+    resumeDownload(id);
+  }
+
   function handleCancelCheck() {
     cancelCheckRef.current = true;
     setCheckingAll(false);
   }
 
   async function handleCheckAllUpdates() {
+    if (previewEnabled) {
+      showPreviewNotice();
+      return;
+    }
+
     cancelCheckRef.current = false;
     setCheckingAll(true);
     addToast(t("downloads.checkUpdatesStarted"), "info");
@@ -187,8 +231,8 @@ export default function DownloadList() {
             <span className="ml-1">
               {`(${
                 status === "all"
-                  ? tasks.length
-                  : tasks.filter((t) => t.status === status).length
+                  ? displayTasks.length
+                  : displayTasks.filter((task) => task.status === status).length
               })`}
             </span>
           </button>
@@ -215,13 +259,27 @@ export default function DownloadList() {
         </span>
       </div>
 
-      {loading && tasks.length === 0 ? (
+      {previewEnabled && (
+        <div className="mb-5 flex min-w-0 items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300">
+          <span
+            aria-hidden="true"
+            className="mt-0.5 inline-flex h-5 shrink-0 items-center rounded-full bg-blue-600 px-2 text-[10px] font-semibold uppercase tracking-wide text-white"
+          >
+            {t("downloads.preview.badge")}
+          </span>
+          <p className="min-w-0 leading-5">
+            {t("downloads.preview.description")}
+          </p>
+        </div>
+      )}
+
+      {loading && displayTasks.length === 0 ? (
         <div className="text-center text-gray-500 dark:text-gray-400 py-12">
           {t("downloads.loading")}
         </div>
       ) : sortedTasks.length === 0 ? (
-        <div className="my-4 flex flex-col items-center justify-center rounded-3xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
-          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950">
+        <div className="my-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-6 py-16 text-center dark:border-gray-800 dark:bg-gray-900/30">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-gray-900">
             <svg
               className="h-8 w-8 text-blue-600 dark:text-blue-400"
               fill="none"
@@ -305,8 +363,9 @@ export default function DownloadList() {
             <DownloadItem
               key={task.id}
               task={task}
-              onPause={pauseDownload}
-              onResume={resumeDownload}
+              preview={previewEnabled}
+              onPause={handlePause}
+              onResume={handleResume}
               onDelete={handleDelete}
             />
           ))}
