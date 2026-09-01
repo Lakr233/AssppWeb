@@ -17,6 +17,7 @@
     "bplist-parser": "^0.3.2",
     "express": "^4.21.2",
     "plist": "^3.1.0",
+    "unbzip2-stream": "^1.4.3",
     "uuid": "^11.0.5",
     "yauzl-promise": "^4.0.0"
   },

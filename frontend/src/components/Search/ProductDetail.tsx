@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import AppIcon from "../common/AppIcon";
+import SapStatus from "../common/SapStatus";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useDownloadAction } from "../../hooks/useDownloadAction";
 import { lookupApp } from "../../api/search";
@@ -182,6 +183,9 @@ export default function ProductDetail() {
               >
                 {t("search.product.versionHistory")}
               </Link>
+              <div className="flex items-center">
+                <SapStatus />
+              </div>
             </div>
           </div>
         )}

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
+import SapStatus from "../common/SapStatus";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
@@ -60,6 +61,15 @@ export default function AccountDetail() {
 
   async function handleReauth() {
     if (!account) return;
+
+    // An account imported as a token bundle carries no password. Signing in
+    // needs one, and trying anyway would spend a minute or two preparing the
+    // SAP signer before failing on an empty field.
+    if (!account.password) {
+      addToast(t("accounts.detail.noPassword"), "error");
+      return;
+    }
+
     setReauthing(true);
 
     try {
@@ -166,6 +176,7 @@ export default function AccountDetail() {
                 {reauthing && <Spinner />}
                 {t("accounts.detail.verify")}
               </button>
+              <SapStatus />
             </div>
           </section>
         )}
@@ -179,6 +190,7 @@ export default function AccountDetail() {
             {reauthing && <Spinner />}
             {t("accounts.detail.reauth")}
           </button>
+          <SapStatus />
 
           {!showDelete ? (
             <button

@@ -3,7 +3,15 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
+import { prepareSigner, signAction, type SetupProgress } from "./sap/client";
 import i18n from "../i18n";
+
+/** The signature travels in a header, so it goes out base64-encoded. */
+function base64(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
 
 export class AuthenticationError extends Error {
   constructor(
@@ -21,10 +29,17 @@ export async function authenticate(
   code?: string,
   existingCookies?: Cookie[],
   deviceId: string = "",
+  onProgress?: (progress: SetupProgress) => void,
 ): Promise<Account> {
   let cookies: Cookie[] = existingCookies ? [...existingCookies] : [];
   let storeFront = "";
   let lastError: Error | null = null;
+
+  // Apple gates this endpoint behind a SAP signature, and producing one means
+  // emulating Apple's own signing code — slow enough to want a progress
+  // report, and done off the main thread. Nothing in the setup sees the
+  // password: it only needs the device identifier.
+  await prepareSigner(deviceId, onProgress);
 
   const defaultAuthEndpoint = new URL(defaultAuthURL);
   defaultAuthEndpoint.searchParams.set("guid", deviceId);
@@ -55,8 +70,13 @@ export async function authenticate(
 
       const plistBody = buildPlist(body);
 
+      // Signing takes about twelve seconds, so say so rather than going quiet.
+      onProgress?.({ phase: "signing" });
+      const signature = await signAction(new TextEncoder().encode(plistBody));
+
       const headers: Record<string, string> = {
         "Content-Type": "application/x-apple-plist",
+        "X-Apple-ActionSignature": base64(signature),
       };
 
       const response = await appleRequest({

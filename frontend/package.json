@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@alexaltea/unicorn-js": "^2.1.4",
     "i18next": "^23.10.0",
     "i18next-browser-languagedetector": "^7.2.0",
     "idb": "^8.0.1",
