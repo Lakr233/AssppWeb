@@ -35,9 +35,15 @@ RUN apk add --no-cache zip
 WORKDIR /app
 COPY --from=backend-build /app/backend/dist ./dist
 COPY backend/package*.json ./
-# Native modules (e.g. @node-rs/crc32 via yauzl-promise) ship prebuilt napi
-# binaries per platform; installing here picks the target arch automatically.
-RUN npm ci --omit=dev && npm cache clean --force
+# Native modules install per target platform: @node-rs/crc32 (via
+# yauzl-promise) ships prebuilt napi binaries, but bufferutil (via wisp-js)
+# has no linux-arm64-musl prebuild and falls back to source compilation.
+# The toolchain is added and removed inside one layer, so it never bloats
+# the final image.
+RUN apk add --no-cache --virtual .node-build python3 make g++ \
+    && npm ci --omit=dev \
+    && apk del .node-build \
+    && npm cache clean --force
 COPY --from=frontend-build /app/frontend/dist ./public
 COPY --from=sap-assets /out /opt/asspp/sap-assets
 RUN mkdir -p /data/packages
