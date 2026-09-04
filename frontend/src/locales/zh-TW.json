@@ -113,7 +113,10 @@
       "verify": "驗證",
       "cancel": "取消",
       "authFailed": "認證失敗",
-      "addSuccess": "帳號新增成功。"
+      "addSuccess": "帳號新增成功。",
+      "preparingAssets": "正在準備簽署元件 {{percent}}%",
+      "preparingSigner": "正在初始化簽署器…",
+      "signerFailed": "簽署元件準備失敗：{{error}}"
     },
     "detail": {
       "title": "帳號詳情",

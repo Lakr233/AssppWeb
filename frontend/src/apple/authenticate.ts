@@ -3,6 +3,7 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
+import { prepareSigner } from "./sap/client";
 import i18n from "../i18n";
 
 export class AuthenticationError extends Error {
@@ -37,6 +38,16 @@ export async function authenticate(
   requestHost = authEndpoint.hostname;
   requestPath = `${authEndpoint.pathname}${authEndpoint.search}`;
 
+  // When the bag advertises the SAP signing protocol, every request to the
+  // auth endpoint must carry X-Apple-ActionSignature over its body bytes.
+  // The signer sees only the hardware ID and public Apple assets — never the
+  // password — because signing happens here in the browser. It is kept as a
+  // singleton between attempts (2FA retries reuse the same session).
+  let sapSigner = null as Awaited<ReturnType<typeof prepareSigner>> | null;
+  if (bag.sapEndpoints) {
+    sapSigner = await prepareSigner(deviceId, bag.sapEndpoints);
+  }
+
   let currentAttempt = 0;
   let redirectAttempt = 0;
 
@@ -58,6 +69,14 @@ export async function authenticate(
       const headers: Record<string, string> = {
         "Content-Type": "application/x-apple-plist",
       };
+
+      if (sapSigner) {
+        // The signature must cover the exact bytes on the wire; libcurl sends
+        // the body string as UTF-8, so sign its encoded form.
+        headers["X-Apple-ActionSignature"] = await sapSigner.sign(
+          new TextEncoder().encode(plistBody),
+        );
+      }
 
       const response = await appleRequest({
         method: "POST",
@@ -151,7 +170,9 @@ export async function authenticate(
 
       return account;
     } catch (e) {
-      if (e instanceof AuthenticationError) throw e;
+      if (e instanceof AuthenticationError) {
+        throw e;
+      }
       lastError = e instanceof Error ? e : new Error(String(e));
     }
   }

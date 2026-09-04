@@ -113,7 +113,10 @@
       "verify": "확인",
       "cancel": "취소",
       "authFailed": "인증 실패",
-      "addSuccess": "계정이 성공적으로 추가되었습니다."
+      "addSuccess": "계정이 성공적으로 추가되었습니다.",
+      "preparingAssets": "서명 구성 요소 준비 중 {{percent}}%",
+      "preparingSigner": "서명자 초기화 중…",
+      "signerFailed": "서명 구성 요소 준비 실패: {{error}}"
     },
     "detail": {
       "title": "계정 세부 정보",

@@ -48,7 +48,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          # linux/386 is not published by the official node images and the napi
+# binaries (@node-rs/crc32 via yauzl-promise) have no linux-ia32 build.
+platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

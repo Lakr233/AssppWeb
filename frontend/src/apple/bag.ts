@@ -1,8 +1,11 @@
 import { authHeaders } from "../api/client";
 import { parsePlist } from "./plist";
+import type { SapEndpoints } from "./sap/types";
 
 export interface BagOutput {
   authURL: string;
+  /** Present when the bag advertises the SAP signing protocol. */
+  sapEndpoints?: SapEndpoints;
 }
 
 export const defaultAuthURL =
@@ -57,14 +60,29 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       (dict.authenticateAccount as string | undefined) ??
       (urlBag?.authenticateAccount as string | undefined);
 
+    const bagValue = (key: string): string | undefined =>
+      (dict[key] as string | undefined) ??
+      (urlBag?.[key] as string | undefined);
+
+    const setupURL = bagValue("sign-sap-setup");
+    const certificateURL = bagValue("sign-sap-setup-cert");
+    const versionText = bagValue("sign-sap-version");
+    let sapEndpoints: SapEndpoints | undefined;
+    if (setupURL && certificateURL && versionText) {
+      const version = Number.parseInt(versionText, 10);
+      if (Number.isFinite(version)) {
+        sapEndpoints = { setupURL, certificateURL, version };
+      }
+    }
+
     if (!authURL) {
       console.warn(
         "[Bag] authenticateAccount URL not found in bag, using default auth endpoint",
       );
-      return { authURL: defaultAuthURL };
+      return { authURL: defaultAuthURL, sapEndpoints };
     }
 
-    return { authURL: normalizeAuthURL(authURL) };
+    return { authURL: normalizeAuthURL(authURL), sapEndpoints };
   } catch (error) {
     console.warn(
       `[Bag] Failed to fetch/parse bag, using default auth endpoint: ${

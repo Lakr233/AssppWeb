@@ -3,11 +3,13 @@ import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import { useAccountsStore } from "../../store/accounts";
+import { useSapWarmup } from "../../hooks/useSapWarmup";
 import { storeIdToCountry } from "../../apple/config";
 
 export default function AccountList() {
   const { t } = useTranslation();
   const { accounts, loading, loadAccounts } = useAccountsStore();
+  useSapWarmup();
 
   useEffect(() => {
     loadAccounts();

@@ -113,7 +113,10 @@
       "verify": "Verify",
       "cancel": "Cancel",
       "authFailed": "Authentication failed",
-      "addSuccess": "Account added successfully."
+      "addSuccess": "Account added successfully.",
+      "preparingAssets": "Preparing signing components {{percent}}%",
+      "preparingSigner": "Initializing the request signer…",
+      "signerFailed": "Failed to prepare signing components: {{error}}"
     },
     "detail": {
       "title": "Account Details",
