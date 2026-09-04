@@ -8,8 +8,8 @@ import { useSearch } from "../../hooks/useSearch";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useSettingsStore } from "../../store/settings";
 import { useToastStore } from "../../store/toast";
-import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
+import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 
 export default function SearchPage() {
   const { t } = useTranslation();
@@ -65,35 +65,39 @@ export default function SearchPage() {
 
   return (
     <PageContainer title={t("search.title")}>
-      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-        <div className="flex gap-2">
+      <form
+        onSubmit={handleSubmit}
+        className="mb-8 space-y-3 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-4"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={term}
             onChange={(e) => setSearchParam({ term: e.target.value })}
             placeholder={t("search.placeholder")}
-            className="flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className="min-h-11 flex-1 rounded-2xl border-0 bg-gray-100 px-4 py-2.5 text-base text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500/40 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400"
           />
           <button
             type="submit"
             disabled={loading || !term.trim()}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+            className="min-h-11 whitespace-nowrap rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? t("search.searching") : t("search.button")}
           </button>
         </div>
-        <div className="flex w-full gap-3 overflow-hidden">
+        <div className="flex w-full gap-3 overflow-hidden border-t border-gray-100 pt-3 dark:border-gray-800">
           <CountrySelect
             value={activeCountry}
             onChange={(c) => setSearchParam({ country: c })}
             availableCountryCodes={availableCountryCodes}
             allCountryCodes={allCountryCodes}
-            className="w-1/2 truncate bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700"
+            className="w-1/2 truncate border-0 bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
           />
           <select
             value={activeEntity}
             onChange={(e) => setSearchParam({ entity: e.target.value })}
-            className="w-1/2 truncate rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            aria-label={t("settings.defaults.entity")}
+            className="min-h-11 w-1/2 truncate rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 dark:bg-gray-800 dark:text-white"
           >
             <option value="iPhone">iPhone</option>
             <option value="iPad">iPad</option>
@@ -102,10 +106,10 @@ export default function SearchPage() {
       </form>
 
       {results.length === 0 && !loading && !error && (
-        <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">
+        <div className="flex flex-col items-center justify-center rounded-3xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950">
             <svg
-              className="w-12 h-12 text-blue-500 dark:text-blue-400"
+              className="h-8 w-8 text-blue-600 dark:text-blue-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -118,44 +122,54 @@ export default function SearchPage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
             {t("search.empty")}
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-sm">
+          <p className="max-w-full whitespace-nowrap text-[clamp(0.5625rem,2.8vw,0.875rem)] leading-relaxed tracking-[-0.015em] text-gray-500 dark:text-gray-400">
             {t("search.emptyDesc")}
           </p>
         </div>
       )}
 
-      <div className="space-y-2">
-        {results.map((app) => (
-          <Link
-            key={app.id}
-            to={`/search/${app.id}`}
-            state={{ app, country: activeCountry }}
-            className="block bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <AppIcon url={app.artworkUrl} name={app.name} size="md" />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 dark:text-white truncate">
-                  {app.name}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {app.artistName}
-                </p>
-                <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500">
-                  <span>{app.formattedPrice ?? t("search.free")}</span>
-                  <span>{app.primaryGenreName}</span>
-                  <span>
-                    {app.averageUserRating.toFixed(1)} ({app.userRatingCount})
-                  </span>
+      {results.length > 0 && (
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            {results.map((app) => (
+              <Link
+                key={app.id}
+                to={`/search/${app.id}`}
+                state={{ app, country: activeCountry }}
+                className="flex items-center gap-4 p-4 transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800/70 dark:active:bg-gray-800"
+              >
+                <AppIcon url={app.artworkUrl} name={app.name} size="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-gray-900 dark:text-white">
+                    {app.name}
+                  </p>
+                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                    {app.artistName}
+                  </p>
+                  <div className="mt-1 flex items-center gap-2 overflow-hidden text-xs text-gray-400 dark:text-gray-500">
+                    <span className="shrink-0">
+                      {app.formattedPrice ?? t("search.free")}
+                    </span>
+                    <span className="truncate">{app.primaryGenreName}</span>
+                    <span className="shrink-0">
+                      ★ {app.averageUserRating.toFixed(1)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl text-blue-600 dark:bg-gray-800 dark:text-blue-400"
+                  aria-hidden="true"
+                >
+                  ›
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </PageContainer>
   );
 }

@@ -25,7 +25,7 @@
   },
   "home": {
     "welcome": "Asspp Web へようこそ",
-    "subtitle": "ブラウザからAppleアカウントを管理し、App Storeを検索してアプリをダウンロードします。",
+    "subtitle": "アカウント管理・検索・ダウンロード。",
     "stats": {
       "accounts": "アカウント",
       "downloads": "ダウンロード",
@@ -46,10 +46,13 @@
     "button": "検索",
     "searching": "検索中...",
     "empty": "検索して開始してください。",
-    "emptyDesc": "アプリ名または Bundle ID を入力して、App Store をすばやく検索し、アプリの詳細とライセンスを取得します。",
+    "emptyDesc": "名前 / Bundle ID でアプリ・ライセンス検索。",
     "free": "無料",
     "product": {
       "title": "アプリの詳細",
+      "previewBadge": "インタラクティブプレビュー",
+      "previewDescription": "このアプリとアカウントは架空のものです。操作によって Apple に接続したり、実際のタスクを作成したりすることはありません。",
+      "previewActionComplete": "シミュレーション操作が完了しました。実際のデータは変更されていません。",
       "notFound": "リクエストされたアプリが見つかりません。",
       "licenseSuccess": "ライセンスの取得に成功しました",
       "purchaseFailed": "購入に失敗しました",
@@ -93,7 +96,7 @@
     "add": "アカウントを追加",
     "loading": "アカウントを読み込み中...",
     "empty": "アカウントがまだ追加されていません。",
-    "emptyDesc": "ここで Apple アカウントを一元管理し、いつでもアプリのダウンロードライセンスを取得できます。",
+    "emptyDesc": "Appleアカウントとダウンロードライセンスを管理。",
     "addFirst": "最初のアカウントを追加",
     "addForm": {
       "title": "アカウントを追加",
@@ -142,9 +145,11 @@
     "title": "ダウンロード",
     "new": "新規ダウンロード",
     "warning": "パッケージは一時的なもので、サーバーの再起動時にクリアされます。早めにダウンロードまたはインストールしてください。",
+    "warningShort": "一時保存。再起動で消去。早めに保存を。",
     "loading": "ダウンロードを読み込み中...",
     "emptyAll": "ダウンロードはありません。",
     "emptyAllDesc": "ダウンロードキューは空です。検索ページに移動して、必要なアプリを探索してダウンロードしてください。",
+    "emptyAllDescShort": "ダウンロードはありません。検索でアプリを探せます。",
     "emptyFilter": "{{status}} のダウンロードはありません。",
     "emptyFilterDesc": "このステータスに一致するダウンロード記録はありません。",
     "searchApps": "ダウンロードするアプリを検索",
@@ -163,6 +168,12 @@
       "completed": "完了",
       "failed": "失敗",
       "injecting": "注入中"
+    },
+    "preview": {
+      "badge": "プレビュー",
+      "description": "デザイン確認用のサンプルパッケージを表示しています。",
+      "actionHint": "プレビュー操作は実際のダウンロードには影響しません。",
+      "account": "プレビューアカウント"
     },
     "item": {
       "viewPackage": "パッケージを表示"
@@ -197,10 +208,22 @@
       "account": "アカウント",
       "created": "作成日時",
       "install": "デバイスにインストール",
+      "installShort": "インストール",
       "share": "共有",
       "copied": "リンクをクリップボードにコピーしました",
       "scan": "スキャンしてインストール",
       "downloadIpa": "IPA をダウンロード",
+      "downloadShort": "ダウンロード",
+      "quickActions": "クイック操作",
+      "shareFailed": "インストールリンクを共有できませんでした。",
+      "downloadFailed": "IPA をダウンロードできませんでした。",
+      "information": "パッケージ情報",
+      "size": "サイズ",
+      "minOs": "必要な iOS",
+      "category": "カテゴリ",
+      "released": "リリース日",
+      "developer": "開発元",
+      "fileUnavailable": "パッケージファイルを利用できません。",
       "pause": "一時停止",
       "resume": "再開",
       "delete": "削除",
@@ -241,7 +264,7 @@
     },
     "data": {
       "title": "データ",
-      "description": "アカウント、認証情報、設定など、このブラウザに保存されているすべてのローカルデータをクリアします。",
+      "description": "保存済みのアカウント・認証情報・設定を消去します。",
       "confirm": "すべてのアカウントと設定が削除され、元に戻すことはできません。続行しますか？",
       "button": "すべてのデータをリセット",
       "exportBtn": "アカウントをエクスポート",
@@ -262,7 +285,7 @@
     },
     "about": {
       "title": "概要",
-      "description": "Asspp Web —— Apple アプリのダウンロードとライセンス管理のためのウェブベースインターフェース。",
+      "description": "Asspp Web — Appleアプリとライセンスの管理。",
       "buildCommit": "ビルドコミット",
       "buildDate": "ビルド日時"
     }

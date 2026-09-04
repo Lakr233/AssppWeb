@@ -25,7 +25,7 @@
   },
   "home": {
     "welcome": "Asspp Web에 오신 것을 환영합니다",
-    "subtitle": "브라우저에서 Apple 계정을 관리하고 App Store를 검색하여 앱을 다운로드하세요.",
+    "subtitle": "계정 관리, 앱 검색 및 다운로드.",
     "stats": {
       "accounts": "계정",
       "downloads": "다운로드",
@@ -46,10 +46,13 @@
     "button": "검색",
     "searching": "검색 중...",
     "empty": "앱을 검색하여 시작하세요.",
-    "emptyDesc": "앱 이름이나 Bundle ID를 입력하여 App Store를 빠르게 검색하고 앱 세부 정보 및 라이선스를 얻으세요.",
+    "emptyDesc": "이름 / Bundle ID로 앱·라이선스 검색.",
     "free": "무료",
     "product": {
       "title": "앱 세부 정보",
+      "previewBadge": "인터랙티브 미리보기",
+      "previewDescription": "이 앱과 계정은 가상 데이터입니다. 작업을 실행해도 Apple에 연결하거나 실제 작업을 생성하지 않습니다.",
+      "previewActionComplete": "모의 작업이 완료되었습니다. 실제 데이터는 변경되지 않았습니다.",
       "notFound": "요청한 앱을 찾을 수 없습니다.",
       "licenseSuccess": "라이선스 획득 성공",
       "purchaseFailed": "구매 실패",
@@ -93,7 +96,7 @@
     "add": "계정 추가",
     "loading": "계정 로딩 중...",
     "empty": "아직 추가된 계정이 없습니다.",
-    "emptyDesc": "여기에서 Apple 계정을 통합 관리하여 언제든지 앱 다운로드 라이선스를 얻으세요.",
+    "emptyDesc": "Apple 계정과 다운로드 라이선스를 관리하세요.",
     "addFirst": "첫 번째 계정 추가",
     "addForm": {
       "title": "계정 추가",
@@ -142,9 +145,11 @@
     "title": "다운로드",
     "new": "새 다운로드",
     "warning": "패키지는 임시 저장되며 서버 재시작 시 삭제됩니다. 즉시 다운로드하거나 설치하세요.",
+    "warningShort": "임시 보관 · 재시작 시 삭제 · 즉시 저장하세요.",
     "loading": "다운로드 로딩 중...",
     "emptyAll": "다운로드가 없습니다.",
     "emptyAllDesc": "다운로드 대기열이 비어 있습니다. 검색 페이지로 이동하여 필요한 앱을 탐색하고 다운로드하세요.",
+    "emptyAllDescShort": "다운로드가 없습니다. 검색에서 앱을 찾아보세요.",
     "emptyFilter": "{{status}} 상태의 다운로드가 없습니다.",
     "emptyFilterDesc": "이 상태와 일치하는 다운로드 기록이 없습니다.",
     "searchApps": "다운로드할 앱 검색",
@@ -163,6 +168,12 @@
       "completed": "완료됨",
       "failed": "실패함",
       "injecting": "주입 중"
+    },
+    "preview": {
+      "badge": "미리보기",
+      "description": "디자인 미리보기용 샘플 패키지가 표시됩니다.",
+      "actionHint": "미리보기 작업은 실제 다운로드에 영향을 주지 않습니다.",
+      "account": "미리보기 계정"
     },
     "item": {
       "viewPackage": "패키지 보기"
@@ -197,10 +208,22 @@
       "account": "계정",
       "created": "생성됨",
       "install": "기기에 설치",
+      "installShort": "설치",
       "share": "공유",
       "copied": "링크가 클립보드에 복사되었습니다",
       "scan": "스캔하여 설치",
       "downloadIpa": "IPA 다운로드",
+      "downloadShort": "다운로드",
+      "quickActions": "빠른 작업",
+      "shareFailed": "설치 링크를 공유하지 못했습니다.",
+      "downloadFailed": "IPA를 다운로드하지 못했습니다.",
+      "information": "패키지 정보",
+      "size": "크기",
+      "minOs": "최소 iOS 버전",
+      "category": "카테고리",
+      "released": "출시일",
+      "developer": "개발자",
+      "fileUnavailable": "패키지 파일을 사용할 수 없습니다.",
       "pause": "일시 정지",
       "resume": "재개",
       "delete": "삭제",
@@ -241,7 +264,7 @@
     },
     "data": {
       "title": "데이터",
-      "description": "이 브라우저에 저장된 모든 로컬 계정, 자격 증명 및 설정을 지웁니다.",
+      "description": "저장된 계정, 자격 증명 및 설정을 지웁니다.",
       "confirm": "모든 계정과 설정이 삭제되며 복구할 수 없습니다. 계속하시겠습니까?",
       "button": "모든 데이터 초기화",
       "exportBtn": "계정 내보내기",
@@ -262,7 +285,7 @@
     },
     "about": {
       "title": "정보",
-      "description": "Asspp Web —— 웹 기반 Apple 앱 다운로드 및 라이선스 관리 인터페이스.",
+      "description": "Asspp Web — Apple 앱·라이선스 관리.",
       "buildCommit": "빌드 커밋",
       "buildDate": "빌드 날짜"
     }

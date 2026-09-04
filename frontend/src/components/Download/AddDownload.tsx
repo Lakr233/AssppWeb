@@ -9,9 +9,9 @@ import { useSettingsStore } from "../../store/settings";
 import { useToastStore } from "../../store/toast";
 import { lookupApp } from "../../api/search";
 import { listVersions } from "../../apple/versionFinder";
-import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import { firstAccountCountry } from "../../utils/account";
 import { getErrorMessage } from "../../utils/error";
+import { countryCodeMap, storeIdToCountry } from "../../apple/config";
 import type { Software } from "../../types";
 
 export default function AddDownload() {
@@ -142,25 +142,28 @@ export default function AddDownload() {
 
   return (
     <PageContainer title={t("downloads.add.title")}>
-      <div className="space-y-6">
-        <form onSubmit={handleLookup} className="space-y-4">
-          <div>
+      <div className="min-w-0 space-y-6">
+        <form
+          onSubmit={handleLookup}
+          className="min-w-0 space-y-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-5"
+        >
+          <div className="min-w-0">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t("downloads.add.bundleId")}
             </label>
-            <div className="flex gap-2">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={bundleId}
                 onChange={(e) => setBundleId(e.target.value)}
                 placeholder={t("downloads.add.placeholder")}
-                className="block w-full flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="min-h-11 w-full min-w-0 flex-1 rounded-xl border-0 bg-gray-100 px-4 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-800 dark:text-white"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !bundleId.trim()}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+                className="min-h-11 min-w-0 whitespace-normal break-words rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
               >
                 {loadingAction === "lookup"
                   ? t("downloads.add.lookingUp")
@@ -168,7 +171,7 @@ export default function AddDownload() {
               </button>
             </div>
           </div>
-          <div className="flex w-full gap-3 overflow-hidden">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             <CountrySelect
               value={country}
               onChange={(v) => {
@@ -178,12 +181,12 @@ export default function AddDownload() {
               availableCountryCodes={availableCountryCodes}
               allCountryCodes={allCountryCodes}
               disabled={isLoading}
-              className="w-1/2 truncate disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="min-h-11 w-full min-w-0 max-w-full truncate disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-800/50 dark:disabled:text-gray-400"
             />
             <select
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
-              className="w-1/2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="min-h-11 w-full min-w-0 max-w-full truncate rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-800 dark:text-white"
               disabled={isLoading || filteredAccounts.length === 0}
             >
               {filteredAccounts.length > 0 ? (
@@ -202,10 +205,10 @@ export default function AddDownload() {
         </form>
 
         {!app && !isLoading && (
-          <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-900/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4 border border-gray-100 dark:border-gray-700">
+          <div className="flex min-w-0 flex-col items-center justify-center rounded-3xl bg-white px-5 py-14 text-center shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:px-6">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950">
               <svg
-                className="w-10 h-10 text-blue-500 dark:text-blue-400"
+                className="h-8 w-8 text-blue-600 dark:text-blue-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -218,27 +221,36 @@ export default function AddDownload() {
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center">
+            <h3 className="mb-2 min-w-0 break-words text-center text-lg font-semibold text-gray-900 [overflow-wrap:anywhere] dark:text-white">
               {t("downloads.add.emptyTitle")}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-sm">
+            <p className="max-w-sm min-w-0 break-words text-center text-sm text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
               {t("downloads.add.emptyDesc")}
             </p>
           </div>
         )}
 
         {app && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="min-w-0 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6">
+            <div className="mb-4 flex min-w-0 items-start gap-4">
               <AppIcon url={app.artworkUrl} name={app.name} size="md" />
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">
+              <div className="min-w-0 flex-1">
+                <p
+                  title={app.name}
+                  className="min-w-0 break-words font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white"
+                >
                   {app.name}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  title={app.artistName}
+                  className="min-w-0 break-words text-sm text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400"
+                >
                   {app.artistName}
                 </p>
-                <p className="text-sm text-gray-400 dark:text-gray-500">
+                <p
+                  title={`${app.version} - ${app.formattedPrice ?? t("search.product.free")}`}
+                  className="min-w-0 break-all text-sm text-gray-400 dark:text-gray-500"
+                >
                   v{app.version} -{" "}
                   {app.formattedPrice ?? t("search.product.free")}
                 </p>
@@ -246,14 +258,14 @@ export default function AddDownload() {
             </div>
 
             {step === "versions" && versions.length > 0 && (
-              <div className="mb-4">
+              <div className="mb-4 min-w-0">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {t("downloads.add.versionOptional")}
                 </label>
                 <select
                   value={selectedVersion}
                   onChange={(e) => setSelectedVersion(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-base text-gray-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 truncate disabled:bg-gray-50 dark:disabled:bg-gray-800/50 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="min-h-11 w-full min-w-0 max-w-full truncate rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-800 dark:text-white"
                 >
                   <option value="">{t("downloads.add.latest")}</option>
                   {versions.map((v) => (
@@ -265,12 +277,12 @@ export default function AddDownload() {
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="grid min-w-0 grid-cols-1 gap-2 sm:flex sm:flex-wrap">
               {(app.price === undefined || app.price === 0) && (
                 <button
                   onClick={handleGetLicense}
                   disabled={isLoading || !account}
-                  className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="min-h-11 min-w-0 whitespace-normal break-words rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:bg-blue-950/60 dark:text-blue-400"
                 >
                   {loadingAction === "license"
                     ? t("downloads.add.processing")
@@ -281,7 +293,7 @@ export default function AddDownload() {
                 <button
                   onClick={handleLoadVersions}
                   disabled={isLoading || !account}
-                  className="px-3 py-1.5 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="min-h-11 min-w-0 whitespace-normal break-words rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   {loadingAction === "versions"
                     ? t("downloads.add.processing")
@@ -291,7 +303,7 @@ export default function AddDownload() {
               <button
                 onClick={handleDownload}
                 disabled={isLoading || !account}
-                className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="min-h-11 min-w-0 whitespace-normal break-words rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
                 {loadingAction === "download"
                   ? t("downloads.add.processing")

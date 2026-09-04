@@ -25,7 +25,7 @@
   },
   "home": {
     "welcome": "Welcome to Asspp Web",
-    "subtitle": "Manage Apple accounts, search the App Store, and download apps from your browser.",
+    "subtitle": "Manage accounts, find and download apps.",
     "stats": {
       "accounts": "Accounts",
       "downloads": "Downloads",
@@ -46,10 +46,13 @@
     "button": "Search",
     "searching": "Searching...",
     "empty": "Search for apps to get started.",
-    "emptyDesc": "Enter an app name or Bundle ID to quickly search the App Store and get app details and licenses.",
+    "emptyDesc": "Name or Bundle ID—find apps and licenses.",
     "free": "Free",
     "product": {
       "title": "App Details",
+      "previewBadge": "Interactive Preview",
+      "previewDescription": "This app and account are fictional. Actions will not contact Apple or create real tasks.",
+      "previewActionComplete": "Simulated action completed. No real data was changed.",
       "notFound": "Could not find the requested app.",
       "licenseSuccess": "License acquired successfully",
       "purchaseFailed": "Purchase failed",
@@ -93,7 +96,7 @@
     "add": "Add Account",
     "loading": "Loading accounts...",
     "empty": "No accounts added yet.",
-    "emptyDesc": "Manage your Apple accounts here to easily acquire app download licenses anytime.",
+    "emptyDesc": "Manage Apple accounts and download licenses.",
     "addFirst": "Add your first account",
     "addForm": {
       "title": "Add Account",
@@ -142,9 +145,11 @@
     "title": "Downloads",
     "new": "New Download",
     "warning": "Packages are temporary and will be cleared on server restart. Download or install promptly.",
+    "warningShort": "Temporary; cleared on restart—save promptly.",
     "loading": "Loading downloads...",
     "emptyAll": "No downloads yet.",
     "emptyAllDesc": "Your download queue is empty. Head to the search page to explore and download the apps you need.",
+    "emptyAllDescShort": "No downloads yet—find apps in Search.",
     "emptyFilter": "No {{status}} downloads.",
     "emptyFilterDesc": "No download records match this status.",
     "searchApps": "Search for apps to download",
@@ -163,6 +168,12 @@
       "completed": "Completed",
       "failed": "Failed",
       "injecting": "Injecting"
+    },
+    "preview": {
+      "badge": "Preview",
+      "description": "Sample packages are shown for design preview only.",
+      "actionHint": "Preview actions do not affect real downloads.",
+      "account": "Preview account"
     },
     "item": {
       "viewPackage": "View Package"
@@ -197,10 +208,22 @@
       "account": "Account",
       "created": "Created",
       "install": "Install on Device",
+      "installShort": "Install",
       "share": "Share",
       "copied": "Link copied to clipboard",
       "scan": "Scan to install",
       "downloadIpa": "Download IPA",
+      "downloadShort": "Download",
+      "quickActions": "Quick Actions",
+      "shareFailed": "Could not share the install link.",
+      "downloadFailed": "Could not download the IPA.",
+      "information": "Package Information",
+      "size": "Size",
+      "minOs": "Minimum iOS",
+      "category": "Category",
+      "released": "Released",
+      "developer": "Developer",
+      "fileUnavailable": "The package file is unavailable.",
       "pause": "Pause",
       "resume": "Resume",
       "delete": "Delete",
@@ -241,7 +264,7 @@
     },
     "data": {
       "title": "Data",
-      "description": "Clear all local data including accounts, credentials, and settings stored in this browser.",
+      "description": "Clear local accounts, sign-ins, and settings.",
       "confirm": "This will delete all accounts, credentials, and settings. This cannot be undone. Continue?",
       "button": "Reset All Data",
       "exportBtn": "Export Accounts",
@@ -262,7 +285,7 @@
     },
     "about": {
       "title": "About",
-      "description": "Asspp Web -- a web-based interface for managing Apple app downloads and licenses.",
+      "description": "Asspp Web — Apple app and license manager.",
       "buildCommit": "Build Commit",
       "buildDate": "Build Date"
     }

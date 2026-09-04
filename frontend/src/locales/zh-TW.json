@@ -25,7 +25,7 @@
   },
   "home": {
     "welcome": "歡迎來到 Asspp Web",
-    "subtitle": "在瀏覽器中管理 Apple 帳號，搜尋 App Store 並下載應用程式。",
+    "subtitle": "管理 Apple 帳號，搜尋並下載應用程式。",
     "stats": {
       "accounts": "帳號",
       "downloads": "下載",
@@ -46,10 +46,13 @@
     "button": "搜尋",
     "searching": "搜尋中...",
     "empty": "搜尋應用程式以開始。",
-    "emptyDesc": "輸入應用程式名稱或 Bundle ID，快速在 App Store 中尋找並獲取應用程式詳情與授權。",
+    "emptyDesc": "輸入名稱或 Bundle ID，查找應用程式與授權。",
     "free": "免費",
     "product": {
       "title": "應用程式詳情",
+      "previewBadge": "互動預覽",
+      "previewDescription": "這是虛構的應用程式與帳號；操作不會連線至 Apple，也不會建立實際任務。",
+      "previewActionComplete": "模擬操作已完成，未變更任何實際資料。",
       "notFound": "找不到請求的應用程式。",
       "licenseSuccess": "授權獲取成功",
       "purchaseFailed": "購買失敗",
@@ -93,7 +96,7 @@
     "add": "新增帳號",
     "loading": "載入帳號中...",
     "empty": "尚未新增帳號。",
-    "emptyDesc": "在這裡統一管理您的 Apple 帳號，隨時獲取應用程式下載授權。",
+    "emptyDesc": "管理 Apple 帳號，隨時取得下載授權。",
     "addFirst": "新增您的第一個帳號",
     "addForm": {
       "title": "新增帳號",
@@ -142,9 +145,11 @@
     "title": "下載",
     "new": "新增下載",
     "warning": "安裝包是暫時的，將在伺服器重啟時被清除。請及時下載或安裝。",
+    "warningShort": "暫存安裝包，重啟即清除，請及時保存。",
     "loading": "載入下載中...",
     "emptyAll": "暫無下載。",
     "emptyAllDesc": "您的下載佇列為空。前往搜尋頁面探索並下載您需要的應用程式吧。",
+    "emptyAllDescShort": "下載佇列為空，請前往搜尋頁面取得應用程式。",
     "emptyFilter": "暫無{{status}}下載。",
     "emptyFilterDesc": "沒有符合該狀態的下載記錄。",
     "searchApps": "搜尋要下載的應用程式",
@@ -163,6 +168,12 @@
       "completed": "已完成",
       "failed": "已失敗",
       "injecting": "注入中"
+    },
+    "preview": {
+      "badge": "預覽",
+      "description": "目前顯示的是僅供介面預覽的模擬安裝包。",
+      "actionHint": "預覽操作不會影響實際下載。",
+      "account": "預覽帳號"
     },
     "item": {
       "viewPackage": "查看安裝包"
@@ -197,10 +208,22 @@
       "account": "帳號",
       "created": "建立時間",
       "install": "在裝置上安裝",
+      "installShort": "安裝",
       "share": "分享",
       "copied": "連結已複製到剪貼簿",
       "scan": "掃碼安裝",
       "downloadIpa": "下載 IPA",
+      "downloadShort": "下載",
+      "quickActions": "快速操作",
+      "shareFailed": "無法分享安裝連結。",
+      "downloadFailed": "無法下載 IPA。",
+      "information": "安裝包資訊",
+      "size": "大小",
+      "minOs": "最低 iOS 版本",
+      "category": "類別",
+      "released": "發佈日期",
+      "developer": "開發者",
+      "fileUnavailable": "安裝包檔案無法使用。",
       "pause": "暫停",
       "resume": "繼續",
       "delete": "刪除",
@@ -241,7 +264,7 @@
     },
     "data": {
       "title": "資料",
-      "description": "清除此瀏覽器中儲存的所有本機資料，包括帳號、憑證和設定。",
+      "description": "清除本機帳號、憑證和設定。",
       "confirm": "這將刪除所有帳號、憑證和設定，且無法復原。是否繼續？",
       "button": "重設所有資料",
       "exportBtn": "匯出帳號",
@@ -262,7 +285,7 @@
     },
     "about": {
       "title": "關於",
-      "description": "Asspp Web —— 基於 Web 的 Apple 應用程式下載與授權管理介面。",
+      "description": "Asspp Web —— Apple 應用程式與授權管理。",
       "buildCommit": "構建提交",
       "buildDate": "構建日期"
     }
