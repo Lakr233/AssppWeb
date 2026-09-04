@@ -110,7 +110,10 @@
       "verify": "验证",
       "cancel": "取消",
       "authFailed": "认证失败",
-      "addSuccess": "账号添加成功。"
+      "addSuccess": "账号添加成功。",
+      "preparingAssets": "正在准备签名组件 {{percent}}%",
+      "preparingSigner": "正在初始化签名器…",
+      "signerFailed": "签名组件准备失败：{{error}}"
     },
     "detail": {
       "title": "账号详情",

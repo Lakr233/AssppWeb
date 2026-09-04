@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../Layout/PageContainer";
 import Spinner from "../common/Spinner";
+import SapStatus from "../common/SapStatus";
 import { useAccounts } from "../../hooks/useAccounts";
 import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
@@ -59,6 +60,7 @@ export default function AddAccountForm() {
     <PageContainer title={t("accounts.addForm.title")}>
       <div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <SapStatus />
           <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 space-y-4">
             <div>
               <label

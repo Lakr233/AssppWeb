@@ -110,7 +110,10 @@
       "verify": "確認",
       "cancel": "キャンセル",
       "authFailed": "認証に失敗しました",
-      "addSuccess": "アカウントが正常に追加されました。"
+      "addSuccess": "アカウントが正常に追加されました。",
+      "preparingAssets": "署名コンポーネントを準備中 {{percent}}%",
+      "preparingSigner": "署名器を初期化中…",
+      "signerFailed": "署名コンポーネントの準備に失敗しました：{{error}}"
     },
     "detail": {
       "title": "アカウントの詳細",

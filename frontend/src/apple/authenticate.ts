@@ -3,9 +3,7 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
-import { createSapSigner } from "./sap/client";
-import { loadSapAssets } from "./sap/assets";
-import type { SapSigner } from "./sap/signer";
+import { prepareSigner } from "./sap/client";
 import i18n from "../i18n";
 
 export class AuthenticationError extends Error {
@@ -43,15 +41,11 @@ export async function authenticate(
   // When the bag advertises the SAP signing protocol, every request to the
   // auth endpoint must carry X-Apple-ActionSignature over its body bytes.
   // The signer sees only the hardware ID and public Apple assets — never the
-  // password — because signing happens here in the browser.
-  let sapSigner: SapSigner | null = null;
+  // password — because signing happens here in the browser. It is kept as a
+  // singleton between attempts (2FA retries reuse the same session).
+  let sapSigner = null as Awaited<ReturnType<typeof prepareSigner>> | null;
   if (bag.sapEndpoints) {
-    const assets = await loadSapAssets();
-    sapSigner = await createSapSigner({
-      ...bag.sapEndpoints,
-      hardwareID: new TextEncoder().encode(deviceId),
-      assets,
-    });
+    sapSigner = await prepareSigner(deviceId, bag.sapEndpoints);
   }
 
   let currentAttempt = 0;
@@ -174,18 +168,14 @@ export async function authenticate(
         pod,
       };
 
-      await sapSigner?.close().catch(() => undefined);
-      sapSigner = null;
       return account;
     } catch (e) {
       if (e instanceof AuthenticationError) {
-        await sapSigner?.close().catch(() => undefined);
         throw e;
       }
       lastError = e instanceof Error ? e : new Error(String(e));
     }
   }
 
-  await sapSigner?.close().catch(() => undefined);
   throw lastError ?? new Error(i18n.t("errors.auth.unknownReason"));
 }
