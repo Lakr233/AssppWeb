@@ -9,11 +9,12 @@
 
 ## Project Structure
 
-- `backend/` — Node.js/Express server (TypeScript, ESM)
-- `frontend/` — React SPA (TypeScript, Vite, Tailwind CSS)
-- `e2e/` — Playwright E2E tests (pnpm)
-- `references/ApplePackage/` — Swift reference implementation (source of truth)
-- Multi-stage Docker build (single container serves both)
+- `backend/` — Node.js/Express server (TypeScript, ESM); tests in `backend/tests/`
+- `frontend/` — React SPA (TypeScript, Vite, Tailwind CSS); tests in `frontend/tests/` (not collocated with src)
+- `cloudflare/` + `wrangler.jsonc` — Cloudflare Workers + Containers deployment wrapper around the Docker image
+- `Dockerfile` / `compose.yml` — single container serves both backend and SPA
+- `frontend/scripts/unicorn-wasm-patch/` — patches + glue + build script for the Unicorn TCI WASM engine (see SAP section)
+- `references/` is gitignored personal infrastructure (never commit); a local ApplePackage checkout may or may not exist
 
 ## Architecture — Zero-Trust
 
@@ -57,17 +58,76 @@ The server is a blind TCP proxy. It NEVER sees Apple credentials.
 
 **Key invariant**: The server NEVER sees Apple credentials. All Apple TLS terminates at the browser via libcurl.js WASM (Mbed TLS 1.3). The server only receives public CDN URLs and non-secret metadata for IPA compilation. The bag proxy (`/api/bag`) only returns public Apple service URLs — no credentials pass through it.
 
+## Architecture — SAP Request Signing (X-Apple-ActionSignature)
+
+Apple requires every request to the auth endpoint to carry `X-Apple-ActionSignature: base64(Sign(bodyBytes))`. The signature is produced by obfuscated SAP entry points inside Apple's CommerceKit/CoreFP binaries (the same mechanism ipatool uses). Key property: **the signer's inputs are only the hardware ID (the per-account `deviceIdentifier`) plus public Apple assets — never credentials — but the signature covers the request body, which contains the password.** Therefore signing MUST stay in the browser; the zero-trust invariant is preserved.
+
+```
+┌─ Browser ────────────────────────────────────────────────────────┐
+│ 1. Bag (via /api/bag) advertises:                                 │
+│      sign-sap-setup      → setup exchange endpoint (POST plist)   │
+│      sign-sap-setup-cert → certificate endpoint (GET plist)       │
+│      sign-sap-version    → protocol version (200)                 │
+│ 2. GET /api/sap-assets/:name → four Apple binaries (backend-     │
+│    extracted, digest-pinned, browser-cached in the Cache API)     │
+│ 3. SAP signer worker (Web Worker, off the UI thread):             │
+│      Unicorn 2.1.4 → TCI interpreter backend → wasm              │
+│      Mach-O x86_64 images loaded + dyld-info relocated in TS     │
+│      entry points: initialize / exchange / sign / teardown        │
+│ 4. Key exchange over the wisp tunnel (main thread):               │
+│      GET cert → exchange(state 1) → POST setup → exchange(state 0)│
+│ 5. authenticate() signs each attempt's exact UTF-8 body bytes     │
+│    and attaches X-Apple-ActionSignature                           │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Frontend modules (`frontend/src/apple/sap/`)
+
+- `engine.ts` — Unicorn WASM wrapper; all guest addresses cross the JS boundary as doubles (exact below 2^53; the guest map stays below 2^48)
+- `machImage.ts` — Mach-O 64 parser: fat-binary slicing, LC_SEGMENT_64, symtab lookup, dyld_info rebase/bind/weak/lazy opcodes. **Opcode tables**: rebase uses nibbles 0x00–0x80 (SET_TYPE 0x10, SET_SEGMENT 0x20, …); bind is shifted down one slot (DO_BIND 0x90) because rebase-only ADD_ADDR_IMM_SCALED occupies bind's 0x90 slot elsewhere. Segment offsets move in uint64 BigInt space — bind ADD_ADDR_ULEB deltas are 64-bit encodings of negative steps. Fixups targeting a segment's BSS tail (within vmsize, past fileSize) are skipped: dyld would zero-fill them.
+- `shims.ts` — guest libc/CF/IOKit shims; 64-bit −1 constants are passed as `-1` (wasm's saturating f64→i64 conversion yields 0xFFFF…F, which a JS number cannot represent exactly)
+- `machine.ts` — entry-point invocation, scratch/stack layout, output disposal
+- `signer.ts` / `client.ts` / `worker.ts` — orchestration; emulation runs in a Web Worker, Apple network calls ride the wisp tunnel on the main thread
+- `protocol.ts` — certificate fetch + setup exchange (plist `<data>` round-trip via appleRequest)
+- `assets.ts` — asset download with progress, SHA-256 verification (stripped-file pins), Cache API persistence; accepts both thin and fat Mach-O payloads
+- `vendor/unicorn.mjs|.wasm` — prebuilt engine (regenerate via `frontend/scripts/unicorn-wasm-patch/build.sh`)
+
+### Unicorn TCI WASM build chain (`frontend/scripts/unicorn-wasm-patch/`)
+
+Unicorn 2.x only ships JIT TCG backends, which cannot execute under WebAssembly (no RWX, no wasm codegen). The patch (`patches/unicorn-2.1.4-tci-wasm.patch` against unicorn 2.1.4, whose QEMU base is 5.0.1):
+
+1. Restores the QEMU 5.0.1 TCI interpreter (unicorn stripped it) into the tree
+2. Forces 64-bit virtual TCI registers on wasm32 — QEMU 5.0's 32-bit TCI path is riddled with TODO() stubs; the register file is virtual state, so 64-bit registers need no 64-bit host pointers
+3. Generates uniform-signature helper trampolines (`qemu/target/i386/tci-wasm-tramp.c`): TCI invokes every helper through one cast signature, which wasm's strict indirect-call checks reject
+4. Adapts glib-compat GTree comparators (2-arg vs 3-arg) and disables inline hook callbacks for the same reason
+5. Replaces the timeout thread (no pthreads in wasm) with a wall-clock deadline checked inside the TCI interpreter loop; mprotect/mmap-based guest RAM becomes aligned malloc
+
+Build: `bash frontend/scripts/unicorn-wasm-patch/build.sh` (requires docker; emscripten runs in a container). The signed-off artifacts land in `frontend/src/apple/sap/vendor/`.
+
+### Backend asset pipeline
+
+`backend/src/services/sapAssets.ts` extracts the four binaries once from Apple's public OSXUpd10.9.pkg: xar TOC parse → HTTP range download of the Payload tail (~380 MB) → bzip2 stream (with a synthetic `BZh9` header from a fixed offset) → cpio (odc and newc formats) → pinned SHA-256 verification → **fat-binary stripping to the x86_64 slice** (the emulated guest architecture; CoreFP ships as an i386+x86_64 universal, so this halves it) → cache under `DATA_DIR/sap-assets`. All data is public Apple content (same trust class as the bag proxy). Specs carry two pin sets: the original Apple digest verifies the extraction; the stripped digest (a deterministic function of the original) verifies what is served and what the browser downloads. Distribution sizes: 37.7 MB original → 22.5 MB stripped → ~14 MB on the wire with the route's gzip response. The bz2 stream is truncated mid-file, so the decoder can emit a late crc error after the wanted members are captured — the pipeline swallows it by design (an unhandled rejection would crash Node).
+
+On startup `ensureSapAssets` prefers `DATA_DIR/sap-assets`, then seeds from the image-prebaked directory (`BUNDLED_SAP_ASSETS`, default `/opt/asspp/sap-assets`), and only then falls back to network extraction (the bzip2 decoder is imported lazily because cross-built images may lack a matching napi binary for the runtime arch — see Dockerfile). Routes (`backend/src/routes/sapAssets.ts`): `GET /api/sap-assets/status`, `POST /api/sap-assets/prepare`, `GET /api/sap-assets/:name` (gzip when accepted).
+
+### Container image
+
+The Dockerfile prebakes the stripped SAP assets at build time (a `sap-assets` stage runs `backend/scripts/extract-sap-assets.mts`; Docker layer caching makes it a no-op on rebuilds). Release images ship the assets, so a fresh VPS serves them with zero network use. Build stages run on `$BUILDPLATFORM` (JS artifacts are platform-independent); the runtime image installs production deps per target platform because `yauzl-promise` → `@node-rs/crc32` ships prebuilt napi binaries per arch. Published platforms: `linux/amd64`, `linux/arm64`. **linux/386 is out**: official node images dropped it and `@node-rs/crc32` has no linux-ia32 build.
+
+### SAP invariants
+
+- The signer only ever sees the deviceIdentifier and public Apple assets; the password reaches the signer solely as opaque body bytes it signs in-place — it is never transmitted anywhere except through the wisp tunnel inside the auth request itself
+- Bag missing the SAP keys → signing is skipped (graceful degradation to the legacy flow)
+- SAP session lifetime = one `authenticate()` call (created and closed inside; initialization ≈ 150–300 ms including the exchange round-trips)
+- First login downloads ~14 MB over the wire (22.5 MB stripped assets, gzipped; progress is not yet surfaced in the UI — known limitation). Release images prebake the assets, so the backend serves them instantly
+
 ## Reference Implementation
 
-The Swift reference at `references/ApplePackage/` is the source of truth for Apple protocol behavior:
-
-- Field mappings (iTunes API → Software type) use Swift `CodingKeys`
-- Authentication flow, bag endpoint, pod routing, error codes
-- Always consult the reference when making protocol changes
+The upstream Swift project ApplePackage is the source of truth for Apple protocol behavior (authentication flow, bag endpoint, pod routing, error codes). A local checkout may live at `references/ApplePackage/`, but `references/` is gitignored — it is **not part of this repository** and may be absent. When unavailable, the field mapping below and the existing `frontend/src/apple/*` implementation are the in-repo reference.
 
 ### iTunes API Field Mapping
 
-The backend (`backend/src/routes/search.ts`) maps raw iTunes API fields to our `Software` type, matching the Swift CodingKeys in `references/ApplePackage/Sources/ApplePackage/Models/Software.swift`:
+The backend (`backend/src/routes/search.ts`) maps raw iTunes API fields to our `Software` type, matching the Swift `CodingKeys` in ApplePackage's `Software.swift`:
 
 | iTunes Field                | Software Field |
 | --------------------------- | -------------- |
@@ -123,6 +183,7 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - `tsx` for development, `tsc` for production build
 - SINF injector also handles optional `iTunesMetadata.plist` injection at IPA root
 - Bag proxy for `init.itunes.apple.com`
+- SAP asset extraction service (xar + bzip2 + cpio) with digest pinning; routes under `/api/sap-assets`
 
 ### Backend Shared Utilities
 
@@ -151,6 +212,8 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - **AppIcon** — 3 sizes (40/56/80px), rounded corners, letter fallback
 - **Badge** — color-coded status pill
 - **ProgressBar** — gray track, blue fill, percentage label
+- **ToastContainer** / `utils/toast.ts` — toast notifications (incl. account-context helpers)
+- **GlobalDownloadNotifier** — global download status notifications
 - **icons** — shared SVG icon components (`HomeIcon`, `AccountsIcon`, `SearchIcon`, `DownloadsIcon`, `SettingsIcon`, `SunIcon`, `MoonIcon`, `SystemIcon`) used by Sidebar, MobileNav, and MobileHeader
 
 ### Frontend Shared Utilities (`utils/`)
@@ -158,6 +221,8 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - `utils/error.ts` — `getErrorMessage(e, fallback)` for standardized catch-block error extraction
 - `utils/crypto.ts` — AES-GCM encrypt/decrypt for account export/import
 - `utils/account.ts` — `accountHash()`, `accountStoreCountry()`, `firstAccountCountry()`
+- `utils/toast.ts` — toast helpers (pairs with `ToastContainer`)
+- `utils/version.ts` — numeric dot-separated version string comparison
 
 ### Import Ordering Convention
 
@@ -211,59 +276,52 @@ The settings endpoint (`/api/settings`) must never reflect request headers (`x-f
 
 ## Testing
 
-### Unit Tests
+### Unit Tests (Vitest)
 
 ```bash
-cd backend && npx vitest run    # Node environment
-cd frontend && npx vitest run   # jsdom environment with fake-indexeddb
+cd backend && npx vitest run    # Node environment; tests in backend/tests/
+cd frontend && npx vitest run   # jsdom environment with fake-indexeddb; tests in frontend/tests/
 ```
 
-### E2E Tests (Playwright)
+Frontend tests mirror the src layout under `frontend/tests/` (`apple/`, `api/`, `store/`, `utils/`) — add new tests there, not next to source files.
 
-```bash
-cd e2e && pnpm test                            # Local (requires Docker on port 8080)
-docker compose --profile test run --rm playwright  # Docker-based
-bash e2e/docker-test.sh                        # Full: build + test + zero-trust verify
-```
+There is no E2E suite or lint script in the repo currently. Real-account Docker verification (2026-02-22): authentication succeeds through Wisp, and backend logs contain only connection/stream metadata (no Apple credentials, password tokens, or cookies).
 
-E2E tests import from `./fixtures` instead of `@playwright/test`.
+SAP-specific tests:
 
-WebSocket proxy tests use `location.host` to derive URLs dynamically, so they work both locally (`localhost:8080`) and in Docker (`asspp:8080`).
+- `frontend/tests/sap/machImage.test.ts` (vitest) — synthetic Mach-O builder exercising symbol export, rebase/bind opcodes, addends, and BSS-tail fixup tolerance
+- `frontend/tests/sap/machine-live.mjs` (manual, `npx tsx`) — full chain against the real Apple assets served by the backend: machine open → Initialize (context matches the native ipatool runtime bit-for-bit: `0x400000000200`) → Sign correctly gated by the key exchange (`-42085` without it, identical to native). Requires `SAP_ASSET_DIR` pointing at a flat copy of the four assets, or the nested extraction layout
 
-Real-account Docker verification (2026-02-22): authentication succeeds through Wisp, and backend logs contain only connection/stream metadata (no Apple credentials, password tokens, or cookies).
-
-E2E tests cover:
-
-- Wisp proxy (accepts /wisp/ WebSocket, rejects non-wisp paths)
-- Add account flow (device ID field, randomize button, auth)
-- Account detail (device ID, pod display)
-- Settings page (no global device ID section)
-- Search/lookup by bundle ID (verifies iTunes field mapping)
-- Downloads API (iTunesMetadata support, backward compatibility)
-
-### Test Account
-
-Test credentials are stored in environment variables (`TEST_EMAIL`, `TEST_PASSWORD`, `TEST_DEVICE_ID`, `TEST_BUNDLE_ID`) and must never be committed to the repository.
+Test credentials, if ever needed, belong in environment variables (`TEST_EMAIL`, `TEST_PASSWORD`, `TEST_DEVICE_ID`, `TEST_BUNDLE_ID`) and must never be committed.
 
 ## Deployment
 
+### Docker Compose (self-host)
+
 ```bash
-docker compose up --build -d   # Builds and runs on port 8080
+docker compose up -d   # Runs prebuilt image ghcr.io/lakr233/assppweb:latest on port 8080
 ```
+
+`compose.yml` pulls the published image (no local build), mounts `./mnt/asspp-data:/data` for `DATA_DIR`, and supports `ACCESS_PASSWORD` / `DOWNLOAD_THREADS` env vars. The `Dockerfile` at the repo root is what CI builds and publishes that image.
 
 Single container serves both the Express backend and the Vite-built React SPA. SPA routes are handled by serving `index.html` for all non-API paths.
 
-### Docker E2E Testing
+### Cloudflare Workers + Containers
 
-The `compose.yml` includes a `playwright` service under the `test` profile:
+`wrangler.jsonc` + `cloudflare/src/index.ts` deploy the same Docker image as a Cloudflare Container behind a Worker:
 
 ```bash
-docker compose --profile test run --rm playwright
+npx wrangler login
+npx wrangler deploy
 ```
 
-This runs Playwright inside the official `mcr.microsoft.com/playwright` image, connecting to the app container via Docker internal DNS (`http://asspp:8080`). The `asspp` service has a healthcheck so the test container waits until the app is ready.
+- Requires the Cloudflare Workers **Paid** plan (Containers are not on Free)
+- All HTTP/WebSocket traffic routes to one named container instance (`main`) to keep state consistent; `max_instances: 1`
+- Container filesystem is **ephemeral** — compiled IPAs are lost when the container stops/sleeps (`sleepAfter = "2h"`)
+- Health ping endpoint: `/api/settings`; worker injects `x-forwarded-proto: https` when missing to avoid redirect loops
+- `wrangler.jsonc` build command installs `@cloudflare/containers` on the fly, so deploys need no persistent devDependency
 
-The `e2e/docker-test.sh` script automates the full flow: build, test, and verify zero-trust by scanning backend logs for credential leaks.
+`README.md` documents the full deploy matrix (Cloudflare button, Railway with its Cloudflare-proxy TLS caveat, reverse-proxy WebSocket requirements for `/wisp/`).
 
 ## Interface Design System
 

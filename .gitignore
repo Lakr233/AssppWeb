@@ -137,3 +137,12 @@ references/
 mnt/
 tunnel/
 deploy.sh
+
+# SAP engine build chain (frontend/scripts/unicorn-wasm-patch/build.sh outputs)
+frontend/scripts/unicorn-wasm-patch/unicorn-src/
+frontend/scripts/unicorn-wasm-patch/build/
+frontend/scripts/unicorn-wasm-patch/dist/
+frontend/src/apple/sap/vendor/unicorn-dbg.*
+
+# Local agent workspace
+.video_agent/

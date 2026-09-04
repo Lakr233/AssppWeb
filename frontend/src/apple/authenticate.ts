@@ -3,6 +3,9 @@ import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
 import { fetchBag, defaultAuthURL } from "./bag";
+import { createSapSigner } from "./sap/client";
+import { loadSapAssets } from "./sap/assets";
+import type { SapSigner } from "./sap/signer";
 import i18n from "../i18n";
 
 export class AuthenticationError extends Error {
@@ -37,6 +40,20 @@ export async function authenticate(
   requestHost = authEndpoint.hostname;
   requestPath = `${authEndpoint.pathname}${authEndpoint.search}`;
 
+  // When the bag advertises the SAP signing protocol, every request to the
+  // auth endpoint must carry X-Apple-ActionSignature over its body bytes.
+  // The signer sees only the hardware ID and public Apple assets — never the
+  // password — because signing happens here in the browser.
+  let sapSigner: SapSigner | null = null;
+  if (bag.sapEndpoints) {
+    const assets = await loadSapAssets();
+    sapSigner = await createSapSigner({
+      ...bag.sapEndpoints,
+      hardwareID: new TextEncoder().encode(deviceId),
+      assets,
+    });
+  }
+
   let currentAttempt = 0;
   let redirectAttempt = 0;
 
@@ -58,6 +75,14 @@ export async function authenticate(
       const headers: Record<string, string> = {
         "Content-Type": "application/x-apple-plist",
       };
+
+      if (sapSigner) {
+        // The signature must cover the exact bytes on the wire; libcurl sends
+        // the body string as UTF-8, so sign its encoded form.
+        headers["X-Apple-ActionSignature"] = await sapSigner.sign(
+          new TextEncoder().encode(plistBody),
+        );
+      }
 
       const response = await appleRequest({
         method: "POST",
@@ -149,12 +174,18 @@ export async function authenticate(
         pod,
       };
 
+      await sapSigner?.close().catch(() => undefined);
+      sapSigner = null;
       return account;
     } catch (e) {
-      if (e instanceof AuthenticationError) throw e;
+      if (e instanceof AuthenticationError) {
+        await sapSigner?.close().catch(() => undefined);
+        throw e;
+      }
       lastError = e instanceof Error ? e : new Error(String(e));
     }
   }
 
+  await sapSigner?.close().catch(() => undefined);
   throw lastError ?? new Error(i18n.t("errors.auth.unknownReason"));
 }
