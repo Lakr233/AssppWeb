@@ -87,7 +87,7 @@ Apple requires every request to the auth endpoint to carry `X-Apple-ActionSignat
 - `machImage.ts` — Mach-O 64 parser: fat-binary slicing, LC_SEGMENT_64, symtab lookup, dyld_info rebase/bind/weak/lazy opcodes. **Opcode tables**: rebase uses nibbles 0x00–0x80 (SET_TYPE 0x10, SET_SEGMENT 0x20, …); bind is shifted down one slot (DO_BIND 0x90) because rebase-only ADD_ADDR_IMM_SCALED occupies bind's 0x90 slot elsewhere. Segment offsets move in uint64 BigInt space — bind ADD_ADDR_ULEB deltas are 64-bit encodings of negative steps. Fixups targeting a segment's BSS tail (within vmsize, past fileSize) are skipped: dyld would zero-fill them.
 - `shims.ts` — guest libc/CF/IOKit shims; 64-bit −1 constants are passed as `-1` (wasm's saturating f64→i64 conversion yields 0xFFFF…F, which a JS number cannot represent exactly)
 - `machine.ts` — entry-point invocation, scratch/stack layout, output disposal
-- `signer.ts` / `client.ts` / `worker.ts` — orchestration; emulation runs in a Web Worker, Apple network calls ride the wisp tunnel on the main thread
+- `signer.ts` / `client.ts` / `worker.ts` — orchestration; emulation runs in a Web Worker, Apple network calls ride the wisp tunnel on the main thread. `client.ts` keeps the signer as a singleton bound to the deviceIdentifier (rebuilding it means copying the 22.5 MB asset bundle into a fresh worker), with a zustand store (`store/sap.ts`), a warmup hook (`hooks/useSapWarmup.ts`, fires once an account exists), and an inline progress indicator (`components/common/SapStatus.tsx`)
 - `protocol.ts` — certificate fetch + setup exchange (plist `<data>` round-trip via appleRequest)
 - `assets.ts` — asset download with progress, SHA-256 verification (stripped-file pins), Cache API persistence; accepts both thin and fat Mach-O payloads
 - `vendor/unicorn.mjs|.wasm` — prebuilt engine (regenerate via `frontend/scripts/unicorn-wasm-patch/build.sh`)
@@ -118,8 +118,9 @@ The Dockerfile prebakes the stripped SAP assets at build time (a `sap-assets` st
 
 - The signer only ever sees the deviceIdentifier and public Apple assets; the password reaches the signer solely as opaque body bytes it signs in-place — it is never transmitted anywhere except through the wisp tunnel inside the auth request itself
 - Bag missing the SAP keys → signing is skipped (graceful degradation to the legacy flow)
-- SAP session lifetime = one `authenticate()` call (created and closed inside; initialization ≈ 150–300 ms including the exchange round-trips)
-- First login downloads ~14 MB over the wire (22.5 MB stripped assets, gzipped; progress is not yet surfaced in the UI — known limitation). Release images prebake the assets, so the backend serves them instantly
+- SAP session lifetime = the page session: the signer is a singleton per deviceIdentifier, reused across sign-in attempts (2FA retries included); switching accounts rebuilds it. Initialization ≈ 150–300 ms of emulation plus the setup exchange round-trips
+- First login downloads ~14 MB over the wire (22.5 MB stripped assets, gzipped); a background warmup and inline progress line cover it. Release images prebake the assets, so the backend serves them instantly
+- The live bag currently returns the legacy `MZFinance` authenticate endpoint (see upstream PR discussion); `normalizeAuthURL` is effectively inert, and all three advertised endpoints sit in the SAP-signed list — signing applies regardless
 
 ## Reference Implementation
 
