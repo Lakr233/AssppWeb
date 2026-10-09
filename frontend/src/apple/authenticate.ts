@@ -1,9 +1,9 @@
-import type { Account, Cookie } from "../types";
 import { appleRequest } from "./request";
 import { buildPlist, parsePlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
-import { fetchBag, defaultAuthURL } from "./bag";
+import { fetchBag, defaultAuthURL, normalizeAuthURL } from "./bag";
 import i18n from "../i18n";
+import type { Account, Cookie } from "../types";
 
 export class AuthenticationError extends Error {
   constructor(
@@ -32,7 +32,7 @@ export async function authenticate(
   let requestPath = `${defaultAuthEndpoint.pathname}${defaultAuthEndpoint.search}`;
 
   const bag = await fetchBag(deviceId);
-  const authEndpoint = new URL(bag.authURL);
+  const authEndpoint = new URL(normalizeAuthURL(bag.authURL));
   authEndpoint.searchParams.set("guid", deviceId);
   requestHost = authEndpoint.hostname;
   requestPath = `${authEndpoint.pathname}${authEndpoint.search}`;
@@ -90,7 +90,8 @@ export async function authenticate(
         if (!location) {
           throw new Error(i18n.t("errors.auth.redirectLocation"));
         }
-        const url = new URL(location);
+        const redirectURL = new URL(location, `https://${requestHost}${requestPath}`);
+        const url = new URL(normalizeAuthURL(redirectURL.toString()));
         requestHost = url.hostname;
         requestPath = url.pathname + url.search;
         currentAttempt--;
