@@ -15,12 +15,93 @@ export class AuthenticationError extends Error {
   }
 }
 
+/** A transient auth response that is about to be retried after `delayMs`. */
+export interface AuthRetry {
+  status: number;
+  attempt: number;
+  attempts: number;
+  delayMs: number;
+}
+
+// Apple's auth endpoint answers some requests with a transient status (an
+// empty 204, 404, 429 or a 5xx). Like ipatool, replay the request up to three
+// times, 10s then 20s apart, honoring a Retry-After of up to 30s. `send`
+// rebuilds the request each time, so per-request headers are recomputed.
+const AUTH_REQUEST_ATTEMPTS = 3;
+const AUTH_RETRY_DELAY_MS = 10_000;
+const MAX_AUTH_RETRY_DELAY_MS = 30_000;
+
+function isTransientAuthStatus(status: number): boolean {
+  return (
+    status === 204 ||
+    status === 404 ||
+    status === 429 ||
+    Math.floor(status / 100) === 5
+  );
+}
+
+function retryAfterMs(header: string | undefined): number | undefined {
+  const value = header?.trim();
+  if (!value) return undefined;
+  if (/^\d+$/.test(value)) return Number(value) * 1000;
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - Date.now());
+}
+
+type AuthResponse = Awaited<ReturnType<typeof appleRequest>>;
+
+async function sendWithTransientRetry(
+  send: () => Promise<AuthResponse>,
+  onRetry?: (retry: AuthRetry) => void,
+): Promise<AuthResponse> {
+  const statuses: number[] = [];
+  for (;;) {
+    const response = await send();
+    if (!isTransientAuthStatus(response.status)) return response;
+
+    statuses.push(response.status);
+    if (statuses.length === AUTH_REQUEST_ATTEMPTS) {
+      throw new AuthenticationError(
+        i18n.t("errors.auth.transientFailure", {
+          attempts: AUTH_REQUEST_ATTEMPTS,
+          statuses: statuses.join(", "),
+        }),
+      );
+    }
+
+    let delayMs = Math.min(
+      AUTH_RETRY_DELAY_MS * 2 ** (statuses.length - 1),
+      MAX_AUTH_RETRY_DELAY_MS,
+    );
+    const requested = retryAfterMs(response.headers["retry-after"]);
+    if (requested !== undefined) {
+      if (requested > MAX_AUTH_RETRY_DELAY_MS) {
+        throw new AuthenticationError(
+          i18n.t("errors.auth.retryLater", {
+            seconds: Math.ceil(requested / 1000),
+          }),
+        );
+      }
+      delayMs = Math.max(requested, 1000);
+    }
+
+    onRetry?.({
+      status: response.status,
+      attempt: statuses.length + 1,
+      attempts: AUTH_REQUEST_ATTEMPTS,
+      delayMs,
+    });
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+}
+
 export async function authenticate(
   email: string,
   password: string,
   code?: string,
   existingCookies?: Cookie[],
   deviceId: string = "",
+  onRetry?: (retry: AuthRetry) => void,
 ): Promise<Account> {
   let cookies: Cookie[] = existingCookies ? [...existingCookies] : [];
   let storeFront = "";
@@ -55,20 +136,22 @@ export async function authenticate(
 
       const plistBody = buildPlist(body);
 
-      const headers: Record<string, string> = {
-        "Content-Type": "application/x-apple-plist",
-      };
+      const response = await sendWithTransientRetry(async () => {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/x-apple-plist",
+        };
 
-      const response = await appleRequest({
-        method: "POST",
-        host: requestHost,
-        path: requestPath,
-        headers,
-        body: plistBody,
-        cookies,
-      });
-
-      cookies = extractAndMergeCookies(response.rawHeaders, cookies);
+        const sent = await appleRequest({
+          method: "POST",
+          host: requestHost,
+          path: requestPath,
+          headers,
+          body: plistBody,
+          cookies,
+        });
+        cookies = extractAndMergeCookies(sent.rawHeaders, cookies);
+        return sent;
+      }, onRetry);
 
       // Read store front
       const storeHeader = response.headers["x-set-apple-store-front"];

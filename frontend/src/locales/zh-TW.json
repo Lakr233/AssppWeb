@@ -111,6 +111,7 @@
       "codeHelp": "輸入來自您受信任裝置的驗證碼。",
       "signIn": "登入",
       "verify": "驗證",
+      "retrying": "Apple 暫未回應（HTTP {{status}}），{{seconds}} 秒後重試（第 {{attempt}}/{{attempts}} 次）…",
       "cancel": "取消",
       "authFailed": "認證失敗",
       "addSuccess": "帳號新增成功。"
@@ -453,7 +454,9 @@
       "emptyBody": "認證失敗：伺服器傳回 HTTP {{status}} 且回應主體為空",
       "missingAccountInfo": "回應中缺少 accountInfo",
       "missingAddress": "回應中缺少 address",
-      "unknownReason": "未知原因導致認證失敗"
+      "unknownReason": "未知原因導致認證失敗",
+      "transientFailure": "認證失敗：嘗試 {{attempts}} 次後 Apple 仍未回應（HTTP {{statuses}}），請稍後再試。",
+      "retryLater": "認證失敗：Apple 要求等待 {{seconds}} 秒後再試，請稍後再試。"
     }
   },
   "toast": {

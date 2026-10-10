@@ -111,6 +111,7 @@
       "codeHelp": "信頼できるデバイスからの確認コードを入力してください。",
       "signIn": "サインイン",
       "verify": "確認",
+      "retrying": "Apple から応答がありません（HTTP {{status}}）。{{seconds}} 秒後に再試行します（{{attempt}}/{{attempts}} 回目）…",
       "cancel": "キャンセル",
       "authFailed": "認証に失敗しました",
       "addSuccess": "アカウントが正常に追加されました。"
@@ -453,7 +454,9 @@
       "emptyBody": "認証失敗: サーバーが空のボディでHTTP {{status}}を返しました",
       "missingAccountInfo": "レスポンスに accountInfo がありません",
       "missingAddress": "レスポンスに address がありません",
-      "unknownReason": "不明な理由により認証に失敗しました"
+      "unknownReason": "不明な理由により認証に失敗しました",
+      "transientFailure": "認証に失敗しました：{{attempts}} 回試行しましたが Apple から応答がありません（HTTP {{statuses}}）。しばらくしてから再度お試しください。",
+      "retryLater": "認証に失敗しました：Apple から {{seconds}} 秒待つよう求められました。しばらくしてから再度お試しください。"
     }
   },
   "toast": {

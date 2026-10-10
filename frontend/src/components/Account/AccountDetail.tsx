@@ -8,6 +8,7 @@ import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { getErrorMessage } from "../../utils/error";
 import { storeIdToCountry } from "../../apple/config";
+import type { AuthRetry } from "../../apple/authenticate";
 
 export default function AccountDetail() {
   const { email } = useParams<{ email: string }>();
@@ -24,6 +25,7 @@ export default function AccountDetail() {
 
   const [showDelete, setShowDelete] = useState(false);
   const [reauthing, setReauthing] = useState(false);
+  const [reauthRetry, setReauthRetry] = useState<AuthRetry | null>(null);
   const [reauthCode, setReauthCode] = useState("");
   const [needsCode, setNeedsCode] = useState(false);
 
@@ -69,6 +71,7 @@ export default function AccountDetail() {
         needsCode && reauthCode ? reauthCode : undefined,
         account.cookies,
         account.deviceIdentifier,
+        setReauthRetry,
       );
       await updateAccount(updated);
       setNeedsCode(false);
@@ -85,6 +88,7 @@ export default function AccountDetail() {
         );
       }
     } finally {
+      setReauthRetry(null);
       setReauthing(false);
     }
   }
@@ -168,6 +172,17 @@ export default function AccountDetail() {
               </button>
             </div>
           </section>
+        )}
+
+        {reauthRetry && (
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t("accounts.addForm.retrying", {
+              status: reauthRetry.status,
+              seconds: Math.round(reauthRetry.delayMs / 1000),
+              attempt: reauthRetry.attempt,
+              attempts: reauthRetry.attempts,
+            })}
+          </p>
         )}
 
         <div className="flex flex-wrap items-center gap-3">

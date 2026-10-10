@@ -111,6 +111,7 @@
       "codeHelp": "输入来自您受信任设备的验证码。",
       "signIn": "登录",
       "verify": "验证",
+      "retrying": "Apple 暂未响应（HTTP {{status}}），{{seconds}} 秒后重试（第 {{attempt}}/{{attempts}} 次）…",
       "cancel": "取消",
       "authFailed": "认证失败",
       "addSuccess": "账号添加成功。"
@@ -453,7 +454,9 @@
       "emptyBody": "认证失败：服务器返回 HTTP {{status}} 且响应体为空",
       "missingAccountInfo": "响应中缺少 accountInfo",
       "missingAddress": "响应中缺少 address",
-      "unknownReason": "未知原因导致认证失败"
+      "unknownReason": "未知原因导致认证失败",
+      "transientFailure": "认证失败：尝试 {{attempts}} 次后 Apple 仍未响应（HTTP {{statuses}}），请稍后再试。",
+      "retryLater": "认证失败：Apple 要求等待 {{seconds}} 秒后再试，请稍后再试。"
     }
   },
   "toast": {
