@@ -435,7 +435,9 @@
       "missingVersion": "Missing required version information",
       "invalidSinf": "Invalid sinf item",
       "noSinf": "No sinf found in response",
-      "tooManyRedirects": "Too many redirects"
+      "tooManyRedirects": "Too many redirects",
+      "versionLookupFailed": "Unable to resolve the latest iOS version in this account’s storefront. Check app availability in that region.",
+      "unexpectedItem": "Apple returned a different app or version; download stopped."
     },
     "purchase": {
       "paidNotSupported": "Purchasing paid apps is not supported",

@@ -435,7 +435,9 @@
       "missingVersion": "필요한 버전 정보가 없습니다",
       "invalidSinf": "잘못된 sinf 항목입니다",
       "noSinf": "응답에서 sinf를 찾을 수 없습니다",
-      "tooManyRedirects": "리디렉션이 너무 많습니다"
+      "tooManyRedirects": "리디렉션이 너무 많습니다",
+      "versionLookupFailed": "Unable to resolve the latest iOS version in this account’s storefront. Check app availability in that region.",
+      "unexpectedItem": "Apple returned a different app or version; download stopped."
     },
     "purchase": {
       "paidNotSupported": "유료 앱 구매는 지원되지 않습니다",

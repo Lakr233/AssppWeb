@@ -1,7 +1,10 @@
+import { parseDownloadResponse, recoverUpdateEndpoint } from './downloadRecovery';
 import type { Account, Software } from "../types";
 import { appleRequest } from "./request";
-import { buildPlist, parsePlist } from "./plist";
+import { buildPlist } from "./plist";
 import { extractAndMergeCookies } from "./cookies";
+import { isRecoverableEmptyResponse, lookupLatestVersion } from './latestVersion';
+import i18n from '../i18n';
 import {
   RETRYABLE_FAILURE_TYPE,
   redownloadEndpoint,
@@ -18,15 +21,19 @@ export async function listVersions(
   let requestHost = endpoint.host;
   let requestPath = endpoint.path;
   let triedRedownload = false;
+  let triedUpdate = false;
   let cookies = [...account.cookies];
   let redirectAttempt = 0;
+  let externalVersionId: string | undefined;
 
   while (redirectAttempt <= 3) {
     const payload: Record<string, any> = {
       creditDisplay: "",
       guid: deviceId,
       salableAdamId: app.id,
+      serialNumber: '0',
     };
+    if (externalVersionId) payload[endpoint.externalVersionIdKey] = externalVersionId;
 
     const plistBody = buildPlist(payload);
 
@@ -59,23 +66,45 @@ export async function listVersions(
       continue;
     }
 
-    const dict = parsePlist(response.body) as Record<string, any>;
+    let dict: Record<string, any> | undefined;
+    let parseError: unknown;
+    try {
+      dict = parseDownloadResponse(response, requestHost, requestPath);
+    } catch (error) {
+      parseError = error;
+    }
+    if (triedRedownload && !triedUpdate) {
+      const update = await recoverUpdateEndpoint(response, dict, deviceId);
+      if (update) {
+        triedUpdate = true;
+        endpoint = update;
+        requestHost = endpoint.host;
+        requestPath = endpoint.path;
+        redirectAttempt = 0;
+        continue;
+      }
+    }
+    if (!dict) throw parseError;
+
 
     const songList = dict.songList as Record<string, any>[] | undefined;
-    if (!songList || songList.length === 0) {
+    if (!Array.isArray(songList) || songList.length === 0) {
+      if (!triedRedownload && (String(dict.failureType ?? '') === RETRYABLE_FAILURE_TYPE ||
+          isRecoverableEmptyResponse(response.status, dict))) {
+        try {
+          externalVersionId = await lookupLatestVersion(account, app);
+        } catch {
+          throw new Error(i18n.t('errors.download.versionLookupFailed'));
+        }
+        triedRedownload = true;
+        endpoint = redownloadEndpoint(deviceId);
+        requestHost = endpoint.host;
+        requestPath = endpoint.path;
+        redirectAttempt = 0;
+        continue;
+      }
       if (dict.failureType) {
         const failureType = String(dict.failureType);
-
-        // volumeStore intermittently returns 5002; retry once via the
-        // redownload dispatch endpoint, which serves the same payload.
-        if (failureType === RETRYABLE_FAILURE_TYPE && !triedRedownload) {
-          triedRedownload = true;
-          endpoint = redownloadEndpoint(deviceId);
-          requestHost = endpoint.host;
-          requestPath = endpoint.path;
-          redirectAttempt = 0;
-          continue;
-        }
 
         switch (failureType) {
           case "2034":
@@ -88,13 +117,18 @@ export async function listVersions(
           }
         }
       }
-      throw new Error("No items in response");
+      throw new Error(dict.customerMessage || i18n.t('errors.download.noItems'));
     }
 
     const item = songList[0];
     const metadata = item.metadata as Record<string, any>;
     if (!metadata) {
       throw new Error("Missing version identifiers");
+    }
+    if (triedRedownload && (songList.length !== 1 || String(metadata.itemId) !== String(app.id) ||
+        String(metadata.softwareVersionExternalIdentifier) !== externalVersionId ||
+        metadata.softwareVersionBundleId !== app.bundleID)) {
+      throw new Error(i18n.t('errors.download.unexpectedItem'));
     }
 
     const identifiers = metadata.softwareVersionExternalIdentifiers as any[];

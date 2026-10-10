@@ -56,6 +56,7 @@ describe("apple/bag", () => {
     const xml = buildPlist({
       urlBag: {
         Ghostrider: "YES",
+        updateProduct: "https://downloaddispatch.itunes.apple.com/up/updateProduct",
       },
     });
     vi.stubGlobal(
@@ -69,6 +70,7 @@ describe("apple/bag", () => {
     const result = await fetchBag("aabbccddeeff");
 
     expect(result.authURL).toBe(defaultAuthURL);
+    expect(result.updateURL).toBe("https://downloaddispatch.itunes.apple.com/up/updateProduct");
   });
 
   it("falls back when bag proxy returns non-OK", async () => {

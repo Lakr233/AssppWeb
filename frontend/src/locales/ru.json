@@ -435,7 +435,9 @@
       "missingVersion": "Отсутствует необходимая информация о версии",
       "invalidSinf": "Недействительный элемент sinf",
       "noSinf": "В ответе не найден sinf",
-      "tooManyRedirects": "Слишком много перенаправлений"
+      "tooManyRedirects": "Слишком много перенаправлений",
+      "versionLookupFailed": "Unable to resolve the latest iOS version in this account’s storefront. Check app availability in that region.",
+      "unexpectedItem": "Apple returned a different app or version; download stopped."
     },
     "purchase": {
       "paidNotSupported": "Покупка платных приложений не поддерживается",

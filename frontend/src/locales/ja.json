@@ -435,7 +435,9 @@
       "missingVersion": "必要なバージョン情報がありません",
       "invalidSinf": "無効な sinf 項目です",
       "noSinf": "レスポンスに sinf が見つかりません",
-      "tooManyRedirects": "リダイレクトが多すぎます"
+      "tooManyRedirects": "リダイレクトが多すぎます",
+      "versionLookupFailed": "Unable to resolve the latest iOS version in this account’s storefront. Check app availability in that region.",
+      "unexpectedItem": "Apple returned a different app or version; download stopped."
     },
     "purchase": {
       "paidNotSupported": "有料アプリの購入はサポートされていません",

@@ -3,6 +3,7 @@ import { parsePlist } from "./plist";
 
 export interface BagOutput {
   authURL: string;
+  updateURL?: string;
 }
 
 export const defaultAuthURL =
@@ -57,14 +58,17 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       (dict.authenticateAccount as string | undefined) ??
       (urlBag?.authenticateAccount as string | undefined);
 
+    const updateURL = (dict.updateProduct as string | undefined) ??
+      (urlBag?.updateProduct as string | undefined);
+
     if (!authURL) {
       console.warn(
         "[Bag] authenticateAccount URL not found in bag, using default auth endpoint",
       );
-      return { authURL: defaultAuthURL };
+      return { authURL: defaultAuthURL, updateURL };
     }
 
-    return { authURL: normalizeAuthURL(authURL) };
+    return { authURL: normalizeAuthURL(authURL), updateURL };
   } catch (error) {
     console.warn(
       `[Bag] Failed to fetch/parse bag, using default auth endpoint: ${

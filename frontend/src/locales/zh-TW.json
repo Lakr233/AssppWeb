@@ -435,7 +435,9 @@
       "missingVersion": "缺少所需的版本資訊",
       "invalidSinf": "無效的 sinf 項目",
       "noSinf": "回應中找不到 sinf",
-      "tooManyRedirects": "重新導向次數過多"
+      "tooManyRedirects": "重新導向次數過多",
+      "versionLookupFailed": "無法查詢帳號所在商店的最新 iOS 版本，請確認應用在該地區可用。",
+      "unexpectedItem": "Apple 回傳的應用或版本與請求不符，已停止下載。"
     },
     "purchase": {
       "paidNotSupported": "不支援購買付費應用程式",
