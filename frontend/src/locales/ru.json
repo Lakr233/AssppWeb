@@ -462,6 +462,7 @@
       "downloadSuccess": "Успешная загрузка",
       "downloadFailed": "Ошибка загрузки",
       "licenseSuccess": "Лицензия получена",
+      "licenseOwned": "Лицензия уже есть",
       "licenseFailed": "Ошибка получения лицензии",
       "installStarted": "Начало установки",
       "shareAcquired": "Ссылка получена",

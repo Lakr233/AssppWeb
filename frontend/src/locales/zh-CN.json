@@ -462,6 +462,7 @@
       "downloadSuccess": "下载成功",
       "downloadFailed": "下载失败",
       "licenseSuccess": "获取许可证成功",
+      "licenseOwned": "已拥有许可证",
       "licenseFailed": "获取许可证失败",
       "installStarted": "开始安装",
       "shareAcquired": "链接已获取",

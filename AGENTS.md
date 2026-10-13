@@ -207,6 +207,7 @@ The settings endpoint (`/api/settings`) must never reflect request headers (`x-f
 ### Apple Protocol Error Codes
 
 - `2034` / `2042`: Token expired — re-authentication required
+- `5002` from `buyProduct`: license already owned (Apple pairs it with the generic "An unknown error has occurred"); treated as success with `alreadyOwned: true`, matching ipatool's `ErrLicenseAlreadyExists`
 - `customerMessage === 'Your password has changed.'`: Password token invalid
 - `action.url` ending in `termsPage`: Terms acceptance required (throw with URL)
 

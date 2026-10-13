@@ -462,6 +462,7 @@
       "downloadSuccess": "다운로드 성공",
       "downloadFailed": "다운로드 실패",
       "licenseSuccess": "라이선스 획득 성공",
+      "licenseOwned": "이미 라이선스 보유",
       "licenseFailed": "라이선스 획득 실패",
       "installStarted": "설치 시작",
       "shareAcquired": "링크 획득",

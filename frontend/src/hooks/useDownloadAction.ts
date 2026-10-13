@@ -103,7 +103,9 @@ export function useDownloadAction() {
     addToast(
       t("toast.msg", { appName, ...ctx }),
       "success",
-      t("toast.title.licenseSuccess"),
+      result.alreadyOwned
+        ? t("toast.title.licenseOwned")
+        : t("toast.title.licenseSuccess"),
     );
   }
 

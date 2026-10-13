@@ -15,10 +15,16 @@ export class PurchaseError extends Error {
   }
 }
 
+export interface PurchaseResult {
+  updatedCookies: Account["cookies"];
+  /** Apple reported the account already holds this license (failureType 5002). */
+  alreadyOwned: boolean;
+}
+
 export async function purchaseApp(
   account: Account,
   app: Software,
-): Promise<{ updatedCookies: typeof account.cookies }> {
+): Promise<PurchaseResult> {
   if ((app.price ?? 0) > 0) {
     throw new PurchaseError(i18n.t("errors.purchase.paidNotSupported"));
   }
@@ -38,7 +44,7 @@ async function purchaseWithParams(
   account: Account,
   app: Software,
   pricingParameters: string,
-): Promise<{ updatedCookies: typeof account.cookies }> {
+): Promise<PurchaseResult> {
   const deviceId = account.deviceIdentifier;
   const host = purchaseAPIHost(account.pod);
   const path = "/WebObjects/MZFinance.woa/wa/buyProduct";
@@ -88,6 +94,10 @@ async function purchaseWithParams(
     const failureType = String(dict.failureType);
     const customerMessage = dict.customerMessage as string | undefined;
     switch (failureType) {
+      // buyProduct answers an already-licensed app with 5002 and the generic
+      // "An unknown error has occurred"; the license exists, so this succeeds.
+      case "5002":
+        return { updatedCookies, alreadyOwned: true };
       case "2059":
         throw new PurchaseError(i18n.t("errors.purchase.unavailable"), "2059");
       case "2034":
@@ -145,5 +155,5 @@ async function purchaseWithParams(
     throw new PurchaseError(i18n.t("errors.purchase.failedGeneral"));
   }
 
-  return { updatedCookies };
+  return { updatedCookies, alreadyOwned: false };
 }

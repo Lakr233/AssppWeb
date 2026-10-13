@@ -462,6 +462,7 @@
       "downloadSuccess": "Download Success",
       "downloadFailed": "Download Failed",
       "licenseSuccess": "License Acquired",
+      "licenseOwned": "License Already Owned",
       "licenseFailed": "License Failed",
       "installStarted": "Installation Started",
       "shareAcquired": "Link Acquired",
