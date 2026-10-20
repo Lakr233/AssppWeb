@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response } from 'express';
 
 const router = Router();
 
@@ -26,27 +26,23 @@ function mapSoftware(item: Record<string, any>) {
   };
 }
 
-router.get("/search", async (req: Request, res: Response) => {
+router.get('/search', async (req: Request, res: Response) => {
   try {
     const params = new URLSearchParams(req.query as Record<string, string>);
-    const response = await fetch(
-      `https://itunes.apple.com/search?${params.toString()}`,
-    );
+    const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
     const data = await response.json();
     const results = (data.results ?? []).map(mapSoftware);
     res.json(results);
   } catch (err) {
-    console.error("Search error:", err instanceof Error ? err.message : err);
-    res.status(500).json({ error: "Search request failed" });
+    console.error('Search error:', err instanceof Error ? err.message : err);
+    res.status(500).json({ error: 'Search request failed' });
   }
 });
 
-router.get("/lookup", async (req: Request, res: Response) => {
+router.get('/lookup', async (req: Request, res: Response) => {
   try {
     const params = new URLSearchParams(req.query as Record<string, string>);
-    const response = await fetch(
-      `https://itunes.apple.com/lookup?${params.toString()}`,
-    );
+    const response = await fetch(`https://itunes.apple.com/lookup?${params.toString()}`);
     const data = await response.json();
     if (!data.resultCount || !data.results?.length) {
       res.json(null);
@@ -54,8 +50,8 @@ router.get("/lookup", async (req: Request, res: Response) => {
     }
     res.json(mapSoftware(data.results[0]));
   } catch (err) {
-    console.error("Lookup error:", err instanceof Error ? err.message : err);
-    res.status(500).json({ error: "Lookup request failed" });
+    console.error('Lookup error:', err instanceof Error ? err.message : err);
+    res.status(500).json({ error: 'Lookup request failed' });
   }
 });
 

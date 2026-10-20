@@ -14,10 +14,7 @@ interface PackageQuickActionsProps {
 
 const iconClassName = 'h-4 w-4 shrink-0';
 
-export default function PackageQuickActions({
-  task,
-  size = 'default',
-}: PackageQuickActionsProps) {
+export default function PackageQuickActions({ task, size = 'default' }: PackageQuickActionsProps) {
   const { t } = useTranslation();
   const addToast = useToastStore((state) => state.addToast);
 
@@ -25,18 +22,11 @@ export default function PackageQuickActions({
 
   const installInfo = getInstallInfo(task.id);
   const isPreview = isPreviewDownloadTask(task);
-  const buttonSize =
-    size === 'compact'
-      ? 'min-h-10 px-2 text-xs'
-      : 'min-h-11 px-3 text-sm';
+  const buttonSize = size === 'compact' ? 'min-h-10 px-2 text-xs' : 'min-h-11 px-3 text-sm';
   const secondaryButton = `${buttonSize} inline-flex min-w-0 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white font-medium text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-800`;
 
   function showPreviewNotice() {
-    addToast(
-      t('downloads.preview.actionHint'),
-      'info',
-      t('downloads.preview.badge'),
-    );
+    addToast(t('downloads.preview.actionHint'), 'info', t('downloads.preview.badge'));
   }
 
   function handleInstall(event: MouseEvent<HTMLAnchorElement>) {
@@ -46,11 +36,7 @@ export default function PackageQuickActions({
       return;
     }
 
-    addToast(
-      task.software.name,
-      'info',
-      t('toast.title.installStarted'),
-    );
+    addToast(task.software.name, 'info', t('toast.title.installStarted'));
   }
 
   async function handleShare() {
@@ -61,11 +47,7 @@ export default function PackageQuickActions({
 
     try {
       await copyText(installInfo.installUrl);
-      addToast(
-        t('downloads.package.copied'),
-        'success',
-        t('toast.title.shareAcquired'),
-      );
+      addToast(t('downloads.package.copied'), 'success', t('toast.title.shareAcquired'));
 
       if (navigator.share) {
         await navigator.share({
@@ -75,11 +57,7 @@ export default function PackageQuickActions({
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
-      addToast(
-        t('downloads.package.shareFailed'),
-        'error',
-        t('downloads.package.share'),
-      );
+      addToast(t('downloads.package.shareFailed'), 'error', t('downloads.package.share'));
     }
   }
 
@@ -89,11 +67,7 @@ export default function PackageQuickActions({
       return;
     }
 
-    addToast(
-      task.software.name,
-      'info',
-      t('toast.title.downloadIpaStarted'),
-    );
+    addToast(task.software.name, 'info', t('toast.title.downloadIpaStarted'));
 
     try {
       const params = new URLSearchParams({ accountHash: task.accountHash });
@@ -112,11 +86,7 @@ export default function PackageQuickActions({
       anchor.remove();
       URL.revokeObjectURL(blobUrl);
     } catch {
-      addToast(
-        t('downloads.package.downloadFailed'),
-        'error',
-        t('downloads.package.downloadIpa'),
-      );
+      addToast(t('downloads.package.downloadFailed'), 'error', t('downloads.package.downloadIpa'));
     }
   }
 
@@ -154,14 +124,8 @@ export default function PackageQuickActions({
             className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 opacity-0 transition-opacity duration-200 md:invisible md:block md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100"
           >
             <div className="flex flex-col items-center rounded-lg border border-gray-200 bg-white p-2 text-gray-500 shadow-xl dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
-              <QRCodeSVG
-                value={installInfo.installUrl}
-                size={128}
-                className="mb-1 rounded bg-white p-1"
-              />
-              <span className="mt-1 whitespace-nowrap text-xs">
-                {t('downloads.package.scan')}
-              </span>
+              <QRCodeSVG value={installInfo.installUrl} size={128} className="mb-1 rounded bg-white p-1" />
+              <span className="mt-1 whitespace-nowrap text-xs">{t('downloads.package.scan')}</span>
               <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900" />
             </div>
           </div>
@@ -252,11 +216,7 @@ function DownloadIcon() {
       stroke="currentColor"
       strokeWidth={2}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" />
     </svg>
   );
 }

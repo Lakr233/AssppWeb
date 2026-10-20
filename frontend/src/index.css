@@ -1,9 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-    'Helvetica Neue', Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -78,9 +76,7 @@ textarea {
   font: inherit;
 }
 
-input:not([type='checkbox']):not([type='radio']):not([type='range']):not(
-    [type='hidden']
-  ),
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']),
 select {
   min-height: 2.75rem;
 }
@@ -125,8 +121,7 @@ html.dark ::selection {
 }
 
 * {
-  scrollbar-color: color-mix(in srgb, var(--color-gray-400) 55%, transparent)
-    transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-gray-400) 55%, transparent) transparent;
   scrollbar-width: thin;
 }
 

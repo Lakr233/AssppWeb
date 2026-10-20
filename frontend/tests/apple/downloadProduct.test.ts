@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  dispatchEndpoint,
-  downloadProduct,
-  needsDownloadFallback,
-} from '../../src/apple/downloadProduct';
+import { dispatchEndpoint, downloadProduct, needsDownloadFallback } from '../../src/apple/downloadProduct';
 import { appleRequest } from '../../src/apple/request';
 import { buildPlist, parsePlist } from '../../src/apple/plist';
 import type { Account, Software } from '../../src/types';
@@ -53,12 +49,9 @@ describe('download recovery boundaries', () => {
     [{ dialog: { explanation: 'Review your account' } }, false],
     [{ customerMessage: 'Accept new terms' }, false],
     [{ songList: [{}] }, false],
-  ])(
-    'does not turn auth/license failures into endpoint retries: %j',
-    (dict, expected) => {
-      expect(needsDownloadFallback(dict)).toBe(expected);
-    },
-  );
+  ])('does not turn auth/license failures into endpoint retries: %j', (dict, expected) => {
+    expect(needsDownloadFallback(dict)).toBe(expected);
+  });
 
   it.each([
     'http://downloaddispatch.itunes.apple.com/up/updateProduct',
@@ -77,56 +70,47 @@ it.each([
   { mismatch: false, redownloadCode: '' },
   { mismatch: true, redownloadCode: '' },
   { mismatch: false, redownloadCode: '5002' },
-])(
-  'recovers empty/5002 responses and validates metadata: %j',
-  async ({ mismatch, redownloadCode }) => {
-    vi.mocked(appleRequest).mockImplementation(async (request) => {
-      if (request.host === 'uclient-api.itunes.apple.com') {
-        expect(request.cookies).toBeUndefined();
-        return response(
-          JSON.stringify({
-            results: {
-              [app.id]: {
-                bundleId: app.bundleID,
-                offers: [
-                  {
-                    assets: [{ flavor: 'iosSoftware' }],
-                    version: { externalId: 891329111 },
-                  },
-                ],
-              },
-            },
-          }),
-        );
-      }
-      const payload = parsePlist(request.body!);
-      expect(payload.serialNumber).toBe('0');
-      if (request.path.includes('volumeStoreDownloadProduct')) {
-        return response(
-          buildPlist({ status: 0, authorized: false, songList: [] }),
-        );
-      }
-      expect(payload.appExtVrsId).toBe('891329111');
-      expect(payload.externalVersionId).toBeUndefined();
-      if (request.path.startsWith('/r/redownload'))
-        return redownloadCode
-          ? response(buildPlist({ failureType: redownloadCode }))
-          : response('', 500);
-      expect(request.path).toMatch(/^\/up\/updateProduct\?/);
+])('recovers empty/5002 responses and validates metadata: %j', async ({ mismatch, redownloadCode }) => {
+  vi.mocked(appleRequest).mockImplementation(async (request) => {
+    if (request.host === 'uclient-api.itunes.apple.com') {
+      expect(request.cookies).toBeUndefined();
       return response(
-        buildPlist({
-          status: 0,
-          songList: [
-            { metadata: { ...metadata, itemId: mismatch ? 1 : app.id } },
-          ],
+        JSON.stringify({
+          results: {
+            [app.id]: {
+              bundleId: app.bundleID,
+              offers: [
+                {
+                  assets: [{ flavor: 'iosSoftware' }],
+                  version: { externalId: 891329111 },
+                },
+              ],
+            },
+          },
         }),
       );
-    });
-    if (mismatch) {
-      await expect(downloadProduct(account, app)).rejects.toThrow();
-    } else {
-      const result = await downloadProduct(account, app);
-      expect(result.dict.songList[0].metadata).toEqual(metadata);
     }
-  },
-);
+    const payload = parsePlist(request.body!);
+    expect(payload.serialNumber).toBe('0');
+    if (request.path.includes('volumeStoreDownloadProduct')) {
+      return response(buildPlist({ status: 0, authorized: false, songList: [] }));
+    }
+    expect(payload.appExtVrsId).toBe('891329111');
+    expect(payload.externalVersionId).toBeUndefined();
+    if (request.path.startsWith('/r/redownload'))
+      return redownloadCode ? response(buildPlist({ failureType: redownloadCode })) : response('', 500);
+    expect(request.path).toMatch(/^\/up\/updateProduct\?/);
+    return response(
+      buildPlist({
+        status: 0,
+        songList: [{ metadata: { ...metadata, itemId: mismatch ? 1 : app.id } }],
+      }),
+    );
+  });
+  if (mismatch) {
+    await expect(downloadProduct(account, app)).rejects.toThrow();
+  } else {
+    const result = await downloadProduct(account, app);
+    expect(result.dict.songList[0].metadata).toEqual(metadata);
+  }
+});

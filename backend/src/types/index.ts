@@ -31,13 +31,7 @@ export interface DownloadTask {
   downloadURL: string;
   sinfs: Sinf[];
   iTunesMetadata?: string;
-  status:
-    | "pending"
-    | "downloading"
-    | "paused"
-    | "injecting"
-    | "completed"
-    | "failed";
+  status: 'pending' | 'downloading' | 'paused' | 'injecting' | 'completed' | 'failed';
   progress: number;
   speed: string;
   error?: string;

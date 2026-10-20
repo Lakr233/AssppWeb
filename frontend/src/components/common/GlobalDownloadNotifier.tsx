@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { useDownloads } from "../../hooks/useDownloads";
-import { useAccounts } from "../../hooks/useAccounts";
-import { useToastStore } from "../../store/toast";
-import { getAccountContext } from "../../utils/toast";
-import type { DownloadTask } from "../../types";
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useDownloads } from '../../hooks/useDownloads';
+import { useAccounts } from '../../hooks/useAccounts';
+import { useToastStore } from '../../store/toast';
+import { getAccountContext } from '../../utils/toast';
+import type { DownloadTask } from '../../types';
 
 /**
  * Invisible component mounted at App root.
@@ -35,38 +35,34 @@ export default function GlobalDownloadNotifier() {
 
       // Only notify for transitions (skip initial load)
       if (prevTask) {
-        if (prevTask.status !== "completed" && task.status === "completed") {
-          notify(task, "success");
+        if (prevTask.status !== 'completed' && task.status === 'completed') {
+          notify(task, 'success');
         }
-        if (prevTask.status !== "failed" && task.status === "failed") {
-          notify(task, "failed");
+        if (prevTask.status !== 'failed' && task.status === 'failed') {
+          notify(task, 'failed');
         }
       }
     });
 
     prevTasksRef.current = currentTasks;
 
-    function notify(task: DownloadTask, type: "success" | "failed") {
+    function notify(task: DownloadTask, type: 'success' | 'failed') {
       const accountEmail = hashToEmail[task.accountHash] || task.accountHash;
       const account = accounts.find((a) => a.email === accountEmail);
       const ctx = getAccountContext(account, t);
       const appName = task.software.name;
 
-      if (type === "success") {
-        addToast(
-          t("toast.msg", { appName, ...ctx }),
-          "success",
-          t("toast.title.downloadSuccess"),
-        );
+      if (type === 'success') {
+        addToast(t('toast.msg', { appName, ...ctx }), 'success', t('toast.title.downloadSuccess'));
       } else {
         addToast(
-          t("toast.msgFailed", {
+          t('toast.msgFailed', {
             appName,
             ...ctx,
-            error: task.error || "Unknown error",
+            error: task.error || 'Unknown error',
           }),
-          "error",
-          t("toast.title.downloadFailed"),
+          'error',
+          t('toast.title.downloadFailed'),
         );
       }
     }

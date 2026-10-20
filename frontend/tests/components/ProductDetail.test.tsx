@@ -117,9 +117,7 @@ function renderProductDetail(onRender?: () => void) {
 
 function renderProductPreview() {
   return render(
-    <MemoryRouter
-      initialEntries={['/search/preview?preview=product']}
-    >
+    <MemoryRouter initialEntries={['/search/preview?preview=product']}>
       <Routes>
         <Route path="/search/:appId" element={<ProductDetail />} />
       </Routes>
@@ -221,18 +219,14 @@ describe('ProductDetail download action', () => {
     expect(downloadButton).toHaveClass('w-full', 'min-w-0');
     expect(downloadButton).not.toHaveClass('opacity-50');
     expect(downloadButton.querySelector('.animate-spin')).not.toBeInTheDocument();
-    expect(downloadButton.querySelector('span[aria-hidden="true"]')).toBe(
-      iconSlot,
-    );
+    expect(downloadButton.querySelector('span[aria-hidden="true"]')).toBe(iconSlot);
   });
 
   it('is disabled on the initial commit before an account is selected', async () => {
     const disabledByCommit: boolean[] = [];
 
     renderProductDetail(() => {
-      const button = document.querySelector<HTMLButtonElement>(
-        'button[aria-busy]',
-      );
+      const button = document.querySelector<HTMLButtonElement>('button[aria-busy]');
       if (button) disabledByCommit.push(button.disabled);
     });
 
@@ -260,11 +254,7 @@ describe('ProductDetail download action', () => {
     expect(actionRow).toBe(downloadButton.parentElement);
     expect(actionRow).toBe(versionLink.parentElement);
     expect(actionRow).toHaveClass('grid', 'grid-flow-col', 'auto-cols-fr');
-    expect(Array.from(actionRow?.children ?? [])).toEqual([
-      licenseButton,
-      downloadButton,
-      versionLink,
-    ]);
+    expect(Array.from(actionRow?.children ?? [])).toEqual([licenseButton, downloadButton, versionLink]);
 
     for (const action of [licenseButton, downloadButton, versionLink]) {
       expect(action).toHaveClass('w-full', 'min-w-0');
@@ -280,9 +270,7 @@ describe('ProductDetail download action', () => {
       await Promise.resolve();
     });
 
-    expect(
-      screen.getByRole('heading', { name: 'Signal Canvas' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Signal Canvas' })).toBeInTheDocument();
     const accountSelect = screen.getByRole('combobox');
     expect(accountSelect).toHaveValue('developer@preview.asspp.invalid');
     const downloadButton = screen.getByRole('button', {

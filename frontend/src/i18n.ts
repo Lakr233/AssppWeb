@@ -1,21 +1,21 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
-import enUSTranslation from "./locales/en-US.json";
-import zhCNTranslation from "./locales/zh-CN.json";
-import zhTWTranslation from "./locales/zh-TW.json";
-import jaTranslation from "./locales/ja.json";
-import koTranslation from "./locales/ko.json";
-import ruTranslation from "./locales/ru.json";
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import enUSTranslation from './locales/en-US.json';
+import zhCNTranslation from './locales/zh-CN.json';
+import zhTWTranslation from './locales/zh-TW.json';
+import jaTranslation from './locales/ja.json';
+import koTranslation from './locales/ko.json';
+import ruTranslation from './locales/ru.json';
 
 const resources = {
-  "en-US": {
+  'en-US': {
     translation: enUSTranslation,
   },
-  "zh-CN": {
+  'zh-CN': {
     translation: zhCNTranslation,
   },
-  "zh-TW": {
+  'zh-TW': {
     translation: zhTWTranslation,
   },
   ja: {
@@ -34,7 +34,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: "en-US",
+    fallbackLng: 'en-US',
     interpolation: {
       escapeValue: false,
     },

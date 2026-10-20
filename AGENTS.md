@@ -216,6 +216,16 @@ The settings endpoint (`/api/settings`) must never reflect request headers (`x-f
 
 ## Testing
 
+### Formatting
+
+Run the repository-pinned Prettier from the root. Its configuration enforces two-space indentation, semicolons, single quotes, and a 120-column wrap target.
+
+```bash
+npm ci
+npm run format
+npm run format:check
+```
+
 ### Unit Tests
 
 ```bash
@@ -413,7 +423,7 @@ When adding new common components, update this AGENTS.md file accordingly.
 const res = await fetch(url, { headers: authHeaders() });
 const blob = await res.blob();
 const blobUrl = URL.createObjectURL(blob);
-const a = document.createElement("a");
+const a = document.createElement('a');
 a.href = blobUrl;
 a.download = filename;
 a.click();

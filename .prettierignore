@@ -1,0 +1,7 @@
+**/node_modules/
+**/dist/
+**/coverage/
+references/
+mnt/
+tunnel/
+CLAUDE.md

@@ -121,10 +121,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          aria-label={t('home.welcome')}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-        >
+        <section aria-label={t('home.welcome')} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
             icon={<AccountGlyph className="h-5 w-5" />}
             iconClassName="bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
@@ -188,12 +185,8 @@ function StatCard({
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {label}
-          </p>
-          <p className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-            {value}
-          </p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</p>
+          <p className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">{value}</p>
         </div>
         <div
           aria-hidden="true"
@@ -225,10 +218,7 @@ function ActionCard({
       className="group flex min-h-44 flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-colors hover:border-blue-300 hover:bg-blue-50/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700 dark:hover:bg-blue-950/20 dark:focus-visible:ring-offset-gray-950"
     >
       <div className="flex items-start justify-between gap-4">
-        <div
-          aria-hidden="true"
-          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${iconClassName}`}
-        >
+        <div aria-hidden="true" className={`flex h-12 w-12 items-center justify-center rounded-2xl ${iconClassName}`}>
           {icon}
         </div>
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors group-hover:bg-blue-600 group-hover:text-white dark:bg-gray-800 dark:text-gray-400">
@@ -236,12 +226,8 @@ function ActionCard({
         </span>
       </div>
       <div className="mt-auto pt-5">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-          {title}
-        </h2>
-        <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
-          {description}
-        </p>
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+        <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">{description}</p>
       </div>
     </Link>
   );
@@ -249,14 +235,7 @@ function ActionCard({
 
 function ArrowRightIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
+    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
     </svg>
   );
@@ -310,11 +289,7 @@ function DownloadGlyph({ className }: { className: string }) {
       stroke="currentColor"
       strokeWidth={1.8}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4.5 19.5h15"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4.5 19.5h15" />
     </svg>
   );
 }

@@ -28,11 +28,7 @@ export function needsDownloadFallback(dict: Record<string, any>): boolean {
   const message = String(dict.customerMessage ?? '')
     .trim()
     .toLowerCase();
-  return (
-    !message ||
-    message === 'no longer available' ||
-    message.endsWith(' no longer available')
-  );
+  return !message || message === 'no longer available' || message.endsWith(' no longer available');
 }
 
 export function dispatchEndpoint(
@@ -68,10 +64,7 @@ export function dispatchEndpoint(
 }
 
 // Errors identify the endpoint without exposing bodies, queries, or account values.
-function responseDict(
-  response: AppleResponse,
-  endpoint: StoreDownloadEndpoint,
-): Record<string, any> {
+function responseDict(response: AppleResponse, endpoint: StoreDownloadEndpoint): Record<string, any> {
   if (response.status === 200) {
     try {
       const dict = parsePlist(response.body);
@@ -88,58 +81,35 @@ function responseDict(
 function requireItems(dict: Record<string, any>): void {
   const code = String(dict.failureType ?? '');
   if (code) {
-    if (
-      ['2034', '2042'].includes(code) ||
-      dict.customerMessage === 'Your password has changed.'
-    ) {
+    if (['2034', '2042'].includes(code) || dict.customerMessage === 'Your password has changed.') {
       throw new DownloadError(i18n.t('errors.download.passwordExpired'), code);
     }
-    if (code === '9610')
-      throw new DownloadError(i18n.t('errors.download.licenseRequired'), code);
-    throw new DownloadError(
-      `${dict.customerMessage || 'Apple download failed'} (${code})`,
-      code,
-    );
+    if (code === '9610') throw new DownloadError(i18n.t('errors.download.licenseRequired'), code);
+    throw new DownloadError(`${dict.customerMessage || 'Apple download failed'} (${code})`, code);
   }
   if (!Array.isArray(dict.songList) || !dict.songList.length) {
-    throw new DownloadError(
-      dict.customerMessage || i18n.t('errors.download.noItems'),
-    );
+    throw new DownloadError(dict.customerMessage || i18n.t('errors.download.noItems'));
   }
 }
 
-function validateDownloadItem(
-  dict: Record<string, any>,
-  app: Software,
-  version?: string,
-): void {
+function validateDownloadItem(dict: Record<string, any>, app: Software, version?: string): void {
   const metadata = dict.songList[0]?.metadata;
   if (
     dict.songList.length !== 1 ||
     !metadata ||
     String(metadata.itemId) !== String(app.id) ||
-    (version &&
-      String(metadata.softwareVersionExternalIdentifier) !== version) ||
+    (version && String(metadata.softwareVersionExternalIdentifier) !== version) ||
     !metadata.softwareVersionBundleId ||
     (app.bundleID && metadata.softwareVersionBundleId !== app.bundleID)
   ) {
-    throw new DownloadError(
-      i18n.t('errors.download.unexpectedItem'),
-    );
+    throw new DownloadError(i18n.t('errors.download.unexpectedItem'));
   }
 }
 
 /** Shared protocol for downloads, version lists, and pinned version metadata. */
-export async function downloadProduct(
-  account: Account,
-  app: Software,
-  versionId?: string,
-) {
+export async function downloadProduct(account: Account, app: Software, versionId?: string) {
   let cookies = [...account.cookies];
-  const send = async (
-    endpoint: StoreDownloadEndpoint,
-    version?: string,
-  ): Promise<AppleResponse> => {
+  const send = async (endpoint: StoreDownloadEndpoint, version?: string): Promise<AppleResponse> => {
     const payload: Record<string, unknown> = {
       creditDisplay: '',
       guid: account.deviceIdentifier,
@@ -164,17 +134,14 @@ export async function downloadProduct(
       });
       cookies = extractAndMergeCookies(response.rawHeaders, cookies);
       if (![301, 302, 303, 307, 308].includes(response.status)) return response;
-      if (!response.headers.location)
-        throw new DownloadError('Missing Apple download redirect location');
+      if (!response.headers.location) throw new DownloadError('Missing Apple download redirect location');
       const url = new URL(response.headers.location, `https://${host}${path}`);
       if (
         url.protocol !== 'https:' ||
         url.port ||
         url.username ||
         url.password ||
-        !/^(?:(?:p\d+-)?buy|downloaddispatch)\.itunes\.apple\.com$/.test(
-          url.hostname,
-        )
+        !/^(?:(?:p\d+-)?buy|downloaddispatch)\.itunes\.apple\.com$/.test(url.hostname)
       ) {
         throw new DownloadError('Unsafe Apple download redirect');
       }
@@ -201,13 +168,14 @@ export async function downloadProduct(
       throw new DownloadError(i18n.t('errors.download.versionLookupFailed'));
     }
   }
-  const redownload = dispatchEndpoint(bag.redownloadURL, 'redownload', account.deviceIdentifier)
-    ?? redownloadEndpoint(account.deviceIdentifier);
+  const redownload =
+    dispatchEndpoint(bag.redownloadURL, 'redownload', account.deviceIdentifier) ??
+    redownloadEndpoint(account.deviceIdentifier);
   const response = await send(redownload, pinnedVersion);
   const emptyServerError = response.status === 500 && !response.body.trim();
   if (!emptyServerError) dict = responseDict(response, redownload);
-  const recoverable = !emptyServerError && needsDownloadFallback(dict)
-    && (Boolean(dict.failureType) || Boolean(dict.customerMessage));
+  const recoverable =
+    !emptyServerError && needsDownloadFallback(dict) && (Boolean(dict.failureType) || Boolean(dict.customerMessage));
 
   const update = dispatchEndpoint(bag.updateURL, 'update', account.deviceIdentifier);
   if (update && (emptyServerError || recoverable)) {

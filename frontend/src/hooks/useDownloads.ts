@@ -1,21 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { useDownloadsStore } from "../store/downloads";
-import { useAccounts } from "./useAccounts";
-import { accountHash } from "../utils/account";
+import { useEffect, useRef, useState } from 'react';
+import { useDownloadsStore } from '../store/downloads';
+import { useAccounts } from './useAccounts';
+import { accountHash } from '../utils/account';
 
 export function useDownloads() {
-  const {
-    tasks,
-    loading,
-    setAccountHashes,
-    fetchTasks,
-    startDownload,
-    pauseDownload,
-    resumeDownload,
-    deleteDownload,
-  } = useDownloadsStore();
+  const { tasks, loading, setAccountHashes, fetchTasks, startDownload, pauseDownload, resumeDownload, deleteDownload } =
+    useDownloadsStore();
   const { accounts } = useAccounts();
-  const hashesRef = useRef("");
+  const hashesRef = useRef('');
   const [hashToEmail, setHashToEmail] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -24,7 +16,7 @@ export function useDownloads() {
       // Calculate original hashes preserving the order corresponding to 'accounts'
       const hashes = await Promise.all(accounts.map((a) => accountHash(a)));
       // Use slice() before sort() so we don't mutate the original 'hashes' array
-      const key = hashes.slice().sort().join(",");
+      const key = hashes.slice().sort().join(',');
       if (cancelled || key === hashesRef.current) return;
       hashesRef.current = key;
 

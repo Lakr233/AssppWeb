@@ -1,12 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
-import {
-  AccountsIcon,
-  DownloadsIcon,
-  HomeIcon,
-  SearchIcon,
-  SettingsIcon,
-} from '../common/icons';
+import { AccountsIcon, DownloadsIcon, HomeIcon, SearchIcon, SettingsIcon } from '../common/icons';
 
 const navItems = [
   { to: '/', label: 'home', icon: HomeIcon },
@@ -36,9 +30,7 @@ export default function MobileNav() {
             }
           >
             <item.icon className="h-[22px] w-[22px] shrink-0" />
-            <span className="max-w-full truncate px-1">
-              {t(`nav.${item.label}`)}
-            </span>
+            <span className="max-w-full truncate px-1">{t(`nav.${item.label}`)}</span>
           </NavLink>
         ))}
       </div>

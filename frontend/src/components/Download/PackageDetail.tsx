@@ -7,11 +7,7 @@ import Badge from '../common/Badge';
 import Modal from '../common/Modal';
 import ProgressBar from '../common/ProgressBar';
 import PackageQuickActions from './PackageQuickActions';
-import {
-  isDownloadPreviewEnabled,
-  isPreviewDownloadTask,
-  previewDownloadTasks,
-} from './previewTasks';
+import { isDownloadPreviewEnabled, isPreviewDownloadTask, previewDownloadTasks } from './previewTasks';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useDownloadAction } from '../../hooks/useDownloadAction';
 import { useDownloads } from '../../hooks/useDownloads';
@@ -29,8 +25,7 @@ export default function PackageDetail() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { tasks, deleteDownload, pauseDownload, resumeDownload, hashToEmail } =
-    useDownloads();
+  const { tasks, deleteDownload, pauseDownload, resumeDownload, hashToEmail } = useDownloads();
   const { accounts } = useAccounts();
   const { startDownload } = useDownloadAction();
   const addToast = useToastStore((state) => state.addToast);
@@ -59,9 +54,7 @@ export default function PackageDetail() {
   const isPaused = task.status === 'paused';
   const isCompleted = task.status === 'completed';
   const isPreview = isPreviewDownloadTask(task);
-  const accountEmail = isPreview
-    ? t('downloads.preview.account')
-    : hashToEmail[task.accountHash];
+  const accountEmail = isPreview ? t('downloads.preview.account') : hashToEmail[task.accountHash];
   const account = accounts.find((item) => item.email === accountEmail);
   const accountLabel = accountEmail || task.accountHash;
   const appName = task.software.name;
@@ -70,11 +63,7 @@ export default function PackageDetail() {
   const currentVersion = task.software.version;
 
   function showPreviewNotice() {
-    addToast(
-      t('downloads.preview.actionHint'),
-      'info',
-      t('downloads.preview.badge'),
-    );
+    addToast(t('downloads.preview.actionHint'), 'info', t('downloads.preview.badge'));
   }
 
   async function handleDelete() {
@@ -86,11 +75,7 @@ export default function PackageDetail() {
 
     await deleteDownload(taskId);
     const context = getAccountContext(account, t);
-    addToast(
-      t('toast.msg', { appName, ...context }),
-      'success',
-      t('toast.title.deleteSuccess'),
-    );
+    addToast(t('toast.msg', { appName, ...context }), 'success', t('toast.title.deleteSuccess'));
     navigate('/downloads');
   }
 
@@ -143,14 +128,8 @@ export default function PackageDetail() {
 
     setShowUpdateModal(false);
     try {
-      const isLatest =
-        availableVersions.length > 0 &&
-        selectedVersion === availableVersions[0];
-      await startDownload(
-        account,
-        latestApp,
-        isLatest ? undefined : selectedVersion,
-      );
+      const isLatest = availableVersions.length > 0 && selectedVersion === availableVersions[0];
+      await startDownload(account, latestApp, isLatest ? undefined : selectedVersion);
       await deleteDownload(taskId);
       navigate('/downloads');
     } catch {
@@ -166,19 +145,13 @@ export default function PackageDetail() {
             <span className="mt-0.5 inline-flex h-5 shrink-0 items-center rounded-full bg-blue-600 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">
               {t('downloads.preview.badge')}
             </span>
-            <p className="min-w-0 leading-5">
-              {t('downloads.preview.description')}
-            </p>
+            <p className="min-w-0 leading-5">{t('downloads.preview.description')}</p>
           </div>
         )}
 
         <section className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 sm:p-5">
           <div className="flex min-w-0 items-start gap-4">
-            <AppIcon
-              url={task.software.artworkUrl}
-              name={task.software.name}
-              size="lg"
-            />
+            <AppIcon url={task.software.artworkUrl} name={task.software.name} size="lg" />
             <div className="min-w-0 flex-1">
               <h2
                 title={task.software.name}
@@ -203,17 +176,10 @@ export default function PackageDetail() {
 
           {(isActive || isPaused) && (
             <div className="mt-4 min-w-0 border-t border-gray-100 pt-4 dark:border-gray-800">
-              <ProgressBar
-                progress={task.progress}
-                label={task.software.name}
-              />
+              <ProgressBar progress={task.progress} label={task.software.name} />
               <div className="mt-1.5 flex min-w-0 justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
                 <span>{Math.round(task.progress)}%</span>
-                {task.speed && isActive && (
-                  <span className="min-w-0 truncate text-right">
-                    {task.speed}
-                  </span>
-                )}
+                {task.speed && isActive && <span className="min-w-0 truncate text-right">{task.speed}</span>}
               </div>
             </div>
           )}
@@ -232,57 +198,28 @@ export default function PackageDetail() {
           aria-labelledby="package-information-title"
           className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 sm:p-5"
         >
-          <h3
-            id="package-information-title"
-            className="text-base font-semibold text-gray-900 dark:text-white"
-          >
+          <h3 id="package-information-title" className="text-base font-semibold text-gray-900 dark:text-white">
             {t('downloads.package.information')}
           </h3>
 
           <dl className="mt-4 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
-            <DetailTile
-              label={t('downloads.package.size')}
-              value={formatBytes(task.software.fileSizeBytes)}
-            />
-            <DetailTile
-              label={t('downloads.package.minOs')}
-              value={`iOS ${task.software.minimumOsVersion || '—'}`}
-            />
-            <DetailTile
-              label={t('downloads.package.category')}
-              value={task.software.primaryGenreName || '—'}
-            />
-            <DetailTile
-              label={t('downloads.package.released')}
-              value={formatDate(task.software.releaseDate)}
-            />
+            <DetailTile label={t('downloads.package.size')} value={formatBytes(task.software.fileSizeBytes)} />
+            <DetailTile label={t('downloads.package.minOs')} value={`iOS ${task.software.minimumOsVersion || '—'}`} />
+            <DetailTile label={t('downloads.package.category')} value={task.software.primaryGenreName || '—'} />
+            <DetailTile label={t('downloads.package.released')} value={formatDate(task.software.releaseDate)} />
           </dl>
 
           <dl className="mt-4 min-w-0 divide-y divide-gray-100 border-t border-gray-100 text-sm dark:divide-gray-800 dark:border-gray-800">
-            <PackageDetailRow
-              label={t('downloads.package.developer')}
-              valueTitle={task.software.sellerName}
-            >
+            <PackageDetailRow label={t('downloads.package.developer')} valueTitle={task.software.sellerName}>
               {task.software.sellerName || task.software.artistName}
             </PackageDetailRow>
-            <PackageDetailRow
-              label={t('downloads.package.bundleId')}
-              valueTitle={task.software.bundleID}
-              mono
-            >
+            <PackageDetailRow label={t('downloads.package.bundleId')} valueTitle={task.software.bundleID} mono>
               {task.software.bundleID}
             </PackageDetailRow>
-            <PackageDetailRow
-              label={t('downloads.package.version')}
-              valueTitle={task.software.version}
-              mono
-            >
+            <PackageDetailRow label={t('downloads.package.version')} valueTitle={task.software.version} mono>
               {task.software.version}
             </PackageDetailRow>
-            <PackageDetailRow
-              label={t('downloads.package.account')}
-              valueTitle={accountLabel}
-            >
+            <PackageDetailRow label={t('downloads.package.account')} valueTitle={accountLabel}>
               {accountLabel}
             </PackageDetailRow>
             <PackageDetailRow label={t('downloads.package.created')}>
@@ -295,10 +232,7 @@ export default function PackageDetail() {
           aria-labelledby="package-actions-title"
           className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 sm:p-5"
         >
-          <h3
-            id="package-actions-title"
-            className="text-base font-semibold text-gray-900 dark:text-white"
-          >
+          <h3 id="package-actions-title" className="text-base font-semibold text-gray-900 dark:text-white">
             {t('downloads.package.quickActions')}
           </h3>
 
@@ -322,9 +256,7 @@ export default function PackageDetail() {
                 disabled={checkingUpdate || (!account && !isPreview)}
                 className="min-h-11 min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
               >
-                {checkingUpdate
-                  ? t('downloads.package.checkingUpdate')
-                  : t('downloads.package.checkUpdate')}
+                {checkingUpdate ? t('downloads.package.checkingUpdate') : t('downloads.package.checkUpdate')}
               </button>
             )}
             {isActive && (
@@ -379,9 +311,7 @@ export default function PackageDetail() {
               >
                 {availableVersions.map((version, index) => (
                   <option key={version} value={version}>
-                    {index === 0
-                      ? t('downloads.package.latestVersion', { id: version })
-                      : version}
+                    {index === 0 ? t('downloads.package.latestVersion', { id: version }) : version}
                   </option>
                 ))}
               </select>
@@ -412,13 +342,8 @@ export default function PackageDetail() {
 function DetailTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-lg bg-gray-50 px-3 py-2.5 dark:bg-gray-800/60">
-      <dt className="truncate text-xs text-gray-500 dark:text-gray-400">
-        {label}
-      </dt>
-      <dd
-        title={value}
-        className="mt-1 truncate text-sm font-medium text-gray-900 dark:text-gray-100"
-      >
+      <dt className="truncate text-xs text-gray-500 dark:text-gray-400">{label}</dt>
+      <dd title={value} className="mt-1 truncate text-sm font-medium text-gray-900 dark:text-gray-100">
         {value}
       </dd>
     </div>
@@ -438,9 +363,7 @@ function PackageDetailRow({
 }) {
   return (
     <div className="grid min-w-0 grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] items-start gap-4 py-2.5 sm:gap-6">
-      <dt className="min-w-0 break-words text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
-        {label}
-      </dt>
+      <dt className="min-w-0 break-words text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">{label}</dt>
       <dd
         title={valueTitle}
         className={`min-w-0 max-w-full whitespace-pre-wrap break-all text-right text-gray-900 dark:text-gray-200 ${

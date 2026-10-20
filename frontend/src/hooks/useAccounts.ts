@@ -1,14 +1,7 @@
-import { useAccountsStore } from "../store/accounts";
+import { useAccountsStore } from '../store/accounts';
 
 export function useAccounts() {
-  const {
-    accounts,
-    loading,
-    loadAccounts,
-    addAccount,
-    removeAccount,
-    updateAccount,
-  } = useAccountsStore();
+  const { accounts, loading, loadAccounts, addAccount, removeAccount, updateAccount } = useAccountsStore();
 
   function getAccount(email: string) {
     return accounts.find((a) => a.email === email);

@@ -4,11 +4,7 @@ interface ProgressBarProps {
   label?: string;
 }
 
-export default function ProgressBar({
-  progress,
-  className = '',
-  label,
-}: ProgressBarProps) {
+export default function ProgressBar({ progress, className = '', label }: ProgressBarProps) {
   const normalized = Number.isFinite(progress) ? progress : 0;
   const clamped = Math.min(100, Math.max(0, normalized));
 

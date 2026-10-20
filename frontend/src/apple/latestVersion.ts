@@ -10,11 +10,17 @@ export async function lookupLatestVersion(account: Account, app: Software): Prom
 
   for (const platform of ['enterprisestore', 'iphone', 'ipad']) {
     const query = new URLSearchParams({
-      version: '2', id: String(app.id), p: 'mdm-lockup', caller: 'MDM',
-      platform, cc: country.toLowerCase(), l: 'en',
+      version: '2',
+      id: String(app.id),
+      p: 'mdm-lockup',
+      caller: 'MDM',
+      platform,
+      cc: country.toLowerCase(),
+      l: 'en',
     });
     const response = await appleRequest({
-      method: 'GET', host: 'uclient-api.itunes.apple.com',
+      method: 'GET',
+      host: 'uclient-api.itunes.apple.com',
       path: `/WebObjects/MZStorePlatform.woa/wa/lookup?${query}`,
     });
     if (response.status !== 200) throw new Error(`Catalog HTTP ${response.status}`);
@@ -24,8 +30,9 @@ export async function lookupLatestVersion(account: Account, app: Software): Prom
       throw new Error('Catalog returned a different bundle identifier');
     }
     const offer = item.offers[0];
-    const version = String(offer.version?.externalId ??
-      new URLSearchParams(offer.buyParams ?? '').get('appExtVrsId') ?? '');
+    const version = String(
+      offer.version?.externalId ?? new URLSearchParams(offer.buyParams ?? '').get('appExtVrsId') ?? '',
+    );
     if (/^[1-9]\d*$/.test(version)) return version;
     throw new Error('Catalog returned no valid iOS version identifier');
   }

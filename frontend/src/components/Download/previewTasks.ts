@@ -15,8 +15,7 @@ const devPreviewDownloadTasks: DownloadTask[] = [
       price: 0,
       artistName: 'Northstar Tools',
       sellerName: 'Northstar Tools, Inc.',
-      description:
-        'A focused workspace for planning releases, tracking builds, and keeping technical projects moving.',
+      description: 'A focused workspace for planning releases, tracking builds, and keeping technical projects moving.',
       averageUserRating: 4.8,
       userRatingCount: 2841,
       artworkUrl: 'https://assets.asspp.invalid/focusboard.png',
@@ -45,8 +44,7 @@ const devPreviewDownloadTasks: DownloadTask[] = [
       price: 4.99,
       artistName: 'Signal Foundry',
       sellerName: 'Signal Foundry Labs',
-      description:
-        'Inspect local network activity with clear timelines and developer-friendly diagnostics.',
+      description: 'Inspect local network activity with clear timelines and developer-friendly diagnostics.',
       averageUserRating: 4.6,
       userRatingCount: 916,
       artworkUrl: 'https://assets.asspp.invalid/packet-lens.png',
@@ -75,8 +73,7 @@ const devPreviewDownloadTasks: DownloadTask[] = [
       price: 0,
       artistName: 'Lumen Works',
       sellerName: 'Lumen Works Studio',
-      description:
-        'A quiet Markdown notebook with offline workspaces and encrypted project archives.',
+      description: 'A quiet Markdown notebook with offline workspaces and encrypted project archives.',
       averageUserRating: 4.7,
       userRatingCount: 5320,
       artworkUrl: 'https://assets.asspp.invalid/aurora-notes.png',
@@ -105,8 +102,7 @@ const devPreviewDownloadTasks: DownloadTask[] = [
       price: 1.99,
       artistName: 'Terminal Nine',
       sellerName: 'Terminal Nine Software',
-      description:
-        'Monitor build pipelines, review artifacts, and receive concise deployment summaries.',
+      description: 'Monitor build pipelines, review artifacts, and receive concise deployment summaries.',
       averageUserRating: 4.4,
       userRatingCount: 407,
       artworkUrl: 'https://assets.asspp.invalid/build-relay.png',
@@ -128,9 +124,7 @@ const devPreviewDownloadTasks: DownloadTask[] = [
   },
 ];
 
-export const previewDownloadTasks = import.meta.env.DEV
-  ? devPreviewDownloadTasks
-  : [];
+export const previewDownloadTasks = import.meta.env.DEV ? devPreviewDownloadTasks : [];
 
 export function isDownloadPreviewEnabled(search: string): boolean {
   if (!import.meta.env.DEV) return false;

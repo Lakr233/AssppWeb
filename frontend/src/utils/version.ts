@@ -8,8 +8,8 @@
  *   0        if a == b
  */
 export function compareVersions(a: string, b: string): number {
-  const partsA = a.split(".").map((s) => parseInt(s, 10) || 0);
-  const partsB = b.split(".").map((s) => parseInt(s, 10) || 0);
+  const partsA = a.split('.').map((s) => parseInt(s, 10) || 0);
+  const partsB = b.split('.').map((s) => parseInt(s, 10) || 0);
   const len = Math.max(partsA.length, partsB.length);
 
   for (let i = 0; i < len; i++) {

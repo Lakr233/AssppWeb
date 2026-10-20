@@ -1,5 +1,5 @@
-import { Router, Request, Response } from "express";
-import { config } from "../config.js";
+import { Router, Request, Response } from 'express';
+import { config } from '../config.js';
 import {
   createTask,
   getAllTasks,
@@ -11,45 +11,36 @@ import {
   removeProgressListener,
   sanitizeTaskForResponse,
   validateDownloadURL,
-} from "../services/downloadManager.js";
-import {
-  getIdParam,
-  requireAccountHash,
-  verifyTaskOwnership,
-} from "../utils/route.js";
+} from '../services/downloadManager.js';
+import { getIdParam, requireAccountHash, verifyTaskOwnership } from '../utils/route.js';
 
 const router = Router();
 
-async function fetchDownloadSizeBytes(
-  downloadURL: string,
-): Promise<number | null> {
+async function fetchDownloadSizeBytes(downloadURL: string): Promise<number | null> {
   const headResponse = await fetch(downloadURL, {
-    method: "HEAD",
-    redirect: "follow",
+    method: 'HEAD',
+    redirect: 'follow',
   });
   if (!headResponse.ok) {
     throw new Error(`HEAD failed: HTTP ${headResponse.status}`);
   }
 
-  const contentLength = parseInt(
-    headResponse.headers.get("content-length") || "0",
-    10,
-  );
+  const contentLength = parseInt(headResponse.headers.get('content-length') || '0', 10);
   if (Number.isFinite(contentLength) && contentLength > 0) {
     return contentLength;
   }
 
   const rangeResponse = await fetch(downloadURL, {
-    method: "GET",
-    headers: { Range: "bytes=0-0" },
-    redirect: "follow",
+    method: 'GET',
+    headers: { Range: 'bytes=0-0' },
+    redirect: 'follow',
   });
   try {
     if (rangeResponse.status !== 206 && rangeResponse.status !== 200) {
       throw new Error(`Range probe failed: HTTP ${rangeResponse.status}`);
     }
 
-    const contentRange = rangeResponse.headers.get("content-range") || "";
+    const contentRange = rangeResponse.headers.get('content-range') || '';
     const match = contentRange.match(/\/(\d+)\s*$/);
     if (match) {
       const parsed = parseInt(match[1], 10);
@@ -57,10 +48,7 @@ async function fetchDownloadSizeBytes(
     }
 
     if (rangeResponse.status === 200) {
-      const fallbackLength = parseInt(
-        rangeResponse.headers.get("content-length") || "0",
-        10,
-      );
+      const fallbackLength = parseInt(rangeResponse.headers.get('content-length') || '0', 10);
       if (Number.isFinite(fallbackLength) && fallbackLength > 0) {
         return fallbackLength;
       }
@@ -77,14 +65,12 @@ async function fetchDownloadSizeBytes(
 }
 
 // Start a new download
-router.post("/downloads", async (req: Request, res: Response) => {
-  const { software, accountHash, downloadURL, sinfs, iTunesMetadata } =
-    req.body;
+router.post('/downloads', async (req: Request, res: Response) => {
+  const { software, accountHash, downloadURL, sinfs, iTunesMetadata } = req.body;
 
   if (!software || !accountHash || !downloadURL || !sinfs) {
     res.status(400).json({
-      error:
-        "Missing required fields: software, accountHash, downloadURL, sinfs",
+      error: 'Missing required fields: software, accountHash, downloadURL, sinfs',
     });
     return;
   }
@@ -94,7 +80,7 @@ router.post("/downloads", async (req: Request, res: Response) => {
     validateDownloadURL(downloadURL);
   } catch (err) {
     res.status(400).json({
-      error: err instanceof Error ? err.message : "Invalid download URL",
+      error: err instanceof Error ? err.message : 'Invalid download URL',
     });
     return;
   }
@@ -104,7 +90,7 @@ router.post("/downloads", async (req: Request, res: Response) => {
       const fileSizeBytes = await fetchDownloadSizeBytes(downloadURL);
       if (!fileSizeBytes) {
         res.status(400).json({
-          error: "Unable to verify file size from Apple",
+          error: 'Unable to verify file size from Apple',
         });
         return;
       }
@@ -116,41 +102,29 @@ router.post("/downloads", async (req: Request, res: Response) => {
         return;
       }
     } catch (err) {
-      console.error(
-        "Apple size probe error:",
-        err instanceof Error ? err.message : err,
-      );
-      res.status(502).json({ error: "Failed to verify file size from Apple" });
+      console.error('Apple size probe error:', err instanceof Error ? err.message : err);
+      res.status(502).json({ error: 'Failed to verify file size from Apple' });
       return;
     }
   }
 
   try {
-    const task = createTask(
-      software,
-      accountHash,
-      downloadURL,
-      sinfs,
-      iTunesMetadata,
-    );
+    const task = createTask(software, accountHash, downloadURL, sinfs, iTunesMetadata);
     res.status(201).json(sanitizeTaskForResponse(task));
   } catch (err) {
-    console.error(
-      "Create download error:",
-      err instanceof Error ? err.message : err,
-    );
-    res.status(400).json({ error: "Failed to create download" });
+    console.error('Create download error:', err instanceof Error ? err.message : err);
+    res.status(400).json({ error: 'Failed to create download' });
   }
 });
 
 // List downloads filtered by account hashes
-router.get("/downloads", (req: Request, res: Response) => {
+router.get('/downloads', (req: Request, res: Response) => {
   const hashesParam = req.query.accountHashes;
-  if (!hashesParam || typeof hashesParam !== "string") {
+  if (!hashesParam || typeof hashesParam !== 'string') {
     res.json([]);
     return;
   }
-  const hashes = new Set(hashesParam.split(",").filter(Boolean));
+  const hashes = new Set(hashesParam.split(',').filter(Boolean));
   if (hashes.size === 0) {
     res.json([]);
     return;
@@ -162,14 +136,14 @@ router.get("/downloads", (req: Request, res: Response) => {
 });
 
 // Get single download (requires accountHash)
-router.get("/downloads/:id", (req: Request, res: Response) => {
+router.get('/downloads/:id', (req: Request, res: Response) => {
   const accountHash = requireAccountHash(req, res);
   if (!accountHash) return;
 
   const id = getIdParam(req);
   const task = getTask(id);
   if (!task) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
 
@@ -179,50 +153,48 @@ router.get("/downloads/:id", (req: Request, res: Response) => {
 });
 
 // SSE progress stream (requires accountHash)
-router.get("/downloads/:id/progress", (req: Request, res: Response) => {
+router.get('/downloads/:id/progress', (req: Request, res: Response) => {
   const accountHash = requireAccountHash(req, res);
   if (!accountHash) return;
 
   const id = getIdParam(req);
   const task = getTask(id);
   if (!task) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
 
   if (!verifyTaskOwnership(task, accountHash, res)) return;
 
   res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
   });
 
   // Send current state immediately
   res.write(`data: ${JSON.stringify(sanitizeTaskForResponse(task))}\n\n`);
 
   const listener = (updatedTask: typeof task) => {
-    res.write(
-      `data: ${JSON.stringify(sanitizeTaskForResponse(updatedTask))}\n\n`,
-    );
+    res.write(`data: ${JSON.stringify(sanitizeTaskForResponse(updatedTask))}\n\n`);
   };
 
   addProgressListener(id, listener);
 
-  req.on("close", () => {
+  req.on('close', () => {
     removeProgressListener(id, listener);
   });
 });
 
 // Pause download (requires accountHash)
-router.post("/downloads/:id/pause", (req: Request, res: Response) => {
+router.post('/downloads/:id/pause', (req: Request, res: Response) => {
   const accountHash = requireAccountHash(req, res);
   if (!accountHash) return;
 
   const id = getIdParam(req);
   const task = getTask(id);
   if (!task) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
 
@@ -230,7 +202,7 @@ router.post("/downloads/:id/pause", (req: Request, res: Response) => {
 
   const success = pauseTask(id);
   if (!success) {
-    res.status(400).json({ error: "Cannot pause this download" });
+    res.status(400).json({ error: 'Cannot pause this download' });
     return;
   }
   const updated = getTask(id);
@@ -238,14 +210,14 @@ router.post("/downloads/:id/pause", (req: Request, res: Response) => {
 });
 
 // Resume download (requires accountHash)
-router.post("/downloads/:id/resume", (req: Request, res: Response) => {
+router.post('/downloads/:id/resume', (req: Request, res: Response) => {
   const accountHash = requireAccountHash(req, res);
   if (!accountHash) return;
 
   const id = getIdParam(req);
   const task = getTask(id);
   if (!task) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
 
@@ -253,7 +225,7 @@ router.post("/downloads/:id/resume", (req: Request, res: Response) => {
 
   const success = resumeTask(id);
   if (!success) {
-    res.status(400).json({ error: "Cannot resume this download" });
+    res.status(400).json({ error: 'Cannot resume this download' });
     return;
   }
   const updated = getTask(id);
@@ -261,14 +233,14 @@ router.post("/downloads/:id/resume", (req: Request, res: Response) => {
 });
 
 // Delete download (requires accountHash)
-router.delete("/downloads/:id", (req: Request, res: Response) => {
+router.delete('/downloads/:id', (req: Request, res: Response) => {
   const accountHash = requireAccountHash(req, res);
   if (!accountHash) return;
 
   const id = getIdParam(req);
   const task = getTask(id);
   if (!task) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
 
@@ -276,7 +248,7 @@ router.delete("/downloads/:id", (req: Request, res: Response) => {
 
   const success = deleteTask(id);
   if (!success) {
-    res.status(404).json({ error: "Download not found" });
+    res.status(404).json({ error: 'Download not found' });
     return;
   }
   res.json({ success: true });

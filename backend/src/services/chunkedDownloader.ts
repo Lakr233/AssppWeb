@@ -1,13 +1,8 @@
-import fs from "fs";
-import path from "path";
-import { pipeline } from "stream/promises";
-import { Readable } from "stream";
-import {
-  DOWNLOAD_THREADS,
-  CHUNK_RETRY_COUNT,
-  CHUNK_RETRY_DELAY_MS,
-  MAX_DOWNLOAD_SIZE,
-} from "../config.js";
+import fs from 'fs';
+import path from 'path';
+import { pipeline } from 'stream/promises';
+import { Readable } from 'stream';
+import { DOWNLOAD_THREADS, CHUNK_RETRY_COUNT, CHUNK_RETRY_DELAY_MS, MAX_DOWNLOAD_SIZE } from '../config.js';
 
 interface ChunkRange {
   index: number;
@@ -40,11 +35,7 @@ export class ChunkedDownloader {
   private lastProgressTime = 0;
   private lastProgressBytes = 0;
 
-  constructor(
-    url: string,
-    destPath: string,
-    options?: { threads?: number; onProgress?: ProgressCallback },
-  ) {
+  constructor(url: string, destPath: string, options?: { threads?: number; onProgress?: ProgressCallback }) {
     this.url = url;
     this.destPath = destPath;
     this.threads = options?.threads ?? DOWNLOAD_THREADS;
@@ -57,20 +48,17 @@ export class ChunkedDownloader {
     contentLength: number;
   }> {
     const res = await fetch(this.url, {
-      method: "HEAD",
+      method: 'HEAD',
       signal,
-      redirect: "follow",
+      redirect: 'follow',
     });
     if (!res.ok) {
       throw new Error(`HEAD failed: HTTP ${res.status}`);
     }
 
-    const acceptRanges = res.headers.get("accept-ranges");
-    const contentLength = parseInt(
-      res.headers.get("content-length") || "0",
-      10,
-    );
-    const supportsRange = acceptRanges === "bytes" && contentLength > 0;
+    const acceptRanges = res.headers.get('accept-ranges');
+    const contentLength = parseInt(res.headers.get('content-length') || '0', 10);
+    const supportsRange = acceptRanges === 'bytes' && contentLength > 0;
 
     return { supportsRange, contentLength };
   }
@@ -89,26 +77,23 @@ export class ChunkedDownloader {
   }
 
   /** Download a single chunk with retries, writing to a .part file. */
-  private async downloadChunk(
-    chunk: ChunkRange,
-    signal: AbortSignal,
-  ): Promise<void> {
+  private async downloadChunk(chunk: ChunkRange, signal: AbortSignal): Promise<void> {
     const partPath = `${this.destPath}.part${chunk.index}`;
     const expectedBytes = chunk.end - chunk.start + 1;
     let lastErr: Error | undefined;
 
     for (let attempt = 0; attempt < CHUNK_RETRY_COUNT; attempt++) {
-      if (this.aborted) throw new Error("Aborted");
+      if (this.aborted) throw new Error('Aborted');
 
       const ac = new AbortController();
       this.abortControllers.add(ac);
       const onAbort = () => ac.abort();
-      signal.addEventListener("abort", onAbort, { once: true });
+      signal.addEventListener('abort', onAbort, { once: true });
 
       try {
         const res = await fetch(this.url, {
           signal: ac.signal,
-          redirect: "follow",
+          redirect: 'follow',
           headers: { Range: `bytes=${chunk.start}-${chunk.end}` },
         });
 
@@ -135,9 +120,7 @@ export class ChunkedDownloader {
               }
               chunkDownloaded += value.byteLength;
               if (chunkDownloaded > expectedBytes * 2) {
-                this.destroy(
-                  new Error(`Chunk ${chunkIndex}: exceeded expected size`),
-                );
+                this.destroy(new Error(`Chunk ${chunkIndex}: exceeded expected size`));
                 return;
               }
               chunkBytesRef[chunkIndex] = chunkDownloaded;
@@ -152,12 +135,12 @@ export class ChunkedDownloader {
         return; // success
       } catch (err) {
         lastErr = err instanceof Error ? err : new Error(String(err));
-        if (lastErr.name === "AbortError" || this.aborted) throw lastErr;
+        if (lastErr.name === 'AbortError' || this.aborted) throw lastErr;
         if (attempt < CHUNK_RETRY_COUNT - 1) {
           await new Promise((r) => setTimeout(r, CHUNK_RETRY_DELAY_MS));
         }
       } finally {
-        signal.removeEventListener("abort", onAbort);
+        signal.removeEventListener('abort', onAbort);
         this.abortControllers.delete(ac);
       }
     }
@@ -175,8 +158,8 @@ export class ChunkedDownloader {
     }
     ws.end();
     await new Promise<void>((resolve, reject) => {
-      ws.on("finish", resolve);
-      ws.on("error", reject);
+      ws.on('finish', resolve);
+      ws.on('error', reject);
     });
 
     this.cleanPartFiles(chunkCount);
@@ -196,18 +179,13 @@ export class ChunkedDownloader {
 
   /** Single-stream fallback download. */
   private async downloadSingleStream(signal: AbortSignal): Promise<void> {
-    const res = await fetch(this.url, { signal, redirect: "follow" });
+    const res = await fetch(this.url, { signal, redirect: 'follow' });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    if (!res.body) throw new Error("No response body");
+    if (!res.body) throw new Error('No response body');
 
-    const contentLength = parseInt(
-      res.headers.get("content-length") || "0",
-      10,
-    );
+    const contentLength = parseInt(res.headers.get('content-length') || '0', 10);
     if (contentLength > MAX_DOWNLOAD_SIZE) {
-      throw new Error(
-        `File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`,
-      );
+      throw new Error(`File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`);
     }
 
     this.totalSize = contentLength;
@@ -228,7 +206,7 @@ export class ChunkedDownloader {
           }
           downloaded += value.byteLength;
           if (downloaded > MAX_DOWNLOAD_SIZE) {
-            this.destroy(new Error("Download exceeded maximum size"));
+            this.destroy(new Error('Download exceeded maximum size'));
             return;
           }
           this.push(Buffer.from(value));
@@ -259,7 +237,7 @@ export class ChunkedDownloader {
       clearInterval(progressInterval);
     }
 
-    this.onProgress?.({ downloaded, total: this.totalSize, speed: "0 B/s" });
+    this.onProgress?.({ downloaded, total: this.totalSize, speed: '0 B/s' });
   }
 
   /**
@@ -279,9 +257,7 @@ export class ChunkedDownloader {
     }
 
     if (contentLength > MAX_DOWNLOAD_SIZE) {
-      throw new Error(
-        `File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`,
-      );
+      throw new Error(`File too large: ${contentLength} bytes exceeds ${MAX_DOWNLOAD_SIZE} byte limit`);
     }
 
     if (!supportsRange || this.threads <= 1) {
@@ -300,10 +276,9 @@ export class ChunkedDownloader {
       const totalDownloaded = this.chunkBytes.reduce((a, b) => a + b, 0);
       const elapsed = now - this.lastProgressTime;
 
-      let speed = "0 B/s";
+      let speed = '0 B/s';
       if (elapsed > 0) {
-        const bytesPerSec =
-          ((totalDownloaded - this.lastProgressBytes) / elapsed) * 1000;
+        const bytesPerSec = ((totalDownloaded - this.lastProgressBytes) / elapsed) * 1000;
         speed = formatSpeed(bytesPerSec);
       }
       this.lastProgressTime = now;
@@ -317,9 +292,7 @@ export class ChunkedDownloader {
     }, 500);
 
     try {
-      await Promise.all(
-        chunks.map((chunk) => this.downloadChunk(chunk, signal)),
-      );
+      await Promise.all(chunks.map((chunk) => this.downloadChunk(chunk, signal)));
 
       clearInterval(progressInterval);
       await this.mergeChunks(chunks.length);
@@ -327,7 +300,7 @@ export class ChunkedDownloader {
       this.onProgress?.({
         downloaded: this.totalSize,
         total: this.totalSize,
-        speed: "0 B/s",
+        speed: '0 B/s',
       });
     } catch (err) {
       clearInterval(progressInterval);
@@ -354,7 +327,7 @@ export class ChunkedDownloader {
       const base = path.basename(this.destPath);
       if (fs.existsSync(dir)) {
         for (const entry of fs.readdirSync(dir)) {
-          if (entry.startsWith(base + ".part")) {
+          if (entry.startsWith(base + '.part')) {
             try {
               fs.unlinkSync(path.join(dir, entry));
             } catch {
@@ -371,7 +344,6 @@ export class ChunkedDownloader {
 
 function formatSpeed(bytesPerSec: number): string {
   if (bytesPerSec < 1024) return `${Math.round(bytesPerSec)} B/s`;
-  if (bytesPerSec < 1024 * 1024)
-    return `${(bytesPerSec / 1024).toFixed(1)} KB/s`;
+  if (bytesPerSec < 1024 * 1024) return `${(bytesPerSec / 1024).toFixed(1)} KB/s`;
   return `${(bytesPerSec / (1024 * 1024)).toFixed(1)} MB/s`;
 }

@@ -30,9 +30,7 @@ function lockBackgroundScroll() {
     };
 
     if (scrollbarWidth > 0) {
-      const currentPadding = Number.parseFloat(
-        window.getComputedStyle(body).paddingRight,
-      );
+      const currentPadding = Number.parseFloat(window.getComputedStyle(body).paddingRight);
       body.style.paddingRight = `${(Number.isFinite(currentPadding) ? currentPadding : 0) + scrollbarWidth}px`;
     }
 
@@ -97,8 +95,7 @@ export default function Modal({
         aria-labelledby={titleId}
         className="w-full max-w-sm overflow-y-auto overscroll-contain rounded-[28px] border border-white/70 bg-white/95 p-6 text-gray-900 shadow-[0_24px_70px_-20px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/10 dark:bg-gray-900/95 dark:text-white dark:shadow-black/60"
         style={{
-          maxHeight:
-            'calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
+          maxHeight: 'calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
         }}
       >
         <h3 id={titleId} className="mb-4 text-lg font-semibold tracking-tight">

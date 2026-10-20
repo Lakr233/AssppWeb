@@ -15,29 +15,17 @@ interface DownloadItemProps {
   onDelete: (id: string) => void;
 }
 
-export default function DownloadItem({
-  task,
-  preview = false,
-  onPause,
-  onResume,
-  onDelete,
-}: DownloadItemProps) {
+export default function DownloadItem({ task, preview = false, onPause, onResume, onDelete }: DownloadItemProps) {
   const { t } = useTranslation();
 
   const isActive = task.status === 'downloading' || task.status === 'injecting';
   const isPaused = task.status === 'paused';
-  const detailsHref = `/downloads/${task.id}${
-    preview ? '?preview=downloads' : ''
-  }`;
+  const detailsHref = `/downloads/${task.id}${preview ? '?preview=downloads' : ''}`;
 
   return (
     <article className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex min-w-0 items-start gap-3">
-        <AppIcon
-          url={task.software.artworkUrl}
-          name={task.software.name}
-          size="sm"
-        />
+        <AppIcon url={task.software.artworkUrl} name={task.software.name} size="sm" />
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -47,9 +35,7 @@ export default function DownloadItem({
               >
                 {task.software.name}
               </Link>
-              <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                {task.software.artistName}
-              </p>
+              <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{task.software.artistName}</p>
             </div>
             <div className="shrink-0 whitespace-nowrap">
               <Badge status={task.status} />
@@ -65,18 +51,9 @@ export default function DownloadItem({
       </div>
 
       <dl className="mt-3 grid min-w-0 grid-cols-3 gap-2">
-        <SummaryItem
-          label={t('downloads.package.version')}
-          value={task.software.version}
-        />
-        <SummaryItem
-          label={t('downloads.package.size')}
-          value={formatBytes(task.software.fileSizeBytes)}
-        />
-        <SummaryItem
-          label={t('downloads.package.minOs')}
-          value={`iOS ${task.software.minimumOsVersion || '—'}`}
-        />
+        <SummaryItem label={t('downloads.package.version')} value={task.software.version} />
+        <SummaryItem label={t('downloads.package.size')} value={formatBytes(task.software.fileSizeBytes)} />
+        <SummaryItem label={t('downloads.package.minOs')} value={`iOS ${task.software.minimumOsVersion || '—'}`} />
       </dl>
 
       {(isActive || isPaused) && (
@@ -84,11 +61,7 @@ export default function DownloadItem({
           <ProgressBar progress={task.progress} label={task.software.name} />
           <div className="mt-1.5 flex min-w-0 justify-between gap-3 text-xs font-medium text-gray-500 dark:text-gray-400">
             <span>{Math.round(task.progress)}%</span>
-            {task.speed && isActive && (
-              <span className="max-w-[55%] truncate text-right">
-                {task.speed}
-              </span>
-            )}
+            {task.speed && isActive && <span className="max-w-[55%] truncate text-right">{task.speed}</span>}
           </div>
         </div>
       )}
@@ -148,10 +121,7 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
       <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
         {label}
       </dt>
-      <dd
-        title={value}
-        className="mt-0.5 truncate text-xs font-medium text-gray-700 dark:text-gray-200"
-      >
+      <dd title={value} className="mt-0.5 truncate text-xs font-medium text-gray-700 dark:text-gray-200">
         {value}
       </dd>
     </div>

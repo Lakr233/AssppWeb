@@ -1,6 +1,6 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-export type ToastType = "success" | "error" | "info";
+export type ToastType = 'success' | 'error' | 'info';
 
 export interface Toast {
   id: string;
@@ -28,6 +28,5 @@ export const useToastStore = create<ToastStore>((set) => ({
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 5000);
   },
-  removeToast: (id) =>
-    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));

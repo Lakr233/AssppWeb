@@ -12,23 +12,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-const originalClipboard = Object.getOwnPropertyDescriptor(
-  navigator,
-  'clipboard',
-);
+const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
 const originalShare = Object.getOwnPropertyDescriptor(navigator, 'share');
-const originalCreateObjectURL = Object.getOwnPropertyDescriptor(
-  URL,
-  'createObjectURL',
-);
-const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(
-  URL,
-  'revokeObjectURL',
-);
+const originalCreateObjectURL = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
 
-function createTask(
-  overrides: Partial<DownloadTask> = {},
-): DownloadTask {
+function createTask(overrides: Partial<DownloadTask> = {}): DownloadTask {
   return {
     id: 'real-download-task',
     software: {
@@ -58,11 +47,7 @@ function createTask(
   };
 }
 
-function restoreProperty(
-  target: object,
-  key: PropertyKey,
-  descriptor?: PropertyDescriptor,
-) {
+function restoreProperty(target: object, key: PropertyKey, descriptor?: PropertyDescriptor) {
   if (descriptor) {
     Object.defineProperty(target, key, descriptor);
     return;
@@ -91,36 +76,28 @@ describe('PackageQuickActions', () => {
     render(<PackageQuickActions task={createTask()} />);
 
     expect(screen.getByTestId('package-quick-actions')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'downloads.package.install' }),
-    ).toHaveAttribute('href', expect.stringMatching(/^itms-services:\/\//));
-    expect(
-      screen.getByRole('button', { name: 'downloads.package.share' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'downloads.package.downloadIpa' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'downloads.package.install' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^itms-services:\/\//),
+    );
+    expect(screen.getByRole('button', { name: 'downloads.package.share' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'downloads.package.downloadIpa' })).toBeInTheDocument();
   });
 
   it('does not show quick actions when a completed task has no file', () => {
-    render(
-      <PackageQuickActions task={createTask({ hasFile: false })} />,
-    );
+    render(<PackageQuickActions task={createTask({ hasFile: false })} />);
 
     expect(screen.queryByTestId('package-quick-actions')).not.toBeInTheDocument();
   });
 
-  it.each<DownloadTask['status']>([
-    'pending',
-    'downloading',
-    'paused',
-    'injecting',
-    'failed',
-  ])('does not show quick actions for a %s task', (status) => {
-    render(<PackageQuickActions task={createTask({ status })} />);
+  it.each<DownloadTask['status']>(['pending', 'downloading', 'paused', 'injecting', 'failed'])(
+    'does not show quick actions for a %s task',
+    (status) => {
+      render(<PackageQuickActions task={createTask({ status })} />);
 
-    expect(screen.queryByTestId('package-quick-actions')).not.toBeInTheDocument();
-  });
+      expect(screen.queryByTestId('package-quick-actions')).not.toBeInTheDocument();
+    },
+  );
 
   it('keeps all preview actions local and shows a notice for each click', async () => {
     const user = userEvent.setup();
@@ -138,15 +115,9 @@ describe('PackageQuickActions', () => {
 
     render(<PackageQuickActions task={previewDownloadTasks[0]} />);
 
-    await user.click(
-      screen.getByRole('link', { name: 'downloads.package.install' }),
-    );
-    await user.click(
-      screen.getByRole('button', { name: 'downloads.package.share' }),
-    );
-    await user.click(
-      screen.getByRole('button', { name: 'downloads.package.downloadIpa' }),
-    );
+    await user.click(screen.getByRole('link', { name: 'downloads.package.install' }));
+    await user.click(screen.getByRole('button', { name: 'downloads.package.share' }));
+    await user.click(screen.getByRole('button', { name: 'downloads.package.downloadIpa' }));
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(clipboardWrite).not.toHaveBeenCalled();
@@ -184,23 +155,20 @@ describe('PackageQuickActions', () => {
       value: revokeObjectURL,
     });
     let clickedAnchor: HTMLAnchorElement | undefined;
-    const anchorClick = vi
-      .spyOn(HTMLAnchorElement.prototype, 'click')
-      .mockImplementation(function captureAnchor(this: HTMLAnchorElement) {
-        clickedAnchor = this;
-      });
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function captureAnchor(
+      this: HTMLAnchorElement,
+    ) {
+      clickedAnchor = this;
+    });
     sessionStorage.setItem('auth-token', 'test-access-token');
 
     render(<PackageQuickActions task={createTask()} />);
-    await user.click(
-      screen.getByRole('button', { name: 'downloads.package.downloadIpa' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'downloads.package.downloadIpa' }));
 
     await waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledWith(
-        '/api/packages/real-download-task/file?accountHash=account-hash-123',
-        { headers: { 'X-Access-Token': 'test-access-token' } },
-      );
+      expect(fetchSpy).toHaveBeenCalledWith('/api/packages/real-download-task/file?accountHash=account-hash-123', {
+        headers: { 'X-Access-Token': 'test-access-token' },
+      });
       expect(anchorClick).toHaveBeenCalledOnce();
     });
     expect(responseBlob).toHaveBeenCalledOnce();

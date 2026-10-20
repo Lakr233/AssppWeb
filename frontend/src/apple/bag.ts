@@ -1,5 +1,5 @@
-import { authHeaders } from "../api/client";
-import { parsePlist } from "./plist";
+import { authHeaders } from '../api/client';
+import { parsePlist } from './plist';
 
 export interface BagOutput {
   authURL: string;
@@ -7,10 +7,9 @@ export interface BagOutput {
   updateURL?: string;
 }
 
-export const defaultAuthURL =
-  "https://auth.itunes.apple.com/auth/v1/native/fast/";
+export const defaultAuthURL = 'https://auth.itunes.apple.com/auth/v1/native/fast/';
 
-const NATIVE_AUTH_HOST = "auth.itunes.apple.com";
+const NATIVE_AUTH_HOST = 'auth.itunes.apple.com';
 
 // The bag advertises the native auth endpoint without the /fast/ sub-path that
 // the login flow requires; the no-trailing-slash variant 301s to an HTML page.
@@ -33,9 +32,9 @@ export function normalizeAuthURL(rawURL: string): string {
   if (url.hostname !== NATIVE_AUTH_HOST) {
     return rawURL;
   }
-  let path = url.pathname.replace(/\/+$/, "");
-  if (!path.endsWith("/fast")) {
-    path += "/fast";
+  let path = url.pathname.replace(/\/+$/, '');
+  if (!path.endsWith('/fast')) {
+    path += '/fast';
   }
   url.pathname = `${path}/`;
   return url.toString();
@@ -51,9 +50,7 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
     });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ error: resp.statusText }));
-      console.warn(
-        `[Bag] Proxy request failed, using default auth endpoint: ${err.error || `HTTP ${resp.status}`}`,
-      );
+      console.warn(`[Bag] Proxy request failed, using default auth endpoint: ${err.error || `HTTP ${resp.status}`}`);
       return { authURL: defaultAuthURL };
     }
 
@@ -64,8 +61,7 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
     // responses move it to the plist root, so prefer the root and fall back.
     const urlBag = dict.urlBag as Record<string, any> | undefined;
     const authURL =
-      (dict.authenticateAccount as string | undefined) ??
-      (urlBag?.authenticateAccount as string | undefined);
+      (dict.authenticateAccount as string | undefined) ?? (urlBag?.authenticateAccount as string | undefined);
 
     const downloadURLs = {
       redownloadURL: (dict.redownloadProduct ?? urlBag?.redownloadProduct) as string | undefined,
@@ -73,9 +69,7 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
     };
 
     if (!authURL) {
-      console.warn(
-        "[Bag] authenticateAccount URL not found in bag, using default auth endpoint",
-      );
+      console.warn('[Bag] authenticateAccount URL not found in bag, using default auth endpoint');
       return { authURL: defaultAuthURL, ...downloadURLs };
     }
 

@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import PageContainer from "../Layout/PageContainer";
-import AppIcon from "../common/AppIcon";
-import { useAccounts } from "../../hooks/useAccounts";
-import { useDownloadAction } from "../../hooks/useDownloadAction";
-import { listVersions } from "../../apple/versionFinder";
-import { storeIdToCountry } from "../../apple/config";
-import { getVersionMetadata } from "../../apple/versionLookup";
-import { getErrorMessage } from "../../utils/error";
-import { useToastStore } from "../../store/toast";
-import type { Software, VersionMetadata } from "../../types";
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import PageContainer from '../Layout/PageContainer';
+import AppIcon from '../common/AppIcon';
+import { useAccounts } from '../../hooks/useAccounts';
+import { useDownloadAction } from '../../hooks/useDownloadAction';
+import { useToastStore } from '../../store/toast';
+import { listVersions } from '../../apple/versionFinder';
+import { getVersionMetadata } from '../../apple/versionLookup';
+import { getErrorMessage } from '../../utils/error';
+import { storeIdToCountry } from '../../apple/config';
+import type { Software, VersionMetadata } from '../../types';
 
 export default function VersionHistory() {
   const { appId } = useParams<{ appId: string }>();
@@ -20,33 +20,25 @@ export default function VersionHistory() {
   const addToast = useToastStore((s) => s.addToast);
   const { startDownload, toastDownloadError } = useDownloadAction();
 
-  const stateApp = (location.state as { app?: Software; country?: string })
-    ?.app;
+  const stateApp = (location.state as { app?: Software; country?: string })?.app;
   const stateCountry = (location.state as { country?: string })?.country;
-  const country = stateCountry ?? "US";
+  const country = stateCountry ?? 'US';
 
   const [app] = useState<Software | null>(stateApp ?? null);
-  const [selectedAccount, setSelectedAccount] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState('');
 
   const filteredAccounts = useMemo(
     () => accounts.filter((a) => storeIdToCountry(a.store) === country),
     [accounts, country],
   );
   const [versions, setVersions] = useState<string[]>([]);
-  const [versionMeta, setVersionMeta] = useState<
-    Record<string, VersionMetadata>
-  >({});
+  const [versionMeta, setVersionMeta] = useState<Record<string, VersionMetadata>>({});
   const [loading, setLoading] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState<Record<string, boolean>>({});
-  const [downloadingVersion, setDownloadingVersion] = useState<string | null>(
-    null,
-  );
+  const [downloadingVersion, setDownloadingVersion] = useState<string | null>(null);
 
   useEffect(() => {
-    if (
-      filteredAccounts.length > 0 &&
-      !filteredAccounts.some((a) => a.email === selectedAccount)
-    ) {
+    if (filteredAccounts.length > 0 && !filteredAccounts.some((a) => a.email === selectedAccount)) {
       setSelectedAccount(filteredAccounts[0].email);
     }
   }, [filteredAccounts, selectedAccount]);
@@ -61,7 +53,7 @@ export default function VersionHistory() {
       setVersions(result.versions);
       await updateAccount({ ...account, cookies: result.updatedCookies });
     } catch (e) {
-      addToast(getErrorMessage(e, t("search.versions.loadFailed")), "error");
+      addToast(getErrorMessage(e, t('search.versions.loadFailed')), 'error');
     } finally {
       setLoading(false);
     }
@@ -95,41 +87,35 @@ export default function VersionHistory() {
 
   if (!app) {
     return (
-      <PageContainer title={t("search.versions.title")}>
-        <p className="text-gray-500 [overflow-wrap:anywhere]">
-          {t("search.versions.unavailable")}
-        </p>
+      <PageContainer title={t('search.versions.title')}>
+        <p className="text-gray-500 [overflow-wrap:anywhere]">{t('search.versions.unavailable')}</p>
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer title={t("search.versions.title")}>
+    <PageContainer title={t('search.versions.title')}>
       <div className="min-w-0 space-y-6">
         <div className="flex min-w-0 items-center gap-4">
           <div className="shrink-0">
             <AppIcon url={app.artworkUrl} name={app.name} size="md" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white">
-              {app.name}
-            </h2>
-            <p className="text-sm text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">
-              {app.bundleID}
-            </p>
+            <h2 className="font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white">{app.name}</h2>
+            <p className="text-sm text-gray-500 [overflow-wrap:anywhere] dark:text-gray-400">{app.bundleID}</p>
           </div>
         </div>
 
         {accounts.length > 0 && filteredAccounts.length === 0 ? (
           <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700 [overflow-wrap:anywhere] dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-            {t("search.product.noAccountsForRegion")}
+            {t('search.product.noAccountsForRegion')}
           </div>
         ) : (
           filteredAccounts.length > 0 && (
             <div className="flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("search.versions.account")}
+                  {t('search.versions.account')}
                 </label>
                 <select
                   value={selectedAccount}
@@ -148,9 +134,7 @@ export default function VersionHistory() {
                 disabled={loading || !account}
                 className="w-full shrink-0 whitespace-normal rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 sm:w-auto sm:whitespace-nowrap"
               >
-                {loading
-                  ? t("search.versions.loading")
-                  : t("search.versions.load")}
+                {loading ? t('search.versions.loading') : t('search.versions.load')}
               </button>
             </div>
           )
@@ -164,10 +148,7 @@ export default function VersionHistory() {
               const isDownloading = downloadingVersion === versionId;
 
               return (
-                <div
-                  key={versionId}
-                  className="flex min-w-0 items-center justify-between gap-3 p-4"
-                >
+                <div key={versionId} className="flex min-w-0 items-center justify-between gap-3 p-4">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-900 [overflow-wrap:anywhere] dark:text-white">
                       {meta ? `v${meta.displayVersion}` : `ID: ${versionId}`}
@@ -182,12 +163,12 @@ export default function VersionHistory() {
                         onClick={() => handleLoadMeta(versionId)}
                         className="max-w-full py-1 text-left text-xs text-blue-600 [overflow-wrap:anywhere] transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       >
-                        {t("search.versions.loadDetails")}
+                        {t('search.versions.loadDetails')}
                       </button>
                     )}
                     {isLoadingMeta && (
                       <span className="text-xs text-gray-400 [overflow-wrap:anywhere] dark:text-gray-500">
-                        {t("search.versions.loading")}
+                        {t('search.versions.loading')}
                       </span>
                     )}
                   </div>
@@ -196,9 +177,7 @@ export default function VersionHistory() {
                     disabled={isDownloading || downloadingVersion !== null}
                     className="max-w-[45%] shrink-0 rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-medium leading-tight text-white [overflow-wrap:anywhere] transition-colors hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {isDownloading
-                      ? t("search.versions.downloading")
-                      : t("search.versions.download")}
+                    {isDownloading ? t('search.versions.downloading') : t('search.versions.download')}
                   </button>
                 </div>
               );

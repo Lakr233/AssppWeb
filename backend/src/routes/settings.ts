@@ -1,10 +1,10 @@
-import { Router, Request, Response } from "express";
-import { config, DOWNLOAD_THREADS } from "../config.js";
+import { Router, Request, Response } from 'express';
+import { config, DOWNLOAD_THREADS } from '../config.js';
 
 const router = Router();
 const startedAt = Date.now();
 
-router.get("/settings", (_req: Request, res: Response) => {
+router.get('/settings', (_req: Request, res: Response) => {
   res.json({
     uptime: Math.floor((Date.now() - startedAt) / 1000),
     buildCommit: config.buildCommit,

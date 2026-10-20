@@ -1,32 +1,32 @@
-import fs from "fs";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
-import { config, DOWNLOAD_TIMEOUT_MS } from "../config.js";
-import { inject } from "./sinfInjector.js";
-import { ChunkedDownloader } from "./chunkedDownloader.js";
-import type { DownloadTask, Software, Sinf } from "../types/index.js";
+import fs from 'fs';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { config, DOWNLOAD_TIMEOUT_MS } from '../config.js';
+import { inject } from './sinfInjector.js';
+import { ChunkedDownloader } from './chunkedDownloader.js';
+import type { DownloadTask, Software, Sinf } from '../types/index.js';
 
 const tasks = new Map<string, DownloadTask>();
 const abortControllers = new Map<string, AbortController>();
 const chunkDownloaders = new Map<string, ChunkedDownloader>();
 const progressListeners = new Map<string, Set<(task: DownloadTask) => void>>();
 
-const PACKAGES_DIR = path.join(config.dataDir, "packages");
-const TASKS_FILE = path.join(config.dataDir, "tasks.json");
+const PACKAGES_DIR = path.join(config.dataDir, 'packages');
+const TASKS_FILE = path.join(config.dataDir, 'tasks.json');
 // Legacy file from old code — cleaned up on startup
-const LEGACY_DOWNLOADS_FILE = path.join(config.dataDir, "downloads.json");
+const LEGACY_DOWNLOADS_FILE = path.join(config.dataDir, 'downloads.json');
 
 // --- Security: path segment validation ---
 const SAFE_SEGMENT_RE = /^[a-zA-Z0-9._-]+$/;
 
 /** Validate and sanitize a path segment. Rejects traversal, replaces unsafe chars. */
 function safePathSegment(value: string, label: string): string {
-  if (!value || value === "." || value === "..") {
+  if (!value || value === '.' || value === '..') {
     throw new Error(`Invalid ${label}`);
   }
   if (SAFE_SEGMENT_RE.test(value)) return value;
-  const cleaned = value.replace(/[^a-zA-Z0-9._-]/g, "_");
-  if (!cleaned || cleaned === "." || cleaned === "..") {
+  const cleaned = value.replace(/[^a-zA-Z0-9._-]/g, '_');
+  if (!cleaned || cleaned === '.' || cleaned === '..') {
     throw new Error(`Invalid ${label}`);
   }
   return cleaned;
@@ -40,32 +40,26 @@ export function validateDownloadURL(url: string): void {
   try {
     parsed = new URL(url);
   } catch {
-    throw new Error("Invalid download URL");
+    throw new Error('Invalid download URL');
   }
 
-  if (parsed.protocol !== "https:") {
-    throw new Error("Download URL must use HTTPS");
+  if (parsed.protocol !== 'https:') {
+    throw new Error('Download URL must use HTTPS');
   }
 
   if (!ALLOWED_DOWNLOAD_HOSTS_RE.test(parsed.hostname)) {
-    throw new Error("Download URL must be from an Apple domain (*.apple.com)");
+    throw new Error('Download URL must be from an Apple domain (*.apple.com)');
   }
 
-  if (
-    /^\d+\.\d+\.\d+\.\d+$/.test(parsed.hostname) ||
-    parsed.hostname.startsWith("[")
-  ) {
-    throw new Error("Download URL must not use IP addresses");
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(parsed.hostname) || parsed.hostname.startsWith('[')) {
+    throw new Error('Download URL must not use IP addresses');
   }
 }
 
 // --- Security: sanitize task for API responses ---
 export function sanitizeTaskForResponse(
   task: DownloadTask,
-): Omit<
-  DownloadTask,
-  "downloadURL" | "sinfs" | "iTunesMetadata" | "filePath"
-> & { hasFile?: boolean } {
+): Omit<DownloadTask, 'downloadURL' | 'sinfs' | 'iTunesMetadata' | 'filePath'> & { hasFile?: boolean } {
   const { downloadURL, sinfs, iTunesMetadata, filePath, ...safe } = task;
   return {
     ...safe,
@@ -76,12 +70,12 @@ export function sanitizeTaskForResponse(
 // --- Persistence: save only completed task metadata (no secrets) ---
 function persistTasks() {
   const completed = Array.from(tasks.values())
-    .filter((t) => t.status === "completed" && t.filePath)
+    .filter((t) => t.status === 'completed' && t.filePath)
     .map((t) => ({
       id: t.id,
       software: t.software,
       accountHash: t.accountHash,
-      downloadURL: "",
+      downloadURL: '',
       sinfs: [],
       status: t.status,
       progress: t.progress,
@@ -101,11 +95,7 @@ export function runTimeCleanup() {
   // Collect IDs first to avoid mutating the map during iteration
   const expiredIds: string[] = [];
   for (const task of tasks.values()) {
-    if (
-      task.status === "completed" &&
-      task.filePath &&
-      fs.existsSync(task.filePath)
-    ) {
+    if (task.status === 'completed' && task.filePath && fs.existsSync(task.filePath)) {
       try {
         const stat = fs.statSync(task.filePath);
         if (stat.mtimeMs < cutoff) {
@@ -133,11 +123,7 @@ export function runSpaceCleanup() {
   const fileTasks: { id: string; size: number; mtimeMs: number }[] = [];
 
   for (const task of tasks.values()) {
-    if (
-      task.status === "completed" &&
-      task.filePath &&
-      fs.existsSync(task.filePath)
-    ) {
+    if (task.status === 'completed' && task.filePath && fs.existsSync(task.filePath)) {
       try {
         const stat = fs.statSync(task.filePath);
         totalBytes += stat.size;
@@ -163,14 +149,7 @@ export function runSpaceCleanup() {
 function scheduleDailyCleanup() {
   function msUntilMidnight(): number {
     const now = new Date();
-    const next = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1,
-      0,
-      0,
-      0,
-    );
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
     return next.getTime() - now.getTime();
   }
 
@@ -194,25 +173,20 @@ function initOnStartup() {
   // Load completed tasks from previous run
   if (fs.existsSync(TASKS_FILE)) {
     try {
-      const data = JSON.parse(fs.readFileSync(TASKS_FILE, "utf-8"));
+      const data = JSON.parse(fs.readFileSync(TASKS_FILE, 'utf-8'));
       if (Array.isArray(data)) {
         for (const item of data) {
           // Only restore completed tasks whose IPA file still exists
-          if (
-            item.id &&
-            item.status === "completed" &&
-            item.filePath &&
-            fs.existsSync(item.filePath)
-          ) {
+          if (item.id && item.status === 'completed' && item.filePath && fs.existsSync(item.filePath)) {
             const task: DownloadTask = {
               id: item.id,
               software: item.software,
               accountHash: item.accountHash,
-              downloadURL: "",
+              downloadURL: '',
               sinfs: [],
-              status: "completed",
+              status: 'completed',
               progress: 100,
-              speed: "0 B/s",
+              speed: '0 B/s',
               filePath: item.filePath,
               createdAt: item.createdAt,
             };
@@ -276,10 +250,7 @@ function notifyProgress(task: DownloadTask) {
   }
 }
 
-export function addProgressListener(
-  taskId: string,
-  listener: (task: DownloadTask) => void,
-) {
+export function addProgressListener(taskId: string, listener: (task: DownloadTask) => void) {
   let listeners = progressListeners.get(taskId);
   if (!listeners) {
     listeners = new Set();
@@ -288,10 +259,7 @@ export function addProgressListener(
   listeners.add(listener);
 }
 
-export function removeProgressListener(
-  taskId: string,
-  listener: (task: DownloadTask) => void,
-) {
+export function removeProgressListener(taskId: string, listener: (task: DownloadTask) => void) {
   const listeners = progressListeners.get(taskId);
   if (listeners) {
     listeners.delete(listener);
@@ -329,10 +297,7 @@ export function deleteTask(id: string): boolean {
   if (task.filePath) {
     const resolved = path.resolve(task.filePath);
     const packagesBase = path.resolve(PACKAGES_DIR);
-    if (
-      resolved.startsWith(packagesBase + path.sep) &&
-      fs.existsSync(resolved)
-    ) {
+    if (resolved.startsWith(packagesBase + path.sep) && fs.existsSync(resolved)) {
       fs.unlinkSync(resolved);
 
       // Clean up empty parent directories
@@ -357,7 +322,7 @@ export function deleteTask(id: string): boolean {
 
 export function pauseTask(id: string): boolean {
   const task = tasks.get(id);
-  if (!task || task.status !== "downloading") return false;
+  if (!task || task.status !== 'downloading') return false;
 
   const controller = abortControllers.get(id);
   if (controller) {
@@ -370,14 +335,14 @@ export function pauseTask(id: string): boolean {
     chunkDownloaders.delete(id);
   }
 
-  task.status = "paused";
+  task.status = 'paused';
   notifyProgress(task);
   return true;
 }
 
 export function resumeTask(id: string): boolean {
   const task = tasks.get(id);
-  if (!task || task.status !== "paused") return false;
+  if (!task || task.status !== 'paused') return false;
 
   startDownload(task);
   return true;
@@ -394,9 +359,9 @@ export function createTask(
   validateDownloadURL(downloadURL);
 
   // Validate path segments
-  safePathSegment(accountHash, "accountHash");
-  safePathSegment(software.bundleID, "bundleID");
-  safePathSegment(software.version, "version");
+  safePathSegment(accountHash, 'accountHash');
+  safePathSegment(software.bundleID, 'bundleID');
+  safePathSegment(software.version, 'version');
 
   const task: DownloadTask = {
     id: uuidv4(),
@@ -405,9 +370,9 @@ export function createTask(
     downloadURL,
     sinfs,
     iTunesMetadata,
-    status: "pending",
+    status: 'pending',
     progress: 0,
-    speed: "0 B/s",
+    speed: '0 B/s',
     createdAt: new Date().toISOString(),
   };
 
@@ -427,30 +392,25 @@ async function startDownload(task: DownloadTask) {
   // Set a global timeout for the entire download
   const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
 
-  task.status = "downloading";
+  task.status = 'downloading';
   task.progress = 0;
-  task.speed = "0 B/s";
+  task.speed = '0 B/s';
   task.error = undefined;
   notifyProgress(task);
 
   // Sanitize path segments
-  const safeAccountHash = safePathSegment(task.accountHash, "accountHash");
-  const safeBundleID = safePathSegment(task.software.bundleID, "bundleID");
-  const safeVersion = safePathSegment(task.software.version, "version");
+  const safeAccountHash = safePathSegment(task.accountHash, 'accountHash');
+  const safeBundleID = safePathSegment(task.software.bundleID, 'bundleID');
+  const safeVersion = safePathSegment(task.software.version, 'version');
 
-  const dir = path.join(
-    PACKAGES_DIR,
-    safeAccountHash,
-    safeBundleID,
-    safeVersion,
-  );
+  const dir = path.join(PACKAGES_DIR, safeAccountHash, safeBundleID, safeVersion);
 
   // Verify the resolved path is within PACKAGES_DIR
   const resolvedDir = path.resolve(dir);
   const packagesBase = path.resolve(PACKAGES_DIR);
   if (!resolvedDir.startsWith(packagesBase + path.sep)) {
-    task.status = "failed";
-    task.error = "Invalid path";
+    task.status = 'failed';
+    task.error = 'Invalid path';
     clearTimeout(timeout);
     notifyProgress(task);
     return;
@@ -484,18 +444,18 @@ async function startDownload(task: DownloadTask) {
 
     // Inject sinfs
     if (task.sinfs.length > 0) {
-      task.status = "injecting";
+      task.status = 'injecting';
       task.progress = 100;
       notifyProgress(task);
 
       await inject(task.sinfs, filePath, task.iTunesMetadata);
     }
 
-    task.status = "completed";
+    task.status = 'completed';
     task.progress = 100;
 
     // Strip sensitive data after successful compile
-    task.downloadURL = "";
+    task.downloadURL = '';
     task.sinfs = [];
     task.iTunesMetadata = undefined;
 
@@ -507,21 +467,18 @@ async function startDownload(task: DownloadTask) {
     abortControllers.delete(task.id);
     clearTimeout(timeout);
 
-    if (err instanceof Error && err.name === "AbortError") {
+    if (err instanceof Error && err.name === 'AbortError') {
       // Status may have been changed to "paused" externally by pauseTask()
-      if ((task.status as string) === "paused") return;
-      task.status = "failed";
-      task.error = "Download timed out";
+      if ((task.status as string) === 'paused') return;
+      task.status = 'failed';
+      task.error = 'Download timed out';
       notifyProgress(task);
       return;
     }
 
-    task.status = "failed";
-    console.error(
-      `Download ${task.id} failed:`,
-      err instanceof Error ? err.message : err,
-    );
-    task.error = "Download failed";
+    task.status = 'failed';
+    console.error(`Download ${task.id} failed:`, err instanceof Error ? err.message : err);
+    task.error = 'Download failed';
     notifyProgress(task);
   }
 }

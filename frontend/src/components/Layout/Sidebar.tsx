@@ -32,9 +32,7 @@ export default function Sidebar() {
             alt=""
             className="h-10 w-10 rounded-[11px] shadow-[0_2px_8px_rgba(0,0,0,0.14)] ring-1 ring-black/5 dark:ring-white/10"
           />
-          <h1 className="text-[17px] font-semibold tracking-[-0.015em] text-gray-900 dark:text-white">
-            Asspp Web
-          </h1>
+          <h1 className="text-[17px] font-semibold tracking-[-0.015em] text-gray-900 dark:text-white">Asspp Web</h1>
         </div>
       </div>
 

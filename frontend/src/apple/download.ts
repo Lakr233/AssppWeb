@@ -10,21 +10,15 @@ export async function getDownloadInfo(
   app: Software,
   externalVersionId?: string,
 ): Promise<{ output: DownloadOutput; updatedCookies: typeof account.cookies }> {
-  const { dict, updatedCookies } = await downloadProduct(
-    account,
-    app,
-    externalVersionId,
-  );
+  const { dict, updatedCookies } = await downloadProduct(account, app, externalVersionId);
   const item = dict.songList[0];
   const url = item.URL as string;
   if (!url) throw new DownloadError(i18n.t('errors.download.missingUrl'));
   const metadata = item.metadata as Record<string, any>;
-  if (!metadata)
-    throw new DownloadError(i18n.t('errors.download.missingMetadata'));
+  if (!metadata) throw new DownloadError(i18n.t('errors.download.missingMetadata'));
   const version = metadata.bundleShortVersionString as string;
   const bundleVersion = metadata.bundleVersion as string;
-  if (!version || !bundleVersion)
-    throw new DownloadError(i18n.t('errors.download.missingVersion'));
+  if (!version || !bundleVersion) throw new DownloadError(i18n.t('errors.download.missingVersion'));
 
   const sinfs: Sinf[] = [];
   for (const sinfItem of (item.sinfs ?? []) as Record<string, any>[]) {
@@ -32,9 +26,7 @@ export async function getDownloadInfo(
     if (id === undefined || !sinf) continue;
     let sinfBase64: string;
     if (sinf instanceof Uint8Array || sinf instanceof ArrayBuffer) {
-      sinfBase64 = base64FromBytes(
-        sinf instanceof ArrayBuffer ? new Uint8Array(sinf) : sinf,
-      );
+      sinfBase64 = base64FromBytes(sinf instanceof ArrayBuffer ? new Uint8Array(sinf) : sinf);
     } else if (typeof sinf === 'string') {
       sinfBase64 = sinf;
     } else {
@@ -50,9 +42,7 @@ export async function getDownloadInfo(
     userName: account.email,
   };
   delete metadataDict.passwordToken;
-  const iTunesMetadata = base64FromBytes(
-    new TextEncoder().encode(buildPlist(metadataDict)),
-  );
+  const iTunesMetadata = base64FromBytes(new TextEncoder().encode(buildPlist(metadataDict)));
   return {
     output: {
       downloadURL: url,

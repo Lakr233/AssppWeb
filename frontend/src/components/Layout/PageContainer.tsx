@@ -8,11 +8,7 @@ interface PageContainerProps {
   action?: ReactNode;
 }
 
-export default function PageContainer({
-  title,
-  children,
-  action,
-}: PageContainerProps) {
+export default function PageContainer({ title, children, action }: PageContainerProps) {
   const location = useLocation();
   const clearSearch = useSearch((state) => state.clear);
 

@@ -1,9 +1,9 @@
-import { create } from "zustand";
-import { openDB, type IDBPDatabase } from "idb";
-import type { Account } from "../types";
+import { create } from 'zustand';
+import { openDB, type IDBPDatabase } from 'idb';
+import type { Account } from '../types';
 
-const DB_NAME = "asspp-accounts";
-const STORE_NAME = "accounts";
+const DB_NAME = 'asspp-accounts';
+const STORE_NAME = 'accounts';
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -12,7 +12,7 @@ function getDB(): Promise<IDBPDatabase> {
     dbPromise = openDB(DB_NAME, 1, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: "email" });
+          db.createObjectStore(STORE_NAME, { keyPath: 'email' });
         }
       },
     });
@@ -44,10 +44,7 @@ export const useAccountsStore = create<AccountsState>((set, get) => ({
     const db = await getDB();
     await db.put(STORE_NAME, account);
     set({
-      accounts: [
-        ...get().accounts.filter((a) => a.email !== account.email),
-        account,
-      ],
+      accounts: [...get().accounts.filter((a) => a.email !== account.email), account],
     });
   },
 
@@ -61,9 +58,7 @@ export const useAccountsStore = create<AccountsState>((set, get) => ({
     const db = await getDB();
     await db.put(STORE_NAME, account);
     set({
-      accounts: get().accounts.map((a) =>
-        a.email === account.email ? account : a,
-      ),
+      accounts: get().accounts.map((a) => (a.email === account.email ? account : a)),
     });
   },
 }));

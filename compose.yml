@@ -2,7 +2,7 @@ services:
   asspp:
     image: ghcr.io/lakr233/assppweb:latest
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - ./mnt/asspp-data:/data
     environment:
@@ -12,7 +12,7 @@ services:
       # - ACCESS_PASSWORD=your_password_here
     restart: unless-stopped
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "128m"
-        max-file: "5"
+        max-size: '128m'
+        max-file: '5'

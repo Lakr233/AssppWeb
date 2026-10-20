@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
 import { useToastStore, type ToastType } from '../../store/toast';
+import type { ReactNode } from 'react';
 
 const iconBg: Record<ToastType, string> = {
-  success:
-    'bg-green-500/10 text-green-600 dark:bg-green-400/10 dark:text-green-400',
+  success: 'bg-green-500/10 text-green-600 dark:bg-green-400/10 dark:text-green-400',
   error: 'bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-400',
   info: 'bg-blue-500/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400',
 };
@@ -16,48 +15,17 @@ const titleColor: Record<ToastType, string> = {
 
 const icons: Record<ToastType, ReactNode> = {
   success: (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M5 13l4 4L19 7"
-      />
+    <svg aria-hidden="true" focusable="false" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   ),
   error: (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M6 18L18 6M6 6l12 12"
-      />
+    <svg aria-hidden="true" focusable="false" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   ),
   info: (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
+    <svg aria-hidden="true" focusable="false" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -109,15 +77,9 @@ export default function ToastContainer() {
 
             <div className="min-w-0 flex-1 py-0.5">
               {toast.title && (
-                <h4
-                  className={`mb-0.5 text-sm font-semibold leading-5 ${titleColor[toast.type]}`}
-                >
-                  {toast.title}
-                </h4>
+                <h4 className={`mb-0.5 text-sm font-semibold leading-5 ${titleColor[toast.type]}`}>{toast.title}</h4>
               )}
-              <p
-                className="whitespace-pre-line break-words text-sm leading-5 text-gray-700 dark:text-gray-200"
-              >
+              <p className="whitespace-pre-line break-words text-sm leading-5 text-gray-700 dark:text-gray-200">
                 {toast.message}
               </p>
             </div>
@@ -135,12 +97,7 @@ export default function ToastContainer() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>

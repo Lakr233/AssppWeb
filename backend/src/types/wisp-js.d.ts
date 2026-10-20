@@ -1,6 +1,6 @@
-declare module "@mercuryworkshop/wisp-js/server" {
-  import type { IncomingMessage } from "http";
-  import type { Duplex } from "stream";
+declare module '@mercuryworkshop/wisp-js/server' {
+  import type { IncomingMessage } from 'http';
+  import type { Duplex } from 'stream';
 
   interface WispOptions {
     hostname_blacklist: RegExp[] | null;
@@ -28,11 +28,6 @@ declare module "@mercuryworkshop/wisp-js/server" {
 
   export const server: {
     options: WispOptions;
-    routeRequest(
-      req: IncomingMessage,
-      socket: Duplex,
-      head: Buffer,
-      conn_options?: Record<string, any>,
-    ): void;
+    routeRequest(req: IncomingMessage, socket: Duplex, head: Buffer, conn_options?: Record<string, any>): void;
   };
 }

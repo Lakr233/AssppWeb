@@ -19,8 +19,7 @@ const previewApp: Software = {
   minimumOsVersion: '16.0',
   fileSizeBytes: '176160768',
   releaseDate: '2026-07-24T10:30:00Z',
-  releaseNotes:
-    'Adds reusable system blocks, faster canvas search, and clearer export previews.',
+  releaseNotes: 'Adds reusable system blocks, faster canvas search, and clearer export previews.',
   formattedPrice: 'Free',
   primaryGenreName: 'Developer Tools',
 };
@@ -41,13 +40,9 @@ const previewAccounts: Account[] = [
   },
 ];
 
-export const previewProductApp: Software | null = import.meta.env.DEV
-  ? previewApp
-  : null;
+export const previewProductApp: Software | null = import.meta.env.DEV ? previewApp : null;
 
-export const previewProductAccounts: Account[] = import.meta.env.DEV
-  ? previewAccounts
-  : [];
+export const previewProductAccounts: Account[] = import.meta.env.DEV ? previewAccounts : [];
 
 export function isProductPreviewEnabled(search: string): boolean {
   if (!import.meta.env.DEV) return false;

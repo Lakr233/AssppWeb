@@ -17,9 +17,7 @@ async function hashPassword(password: string): Promise<string> {
 
 export default function PasswordGate({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<'loading' | 'required' | 'verified'>(
-    'loading',
-  );
+  const [status, setStatus] = useState<'loading' | 'required' | 'verified'>('loading');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -115,9 +113,7 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
           <h1 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {t('auth.title')}
           </h1>
-          <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-            Asspp Web
-          </p>
+          <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">Asspp Web</p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-4">
@@ -178,9 +174,7 @@ function GateBackdrop({ children }: { children: ReactNode }) {
         aria-hidden="true"
         className="absolute -bottom-40 -right-28 h-96 w-96 rounded-full bg-purple-300/30 blur-3xl dark:bg-purple-900/20"
       />
-      <div className="relative z-10 flex w-full items-center justify-center">
-        {children}
-      </div>
+      <div className="relative z-10 flex w-full items-center justify-center">{children}</div>
     </div>
   );
 }
@@ -204,14 +198,7 @@ function AppMark() {
 
 function LockIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.8}
-    >
+    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -1,7 +1,7 @@
-import { libcurl, initLibcurl } from "./libcurl-init";
-import { buildCookieHeader } from "./cookies";
-import { userAgent } from "./config";
-import type { Cookie } from "../types";
+import { libcurl, initLibcurl } from './libcurl-init';
+import { buildCookieHeader } from './cookies';
+import { userAgent } from './config';
+import type { Cookie } from '../types';
 
 export interface AppleRequestOptions {
   host: string;
@@ -20,21 +20,19 @@ export interface AppleResponse {
   body: string;
 }
 
-export async function appleRequest(
-  opts: AppleRequestOptions,
-): Promise<AppleResponse> {
+export async function appleRequest(opts: AppleRequestOptions): Promise<AppleResponse> {
   await initLibcurl();
 
   const url = `https://${opts.host}${opts.path}`;
   const headers: Record<string, string> = {
-    "User-Agent": userAgent,
+    'User-Agent': userAgent,
     ...opts.headers,
   };
 
   if (opts.cookies?.length) {
     const cookieHeader = buildCookieHeader(opts.cookies, url);
     if (cookieHeader) {
-      headers["Cookie"] = cookieHeader;
+      headers['Cookie'] = cookieHeader;
     }
   }
 
@@ -42,7 +40,7 @@ export async function appleRequest(
     method: opts.method,
     headers,
     body: opts.body,
-    redirect: "manual",
+    redirect: 'manual',
     _libcurl_http_version: 1.1,
   });
 

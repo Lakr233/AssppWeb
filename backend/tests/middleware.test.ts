@@ -1,12 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
-import { httpsRedirect } from "../src/middleware/httpsRedirect.js";
-import { config } from "../src/config.js";
-import type { Request, Response, NextFunction } from "express";
+import { describe, it, expect, vi } from 'vitest';
+import { httpsRedirect } from '../src/middleware/httpsRedirect.js';
+import { config } from '../src/config.js';
+import type { Request, Response, NextFunction } from 'express';
 
-function createMockReq(
-  headers: Record<string, string>,
-  url: string = "/test",
-): Request {
+function createMockReq(headers: Record<string, string>, url: string = '/test'): Request {
   return { headers, url } as unknown as Request;
 }
 
@@ -30,12 +27,9 @@ function createMockRes(): {
   };
 }
 
-describe("httpsRedirect middleware", () => {
-  it("should redirect HTTP to HTTPS", () => {
-    const req = createMockReq(
-      { "x-forwarded-proto": "http", host: "example.com" },
-      "/test?foo=bar",
-    );
+describe('httpsRedirect middleware', () => {
+  it('should redirect HTTP to HTTPS', () => {
+    const req = createMockReq({ 'x-forwarded-proto': 'http', host: 'example.com' }, '/test?foo=bar');
     const mock = createMockRes();
     let nextCalled = false;
     const next: NextFunction = () => {
@@ -48,10 +42,10 @@ describe("httpsRedirect middleware", () => {
     // The redirect was called - verify through the mock
   });
 
-  it("should not redirect when proto is https", () => {
+  it('should not redirect when proto is https', () => {
     const req = createMockReq({
-      "x-forwarded-proto": "https",
-      host: "example.com",
+      'x-forwarded-proto': 'https',
+      host: 'example.com',
     });
     const mock = createMockRes();
     let nextCalled = false;
@@ -64,8 +58,8 @@ describe("httpsRedirect middleware", () => {
     expect(nextCalled).toBe(true);
   });
 
-  it("should not redirect when no x-forwarded-proto header", () => {
-    const req = createMockReq({ host: "example.com" });
+  it('should not redirect when no x-forwarded-proto header', () => {
+    const req = createMockReq({ host: 'example.com' });
     const mock = createMockRes();
     let nextCalled = false;
     const next: NextFunction = () => {
@@ -77,14 +71,11 @@ describe("httpsRedirect middleware", () => {
     expect(nextCalled).toBe(true);
   });
 
-  it("should skip redirect when disableHttpsRedirect is true", () => {
+  it('should skip redirect when disableHttpsRedirect is true', () => {
     const original = config.disableHttpsRedirect;
     config.disableHttpsRedirect = true;
     try {
-      const req = createMockReq(
-        { "x-forwarded-proto": "http", host: "example.com" },
-        "/test",
-      );
+      const req = createMockReq({ 'x-forwarded-proto': 'http', host: 'example.com' }, '/test');
       const mock = createMockRes();
       let nextCalled = false;
       const next: NextFunction = () => {
@@ -99,17 +90,17 @@ describe("httpsRedirect middleware", () => {
     }
   });
 
-  it("should use host header (not x-forwarded-host) for security", () => {
+  it('should use host header (not x-forwarded-host) for security', () => {
     const req = createMockReq(
       {
-        "x-forwarded-proto": "http",
-        "x-forwarded-host": "custom.example.com",
-        host: "internal.host",
+        'x-forwarded-proto': 'http',
+        'x-forwarded-host': 'custom.example.com',
+        host: 'internal.host',
       },
-      "/path",
+      '/path',
     );
 
-    let redirectUrl = "";
+    let redirectUrl = '';
     const res = {
       redirect: (_status: number, url: string) => {
         redirectUrl = url;
@@ -121,6 +112,6 @@ describe("httpsRedirect middleware", () => {
     httpsRedirect(req, res, next);
 
     // Should use host header, not x-forwarded-host, to prevent open redirects
-    expect(redirectUrl).toBe("https://internal.host/path");
+    expect(redirectUrl).toBe('https://internal.host/path');
   });
 });

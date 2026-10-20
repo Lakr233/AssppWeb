@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import type { Software } from "../types";
-import { searchApps, lookupApp } from "../api/search";
+import { create } from 'zustand';
+import { searchApps, lookupApp } from '../api/search';
+import type { Software } from '../types';
 
 interface SearchState {
   term: string;
@@ -9,18 +9,16 @@ interface SearchState {
   results: Software[];
   loading: boolean;
   error: string | null;
-  setSearchParam: (
-    param: Partial<Pick<SearchState, "term" | "country" | "entity">>,
-  ) => void;
+  setSearchParam: (param: Partial<Pick<SearchState, 'term' | 'country' | 'entity'>>) => void;
   search: (term: string, country: string, entity: string) => Promise<void>;
   lookup: (bundleId: string, country: string) => Promise<void>;
   clear: () => void; // 新增：清空搜索状态的方法
 }
 
 export const useSearch = create<SearchState>((set) => ({
-  term: "",
-  country: "",
-  entity: "",
+  term: '',
+  country: '',
+  entity: '',
   results: [],
   loading: false,
   error: null,
@@ -32,7 +30,7 @@ export const useSearch = create<SearchState>((set) => ({
       set({ results: apps });
     } catch (e) {
       set({
-        error: e instanceof Error ? e.message : "Search failed",
+        error: e instanceof Error ? e.message : 'Search failed',
         results: [],
       });
     } finally {
@@ -46,7 +44,7 @@ export const useSearch = create<SearchState>((set) => ({
       set({ results: app ? [app] : [] });
     } catch (e) {
       set({
-        error: e instanceof Error ? e.message : "Lookup failed",
+        error: e instanceof Error ? e.message : 'Lookup failed',
         results: [],
       });
     } finally {
@@ -54,5 +52,5 @@ export const useSearch = create<SearchState>((set) => ({
     }
   },
   // 清空关键词、结果和错误信息，但保留选择的国家和设备类型（作为用户偏好）
-  clear: () => set({ term: "", results: [], error: null }),
+  clear: () => set({ term: '', results: [], error: null }),
 }));

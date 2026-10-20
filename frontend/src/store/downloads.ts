@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import type { DownloadTask, Software, Sinf } from "../types";
-import * as downloadsApi from "../api/downloads";
+import { create } from 'zustand';
+import * as downloadsApi from '../api/downloads';
+import type { DownloadTask, Software, Sinf } from '../types';
 
 interface DownloadsState {
   tasks: DownloadTask[];
@@ -36,10 +36,7 @@ export const useDownloadsStore = create<DownloadsState>((set, get) => ({
       set({ tasks, loading: false });
 
       const hasActive = tasks.some(
-        (t) =>
-          t.status === "downloading" ||
-          t.status === "pending" ||
-          t.status === "injecting",
+        (t) => t.status === 'downloading' || t.status === 'pending' || t.status === 'injecting',
       );
       if (hasActive && !pollInterval) {
         pollInterval = setInterval(() => {
