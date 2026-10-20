@@ -107,11 +107,14 @@ The Wisp server validates target hosts via `hostname_whitelist` in `backend/src/
 - `buy.itunes.apple.com` — purchase endpoint
 - `init.itunes.apple.com` — bag endpoint
 - `/^p\d+-buy\.itunes\.apple\.com$/` — pod-based hosts
-- `downloaddispatch.itunes.apple.com` — redownload dispatch endpoint (failureType 5002 fallback)
+- `downloaddispatch.itunes.apple.com` — redownload/update dispatch endpoints
+- `uclient-api.itunes.apple.com` — public iOS version lookup (no account headers/cookies)
 - Port restricted to `443` only
 - Direct IP targets blocked (`allow_direct_ip = false`)
 - Loopback IP targets blocked (`allow_loopback_ips = false`)
 - Private/reserved resolved IPs allowed (`allow_private_ips = true`) for Docker/OrbStack DNS translation while hostname allowlist remains the primary control
+
+Downloads, version lists, and version metadata share `frontend/src/apple/downloadProduct.ts`. Preserve explicit auth/license failures. For empty/unavailable volumeStore results or 5002, use bag-resolved redownload; for empty HTTP 500 or recoverable redownload results, use bag-resolved updateProduct. Dispatch requests pin an iOS version, and responses must match the app/bundle/version.
 
 ## Bag Proxy (Backend)
 
@@ -139,7 +142,7 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - `libcurl.js` (WASM) for browser-side TLS 1.3 via Mbed TLS — connects through Wisp protocol
 - `appleRequest()` in `frontend/src/apple/request.ts` wraps `libcurl.fetch` for all Apple API calls and forces HTTP/1.1 (`_libcurl_http_version: 1.1`)
 - Bag endpoint (`frontend/src/apple/bag.ts`) uses backend proxy (`/api/bag`) and falls back to `https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate` when `authenticateAccount` is missing or bag fetch fails
-- Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters
+- Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters. Transient responses (204, 404, 429, 5xx) are replayed up to three attempts, 10s then 20s apart, honoring a `Retry-After` of up to 30s (ipatool parity); the optional `onRetry` callback lets the sign-in screens show the wait
 - Plist build/parse (`frontend/src/apple/plist.ts`) uses native XML builder and browser-native `DOMParser`
 - Cookie helper (`frontend/src/apple/cookies.ts`) — `extractAndMergeCookies(rawHeaders, existingCookies)` replaces the repeated extract-and-merge pattern across all Apple protocol files
 

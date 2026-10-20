@@ -8,6 +8,7 @@ import { useToastStore } from "../../store/toast";
 import { authenticate, AuthenticationError } from "../../apple/authenticate";
 import { getErrorMessage } from "../../utils/error";
 import { generateDeviceId } from "../../apple/config";
+import type { AuthRetry } from "../../apple/authenticate";
 
 export default function AddAccountForm() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function AddAccountForm() {
   const [deviceId, setDeviceId] = useState(() => generateDeviceId());
   const [needsCode, setNeedsCode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [retry, setRetry] = useState<AuthRetry | null>(null);
   const inputClassName =
     "block min-h-11 w-full min-w-0 max-w-full rounded-xl border-0 bg-gray-100 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-800 dark:text-white";
 
@@ -38,6 +40,7 @@ export default function AddAccountForm() {
         needsCode && code ? code : undefined,
         undefined,
         cleanedDeviceId,
+        setRetry,
       );
       await addAccount(account);
       addToast(t("accounts.addForm.addSuccess"), "success");
@@ -53,6 +56,7 @@ export default function AddAccountForm() {
         );
       }
     } finally {
+      setRetry(null);
       setLoading(false);
     }
   }
@@ -178,6 +182,16 @@ export default function AddAccountForm() {
               {t("accounts.addForm.cancel")}
             </button>
           </div>
+          {retry && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {t("accounts.addForm.retrying", {
+                status: retry.status,
+                seconds: Math.round(retry.delayMs / 1000),
+                attempt: retry.attempt,
+                attempts: retry.attempts,
+              })}
+            </p>
+          )}
         </form>
       </div>
     </PageContainer>

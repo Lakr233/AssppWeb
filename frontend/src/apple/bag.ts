@@ -3,6 +3,7 @@ import { parsePlist } from "./plist";
 
 export interface BagOutput {
   authURL: string;
+  redownloadURL?: string;
   updateURL?: string;
 }
 
@@ -13,13 +14,21 @@ const NATIVE_AUTH_HOST = "auth.itunes.apple.com";
 
 // The bag advertises the native auth endpoint without the /fast/ sub-path that
 // the login flow requires; the no-trailing-slash variant 301s to an HTML page.
-// Legacy endpoints on other hosts pass through unchanged.
+// Legacy Store authentication also requires a trailing slash; the bare path
+// can return an empty response or an HTML error even when correctly signed.
 export function normalizeAuthURL(rawURL: string): string {
   let url: URL;
   try {
     url = new URL(rawURL);
   } catch {
     return rawURL;
+  }
+  if (
+    /^(?:buy|p\d+-buy)\.itunes\.apple\.com$/.test(url.hostname) &&
+    /^\/WebObjects\/MZFinance\.woa\/wa\/authenticate\/*$/.test(url.pathname)
+  ) {
+    url.pathname = '/WebObjects/MZFinance.woa/wa/authenticate/';
+    return url.toString();
   }
   if (url.hostname !== NATIVE_AUTH_HOST) {
     return rawURL;
@@ -58,17 +67,19 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       (dict.authenticateAccount as string | undefined) ??
       (urlBag?.authenticateAccount as string | undefined);
 
-    const updateURL = (dict.updateProduct as string | undefined) ??
-      (urlBag?.updateProduct as string | undefined);
+    const downloadURLs = {
+      redownloadURL: (dict.redownloadProduct ?? urlBag?.redownloadProduct) as string | undefined,
+      updateURL: (dict.updateProduct ?? urlBag?.updateProduct) as string | undefined,
+    };
 
     if (!authURL) {
       console.warn(
         "[Bag] authenticateAccount URL not found in bag, using default auth endpoint",
       );
-      return { authURL: defaultAuthURL, updateURL };
+      return { authURL: defaultAuthURL, ...downloadURLs };
     }
 
-    return { authURL: normalizeAuthURL(authURL), updateURL };
+    return { authURL: normalizeAuthURL(authURL), ...downloadURLs };
   } catch (error) {
     console.warn(
       `[Bag] Failed to fetch/parse bag, using default auth endpoint: ${

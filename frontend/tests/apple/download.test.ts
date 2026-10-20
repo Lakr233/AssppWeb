@@ -65,7 +65,7 @@ describe('Apple download and version recovery', () => {
     expect(error?.message).toContain(`HTTP ${status}; invalid plist; downloaddispatch.itunes.apple.com/r/redownload`);
     expect(error?.message).not.toMatch(/private-token|aabbccddeeff|guid=/);
     expect(appleRequest).toHaveBeenCalledTimes(2);
-    expect(fetchBag).not.toHaveBeenCalled();
+    expect(fetchBag).toHaveBeenCalledOnce();
   });
 
   it.each([undefined, 'https://example.invalid/up/updateProduct', 'https://downloaddispatch.itunes.apple.com/up/updateProduct?token=secret'])('rejects missing or untrusted update endpoint %s', async (updateURL) => {

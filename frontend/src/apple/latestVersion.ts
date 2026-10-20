@@ -2,13 +2,6 @@ import { appleRequest } from './request';
 import { storeIdToCountry } from './config';
 import type { Account, Software } from '../types';
 
-export function isRecoverableEmptyResponse(status: number, dict: Record<string, unknown>): boolean {
-  if (status !== 200 || dict.failureType ||
-      (Array.isArray(dict.songList) && dict.songList.length > 0)) return false;
-  const message = typeof dict.customerMessage === 'string' ? dict.customerMessage.trim().toLowerCase() : '';
-  return !message || message === 'no longer available' || message.endsWith(' no longer available');
-}
-
 // Public MDM catalog, as used by ipatool's iOS redownload recovery. Never send
 // the account's cookies, DSID or password token to this metadata endpoint.
 export async function lookupLatestVersion(account: Account, app: Software): Promise<string> {
