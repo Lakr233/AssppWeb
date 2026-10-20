@@ -103,6 +103,8 @@ After authentication, Apple returns a `pod` header:
 
 The Wisp server validates target hosts via `hostname_whitelist` in `backend/src/services/wsProxy.ts`:
 
+- `s.mzstatic.com` — public SAP setup certificate
+- `fpinit.itunes.apple.com` — SAP setup exchange, browser TLS only
 - `auth.itunes.apple.com` — bag-resolved auth endpoint
 - `buy.itunes.apple.com` — purchase endpoint
 - `init.itunes.apple.com` — bag endpoint
@@ -143,6 +145,7 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - `appleRequest()` in `frontend/src/apple/request.ts` wraps `libcurl.fetch` for all Apple API calls and forces HTTP/1.1 (`_libcurl_http_version: 1.1`)
 - Bag endpoint (`frontend/src/apple/bag.ts`) uses backend proxy (`/api/bag`) and falls back to `https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate` when `authenticateAccount` is missing or bag fetch fails
 - Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters. Transient responses (204, 404, 429, 5xx) are replayed up to three attempts, 10s then 20s apart, honoring a `Retry-After` of up to 30s (ipatool parity); the optional `onRetry` callback lets the sign-in screens show the wait
+- SAP signing (`frontend/src/apple/sap/`) is a direct browser implementation ported from ApplePackage. Fresh setup and `X-Apple-ActionSignature` are mandatory for authentication. Sign the exact UTF-8 body on every retry/redirect; retain the `Authenticator` across verification-code submissions. Never send credentials or SAP session material to backend HTTP endpoints, persist signer state, or fall back to unsigned authentication.
 - Plist build/parse (`frontend/src/apple/plist.ts`) uses native XML builder and browser-native `DOMParser`
 - Cookie helper (`frontend/src/apple/cookies.ts`) — `extractAndMergeCookies(rawHeaders, existingCookies)` replaces the repeated extract-and-merge pattern across all Apple protocol files
 

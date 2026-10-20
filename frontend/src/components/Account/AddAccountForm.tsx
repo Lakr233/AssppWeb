@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '../Layout/PageContainer';
 import Spinner from '../common/Spinner';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useToastStore } from '../../store/toast';
-import { authenticate, AuthenticationError } from '../../apple/authenticate';
+import { Authenticator, AuthenticationError } from '../../apple/authenticate';
 import { getErrorMessage } from '../../utils/error';
 import { generateDeviceId } from '../../apple/config';
 import type { AuthRetry } from '../../apple/authenticate';
@@ -21,6 +21,7 @@ export default function AddAccountForm() {
   const [code, setCode] = useState('');
   const [deviceId, setDeviceId] = useState(() => generateDeviceId());
   const [needsCode, setNeedsCode] = useState(false);
+  const authenticator = useRef<Authenticator | null>(null);
   const [loading, setLoading] = useState(false);
   const [retry, setRetry] = useState<AuthRetry | null>(null);
   const inputClassName =
@@ -34,12 +35,11 @@ export default function AddAccountForm() {
       const cleanedDeviceId = deviceId.replace(/[: ]/g, '');
       setDeviceId(cleanedDeviceId);
 
-      const account = await authenticate(
+      if (!needsCode || !authenticator.current) authenticator.current = new Authenticator(cleanedDeviceId);
+      const account = await authenticator.current.authenticate(
         email,
         password,
         needsCode && code ? code : undefined,
-        undefined,
-        cleanedDeviceId,
         setRetry,
       );
       await addAccount(account);

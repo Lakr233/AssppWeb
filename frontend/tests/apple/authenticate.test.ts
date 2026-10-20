@@ -4,6 +4,10 @@ import { authenticate } from '../../src/apple/authenticate';
 import { appleRequest } from '../../src/apple/request';
 import { fetchBag } from '../../src/apple/bag';
 
+vi.mock('../../src/apple/sap', () => ({
+  connectSAP: vi.fn(async () => ({ sign: async () => Uint8Array.of(1, 2, 3) })),
+}));
+
 vi.mock('../../src/apple/request', () => ({
   appleRequest: vi.fn(),
 }));

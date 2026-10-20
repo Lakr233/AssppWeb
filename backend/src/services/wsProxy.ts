@@ -4,6 +4,8 @@ import { accessPasswordHash, verifyAccessToken } from '../config.js';
 
 // Allow only Apple hosts required by bag/auth/purchase/version/download flows.
 wisp.options.hostname_whitelist = [
+  /^s\.mzstatic\.com$/,
+  /^fpinit\.itunes\.apple\.com$/,
   /^auth\.itunes\.apple\.com$/,
   /^buy\.itunes\.apple\.com$/,
   /^init\.itunes\.apple\.com$/,

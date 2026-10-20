@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '../Layout/PageContainer';
 import Spinner from '../common/Spinner';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useToastStore } from '../../store/toast';
-import { authenticate, AuthenticationError } from '../../apple/authenticate';
+import { Authenticator, AuthenticationError } from '../../apple/authenticate';
 import { getErrorMessage } from '../../utils/error';
 import { storeIdToCountry } from '../../apple/config';
 import type { AuthRetry } from '../../apple/authenticate';
@@ -22,6 +22,7 @@ export default function AccountDetail() {
   const [reauthRetry, setReauthRetry] = useState<AuthRetry | null>(null);
   const [reauthCode, setReauthCode] = useState('');
   const [needsCode, setNeedsCode] = useState(false);
+  const authenticator = useRef<Authenticator | null>(null);
 
   useEffect(() => {
     loadAccounts();
@@ -56,12 +57,12 @@ export default function AccountDetail() {
     setReauthing(true);
 
     try {
-      const updated = await authenticate(
+      if (!needsCode || !authenticator.current)
+        authenticator.current = new Authenticator(account.deviceIdentifier, account.cookies);
+      const updated = await authenticator.current.authenticate(
         account.email,
         account.password,
         needsCode && reauthCode ? reauthCode : undefined,
-        account.cookies,
-        account.deviceIdentifier,
         setReauthRetry,
       );
       await updateAccount(updated);

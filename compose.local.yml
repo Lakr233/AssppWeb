@@ -1,0 +1,9 @@
+services:
+  asspp:
+    image: assppweb:local
+    ports: !override
+      - '127.0.0.1:8080:8080'
+    build:
+      context: .
+      args:
+        BUILD_COMMIT: local-sap

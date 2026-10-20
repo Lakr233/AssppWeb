@@ -5,3 +5,6 @@ references/
 mnt/
 tunnel/
 CLAUDE.md
+
+# Generated fixed SAP algorithm tables.
+frontend/src/apple/sap/tables.json
