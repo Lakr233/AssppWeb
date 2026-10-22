@@ -1,6 +1,7 @@
 // Per account/device kbsync cache, kept apart from Account so a token refresh
-// does not overwrite it. Only blobs that served a valid ent/download response
-// are stored; bump the key when the StoreAgent profile or format changes.
+// does not overwrite it. Blobs are stored when generated so a background
+// prefetch can serve the first download; a blob Apple rejects is replaced once.
+// Bump the key when the StoreAgent profile or format changes.
 
 const CACHE_PREFIX = 'asspp-kbsync-v1';
 

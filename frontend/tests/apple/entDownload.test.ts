@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { dispatchEndpoint, downloadProduct } from '../../src/apple/downloadProduct';
 import { appleRequest, type AppleRequestOptions } from '../../src/apple/request';
-import { generateKBSync } from '../../src/apple/kbsync';
+import { prefetchKBSync } from '../../src/apple/kbsync';
+import { generateKBSync } from '../../src/apple/kbsync/generate';
 import { buildPlist, parsePlist } from '../../src/apple/plist';
 import type { Account, Software } from '../../src/types';
 
@@ -14,8 +15,8 @@ vi.mock('../../src/apple/bag', () => ({
     updateURL: 'https://downloaddispatch.itunes.apple.com/up/updateProduct',
   }),
 }));
-vi.mock('../../src/apple/kbsync', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../src/apple/kbsync')>()),
+vi.mock('../../src/apple/kbsync/generate', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../src/apple/kbsync/generate')>()),
   generateKBSync: vi.fn(),
 }));
 
@@ -92,7 +93,7 @@ describe('ent/download', () => {
     ).toBeUndefined();
   });
 
-  it('sends a kbsync download request and caches the accepted blob', async () => {
+  it('sends a kbsync download request and caches the blob', async () => {
     vi.mocked(generateKBSync).mockResolvedValue('fresh-kbsync');
     vi.mocked(appleRequest).mockImplementation(async (request) => {
       if (request.host === 'uclient-api.itunes.apple.com') return catalog;
@@ -146,5 +147,21 @@ describe('ent/download', () => {
       'Apple download: HTTP 403; empty response; downloaddispatch.itunes.apple.com/r/redownload (ent/download: StoreAgent global initialization returned -42404)',
     );
     expect(localStorage.getItem(cacheKey)).toBeNull();
+  });
+
+  it('shares a background prefetch with the download that needs it', async () => {
+    let finish!: (value: string) => void;
+    vi.mocked(generateKBSync).mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    vi.mocked(appleRequest).mockResolvedValue(success);
+
+    prefetchKBSync([account]);
+    await vi.waitFor(() => expect(generateKBSync).toHaveBeenCalledTimes(1));
+    const download = downloadProduct(account, app, version);
+    finish('prefetched-kbsync');
+    await download;
+
+    expect(generateKBSync).toHaveBeenCalledTimes(1);
+    expect(parsePlist(vi.mocked(appleRequest).mock.calls[0][0].body!).kbsync).toBe('prefetched-kbsync');
+    expect(localStorage.getItem(cacheKey)).toBe('prefetched-kbsync');
   });
 });

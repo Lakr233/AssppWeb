@@ -1,78 +1,54 @@
-// Browser entry point for kbsync generation. Credentials never leave the
-// browser: the worker only receives the device GUID bytes and the account DSID.
+// kbsync for ent/download. Generation emulates StoreAgent and takes tens of
+// seconds, so blobs are prepared in the background and shared between callers.
 
-import { toBase64 } from '../sap/bytes';
-import { loadKBSyncAssets } from './assets';
+import { cachedKBSync, storeKBSync } from './cache';
+import { generateKBSync } from './generate';
+import type { Account } from '../../types';
 
-// Bounds asset loading plus the emulated StoreAgent calls.
-const GENERATION_TIMEOUT_MS = 6 * 60 * 1000;
+export { hardwareIDFromDeviceIdentifier } from './generate';
 
-let wasmBinary: Promise<ArrayBuffer> | null = null;
+const inFlight = new Map<string, Promise<string>>();
+let prefetchQueue: Promise<void> = Promise.resolve();
 
-function loadWasm(): Promise<ArrayBuffer> {
-  if (!wasmBinary) {
-    const url = new URL('./vendor/unicorn.wasm', import.meta.url);
-    wasmBinary = fetch(url).then((response) => {
-      if (!response.ok) {
-        throw new Error(`Unicorn wasm download failed: HTTP ${response.status}`);
-      }
-      return response.arrayBuffer();
-    });
-    wasmBinary.catch(() => {
-      wasmBinary = null;
-    });
+/** Returns the cached kbsync, or generates and caches one, sharing in-flight work. */
+export function obtainKBSync(deviceIdentifier: string, dsid: number): Promise<string> {
+  const cached = cachedKBSync(dsid, deviceIdentifier);
+  if (cached) {
+    return Promise.resolve(cached);
   }
-  return wasmBinary;
+  const key = `${dsid}:${deviceIdentifier.toLowerCase()}`;
+  let pending = inFlight.get(key);
+  if (!pending) {
+    pending = generateKBSync(deviceIdentifier, dsid).then((kbsync) => {
+      storeKBSync(dsid, deviceIdentifier, kbsync);
+      return kbsync;
+    });
+    inFlight.set(key, pending);
+    pending.then(
+      () => inFlight.delete(key),
+      () => inFlight.delete(key),
+    );
+  }
+  return pending;
 }
 
-export function hardwareIDFromDeviceIdentifier(deviceIdentifier: string): Uint8Array {
-  if (!/^[0-9a-fA-F]{12}$/.test(deviceIdentifier)) {
-    throw new Error('kbsync requires a six-byte hexadecimal device identifier');
-  }
-  return Uint8Array.from(deviceIdentifier.match(/../g)!, (byte) => parseInt(byte, 16));
-}
-
-/** Generates a base64 kbsync blob for this account and device. */
-export async function generateKBSync(
-  deviceIdentifier: string,
-  dsid: number,
-  onProgress?: (loadedBytes: number, totalBytes: number) => void,
-): Promise<string> {
-  const hardwareID = hardwareIDFromDeviceIdentifier(deviceIdentifier);
-  const [assets, wasm] = await Promise.all([loadKBSyncAssets(onProgress), loadWasm()]);
-
-  const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
-  try {
-    const kbsync = await new Promise<ArrayBuffer>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('kbsync generation timed out')), GENERATION_TIMEOUT_MS);
-      worker.onmessage = (event: MessageEvent<{ type: string; kbsync?: ArrayBuffer; message?: string }>) => {
-        clearTimeout(timer);
-        if (event.data.type === 'result' && event.data.kbsync) {
-          resolve(event.data.kbsync);
-        } else {
-          reject(new Error(event.data.message ?? 'kbsync generation failed'));
-        }
-      };
-      worker.onerror = (event) => {
-        clearTimeout(timer);
-        reject(new Error(event.message || 'kbsync worker failed'));
-      };
-      worker.postMessage({
-        assets: {
-          commerceKit: assets.commerceKit.slice().buffer,
-          commerceCore: assets.commerceCore.slice().buffer,
-          coreFP: assets.coreFP.slice().buffer,
-          coreFPICXS: assets.coreFPICXS.slice().buffer,
-          storeAgent: assets.storeAgent.slice().buffer,
-        },
-        wasmBinary: wasm.slice(0),
-        hardwareID: hardwareID.slice().buffer,
-        dsid,
-      });
-    });
-    return toBase64(new Uint8Array(kbsync));
-  } finally {
-    // The guest heap is large; release it as soon as generation finishes.
-    worker.terminate();
+/** Generates missing kbsync blobs one account at a time, ahead of the first download. */
+export function prefetchKBSync(accounts: Account[]): void {
+  for (const account of accounts) {
+    const dsid = Number(account.directoryServicesIdentifier);
+    if (
+      !Number.isSafeInteger(dsid) ||
+      dsid <= 0 ||
+      !/^[0-9a-f]{12}$/i.test(account.deviceIdentifier) ||
+      cachedKBSync(dsid, account.deviceIdentifier)
+    ) {
+      continue;
+    }
+    prefetchQueue = prefetchQueue
+      .then(() => obtainKBSync(account.deviceIdentifier, dsid))
+      .then(
+        () => undefined,
+        (error) => console.warn(`[kbsync] Prefetch failed: ${error instanceof Error ? error.message : String(error)}`),
+      );
   }
 }

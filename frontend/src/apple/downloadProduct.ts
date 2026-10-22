@@ -2,8 +2,8 @@ import i18n from '../i18n';
 import { fetchBag, type BagOutput } from './bag';
 import { lookupLatestVersion } from './latestVersion';
 import { extractAndMergeCookies } from './cookies';
-import { generateKBSync, hardwareIDFromDeviceIdentifier } from './kbsync';
-import { cachedKBSync, invalidateKBSync, storeKBSync } from './kbsync/cache';
+import { hardwareIDFromDeviceIdentifier, obtainKBSync } from './kbsync';
+import { cachedKBSync, invalidateKBSync } from './kbsync/cache';
 import { buildPlist, parsePlist } from './plist';
 import { appleRequest } from './request';
 import { toBase64 } from './sap/bytes';
@@ -183,10 +183,8 @@ async function entDownload(
       invalidateKBSync(dsid, account.deviceIdentifier, cached);
     }
   }
-  const kbsync = await generateKBSync(account.deviceIdentifier, dsid);
-  const result = await sendEntDownload(account, app, endpoint, version, kbsync, cookies);
-  storeKBSync(dsid, account.deviceIdentifier, kbsync);
-  return result;
+  const kbsync = await obtainKBSync(account.deviceIdentifier, dsid);
+  return sendEntDownload(account, app, endpoint, version, kbsync, cookies);
 }
 
 /** Shared protocol for downloads, version lists, and pinned version metadata. */
