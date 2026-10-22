@@ -3,6 +3,8 @@ import { parsePlist } from './plist';
 
 export interface BagOutput {
   authURL: string;
+  /** ent/download endpoint (bag key volumeStoreDownloadProduct), which requires kbsync. */
+  entDownloadURL?: string;
   redownloadURL?: string;
   updateURL?: string;
 }
@@ -64,6 +66,7 @@ export async function fetchBag(deviceId: string): Promise<BagOutput> {
       (dict.authenticateAccount as string | undefined) ?? (urlBag?.authenticateAccount as string | undefined);
 
     const downloadURLs = {
+      entDownloadURL: (dict.volumeStoreDownloadProduct ?? urlBag?.volumeStoreDownloadProduct) as string | undefined,
       redownloadURL: (dict.redownloadProduct ?? urlBag?.redownloadProduct) as string | undefined,
       updateURL: (dict.updateProduct ?? urlBag?.updateProduct) as string | undefined,
     };

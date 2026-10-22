@@ -8,3 +8,6 @@ CLAUDE.md
 
 # Generated fixed SAP algorithm tables.
 frontend/src/apple/sap/tables.json
+
+# Vendored Unicorn WebAssembly build.
+frontend/src/apple/kbsync/vendor/

@@ -1,13 +1,16 @@
 import i18n from '../i18n';
-import { fetchBag } from './bag';
+import { fetchBag, type BagOutput } from './bag';
 import { lookupLatestVersion } from './latestVersion';
 import { extractAndMergeCookies } from './cookies';
+import { generateKBSync, hardwareIDFromDeviceIdentifier } from './kbsync';
+import { cachedKBSync, invalidateKBSync, storeKBSync } from './kbsync/cache';
 import { buildPlist, parsePlist } from './plist';
 import { appleRequest } from './request';
+import { toBase64 } from './sap/bytes';
 import { redownloadEndpoint, volumeStoreEndpoint } from './config';
 import type { StoreDownloadEndpoint } from './config';
 import type { AppleResponse } from './request';
-import type { Account, Software } from '../types';
+import type { Account, Cookie, Software } from '../types';
 
 export class DownloadError extends Error {
   constructor(
@@ -31,9 +34,19 @@ export function needsDownloadFallback(dict: Record<string, any>): boolean {
   return !message || message === 'no longer available' || message.endsWith(' no longer available');
 }
 
+const DISPATCH_PATHS = {
+  ent: '/WebObjects/DownloadDispatch.woa/wa/ent/download',
+  redownload: '/r/redownload',
+  update: '/up/updateProduct',
+};
+
+// Matches ipatool's ent/download request (majd/ipatool@3411d57).
+const ENT_USER_AGENT = 'Configurator/2.18 (Macintosh; OS X 15.3.2; 24D81) AppleWebKit/0620.2.4.11.6';
+const ENT_SERIAL_PREFIX = [0x54, 0xc8, 0xb0, 0xa9, 0x88];
+
 export function dispatchEndpoint(
   raw: string | undefined,
-  kind: 'redownload' | 'update',
+  kind: keyof typeof DISPATCH_PATHS,
   deviceId: string,
 ): StoreDownloadEndpoint | undefined {
   if (!raw) return undefined;
@@ -43,7 +56,7 @@ export function dispatchEndpoint(
   } catch {
     return undefined;
   }
-  const path = kind === 'redownload' ? '/r/redownload' : '/up/updateProduct';
+  const path = DISPATCH_PATHS[kind];
   if (
     url.protocol !== 'https:' ||
     url.host !== 'downloaddispatch.itunes.apple.com' ||
@@ -59,7 +72,7 @@ export function dispatchEndpoint(
   return {
     host: url.hostname,
     path: url.pathname + url.search,
-    externalVersionIdKey: 'appExtVrsId',
+    externalVersionIdKey: kind === 'ent' ? 'externalVersionId' : 'appExtVrsId',
   };
 }
 
@@ -106,8 +119,102 @@ function validateDownloadItem(dict: Record<string, any>, app: Software, version?
   }
 }
 
+async function sendEntDownload(
+  account: Account,
+  app: Software,
+  endpoint: StoreDownloadEndpoint,
+  version: string,
+  kbsync: string,
+  cookies: Cookie[],
+): Promise<{ dict: Record<string, any>; cookies: Cookie[] }> {
+  const hardwareID = hardwareIDFromDeviceIdentifier(account.deviceIdentifier);
+  const response = await appleRequest({
+    method: 'POST',
+    host: endpoint.host,
+    path: endpoint.path,
+    // Redirects are never followed, so X-Token cannot reach another host.
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      'User-Agent': ENT_USER_AGENT,
+      'X-Apple-Store-Front': `${account.store}-1`,
+      'X-Token': account.passwordToken,
+      'iCloud-DSID': account.directoryServicesIdentifier,
+      'X-Dsid': account.directoryServicesIdentifier,
+    },
+    body: buildPlist({
+      creditDisplay: '',
+      guid: account.deviceIdentifier,
+      kbsync,
+      salableAdamId: String(app.id),
+      serialNumber: toBase64(Uint8Array.from([...ENT_SERIAL_PREFIX, ...hardwareID.subarray(2)])),
+      [endpoint.externalVersionIdKey]: version,
+    }),
+    cookies,
+  });
+  const updatedCookies = extractAndMergeCookies(response.rawHeaders, cookies);
+  const dict = responseDict(response, endpoint);
+  requireItems(dict);
+  validateDownloadItem(dict, app, version);
+  if (!dict.songList[0].URL) {
+    throw new DownloadError('Apple download: ent/download response has no package URL');
+  }
+  return { dict, cookies: updatedCookies };
+}
+
+// Apple's bag now routes volumeStoreDownloadProduct to ent/download, which
+// requires a kbsync blob bound to the account DSID and device GUID.
+async function entDownload(
+  account: Account,
+  app: Software,
+  endpoint: StoreDownloadEndpoint,
+  version: string,
+  cookies: Cookie[],
+): Promise<{ dict: Record<string, any>; cookies: Cookie[] }> {
+  const dsid = Number(account.directoryServicesIdentifier);
+  if (!Number.isSafeInteger(dsid) || dsid <= 0) {
+    throw new DownloadError('ent/download requires a numeric account DSID');
+  }
+  const cached = cachedKBSync(dsid, account.deviceIdentifier);
+  if (cached) {
+    try {
+      return await sendEntDownload(account, app, endpoint, version, cached, cookies);
+    } catch {
+      // Retry a rejected cached blob once with a fresh one.
+      invalidateKBSync(dsid, account.deviceIdentifier, cached);
+    }
+  }
+  const kbsync = await generateKBSync(account.deviceIdentifier, dsid);
+  const result = await sendEntDownload(account, app, endpoint, version, kbsync, cookies);
+  storeKBSync(dsid, account.deviceIdentifier, kbsync);
+  return result;
+}
+
 /** Shared protocol for downloads, version lists, and pinned version metadata. */
 export async function downloadProduct(account: Account, app: Software, versionId?: string) {
+  const bag = await fetchBag(account.deviceIdentifier);
+  const ent = dispatchEndpoint(bag.entDownloadURL, 'ent', account.deviceIdentifier);
+  let entError: unknown;
+  if (ent) {
+    try {
+      const version = versionId ?? (await lookupLatestVersion(account, app));
+      const result = await entDownload(account, app, ent, version, [...account.cookies]);
+      return { dict: result.dict, updatedCookies: result.cookies };
+    } catch (error) {
+      entError = error;
+    }
+  }
+  try {
+    return await legacyDownloadProduct(account, app, bag, versionId);
+  } catch (error) {
+    if (entError && error instanceof Error) {
+      const reason = entError instanceof Error ? entError.message : String(entError);
+      throw new DownloadError(`${error.message} (ent/download: ${reason})`, (error as DownloadError).code);
+    }
+    throw error;
+  }
+}
+
+async function legacyDownloadProduct(account: Account, app: Software, bag: BagOutput, versionId?: string) {
   let cookies = [...account.cookies];
   const send = async (endpoint: StoreDownloadEndpoint, version?: string): Promise<AppleResponse> => {
     const payload: Record<string, unknown> = {
@@ -158,7 +265,6 @@ export async function downloadProduct(account: Account, app: Software, versionId
     return { dict, updatedCookies: cookies };
   }
 
-  const bag = await fetchBag(account.deviceIdentifier);
   // An unpinned dispatch request may return HTTP 500 or the tvOS build.
   let pinnedVersion = versionId;
   if (!pinnedVersion) {
