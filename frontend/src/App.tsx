@@ -5,6 +5,7 @@ import MobileHeader from './components/Layout/MobileHeader';
 import MobileNav from './components/Layout/MobileNav';
 import Sidebar from './components/Layout/Sidebar';
 import GlobalDownloadNotifier from './components/common/GlobalDownloadNotifier';
+import KBSyncPrefetcher from './components/common/KBSyncPrefetcher';
 import ToastContainer from './components/common/ToastContainer';
 import PasswordGate from './components/Auth/PasswordGate';
 import { useSettingsStore } from './store/settings';
@@ -65,6 +66,7 @@ export default function App() {
       <div className="flex h-screen h-[100dvh] overflow-hidden bg-gray-50 text-gray-900 selection:bg-blue-200 dark:bg-gray-950 dark:text-gray-100 dark:selection:bg-blue-800">
         <ToastContainer />
         <GlobalDownloadNotifier />
+        <KBSyncPrefetcher />
 
         <Sidebar />
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:pt-[env(safe-area-inset-top)]">
