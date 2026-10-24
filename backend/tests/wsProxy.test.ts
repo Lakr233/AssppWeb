@@ -3,6 +3,7 @@ import { createServer, Server } from 'http';
 import net from 'net';
 import { WebSocket } from 'ws';
 import express from 'express';
+import { server as wisp } from '@mercuryworkshop/wisp-js/server';
 import { setupWsProxy } from '../src/services/wsProxy.js';
 
 let httpServer: Server | null = null;
@@ -82,5 +83,34 @@ describe('Wisp Proxy', () => {
     });
 
     expect(rejected).toBe(true);
+  });
+
+  // Every host the client reaches through the tunnel has to be listed. A path
+  // that targets an unlisted one has its stream closed mid-handshake, which
+  // libcurl reports as "error code 35: SSL connect error" with nothing naming
+  // the host — so it is worth failing here instead.
+  describe('hostname allowlist', () => {
+    function allows(host: string): boolean {
+      return wisp.options.hostname_whitelist.some((pattern: RegExp) => pattern.test(host));
+    }
+
+    it.each([
+      ['init.itunes.apple.com', 'bag'],
+      ['buy.itunes.apple.com', 'auth and purchase'],
+      ['p18-buy.itunes.apple.com', 'pod-routed store calls'],
+      ['downloaddispatch.itunes.apple.com', 'failureType 5002 fallback'],
+      ['uclient-api.itunes.apple.com', 'version listing'],
+      ['fpinit.itunes.apple.com', 'SAP setup key exchange'],
+      ['s.mzstatic.com', 'SAP setup certificate'],
+    ])('allows %s (%s)', (host) => {
+      expect(allows(host)).toBe(true);
+    });
+
+    it.each(['example.com', 'itunes.apple.com.evil.test', 'notfpinit.itunes.apple.com', 's.mzstatic.com.evil.test'])(
+      'rejects %s',
+      (host) => {
+        expect(allows(host)).toBe(false);
+      },
+    );
   });
 });

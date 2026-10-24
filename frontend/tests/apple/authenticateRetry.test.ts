@@ -52,32 +52,74 @@ describe('apple/authenticate transient responses', () => {
     vi.useRealTimers();
   });
 
-  it('replays a 204 after 10s and reports the wait', async () => {
+  it('replays a 204 after 2s and reports the wait', async () => {
     vi.mocked(appleRequest).mockResolvedValueOnce(transientReply(204)).mockResolvedValueOnce(accountReply());
     const onRetry = vi.fn();
 
     const account = login(onRetry);
-    await vi.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(2_000);
 
     await expect(account).resolves.toMatchObject({ passwordToken: 'token' });
     expect(appleRequest).toHaveBeenCalledTimes(2);
     expect(onRetry).toHaveBeenCalledWith({
       status: 204,
       attempt: 2,
-      attempts: 3,
-      delayMs: 10_000,
+      attempts: 8,
+      delayMs: 2_000,
     });
   });
 
-  it('gives up after three transient responses without stacking retries', async () => {
+  it('gives up after the whole budget without stacking retries', async () => {
     vi.mocked(appleRequest).mockResolvedValue(transientReply(204));
 
     const account = login();
-    const assertion = expect(account).rejects.toThrow('204, 204, 204');
+    const assertion = expect(account).rejects.toThrow(Array(8).fill('204').join(', '));
     await vi.advanceTimersByTimeAsync(30_000);
 
     await assertion;
-    expect(appleRequest).toHaveBeenCalledTimes(3);
+    expect(appleRequest).toHaveBeenCalledTimes(8);
+  });
+
+  // Apple's edge sheds load per route, so a replay of the same endpoint draws
+  // from the same pool. Each retry goes to the next candidate instead.
+  it('rotates endpoints across retries', async () => {
+    vi.mocked(appleRequest).mockResolvedValue(transientReply(204));
+
+    const account = login();
+    const assertion = expect(account).rejects.toThrow();
+    await vi.advanceTimersByTimeAsync(30_000);
+    await assertion;
+
+    const targets = vi.mocked(appleRequest).mock.calls.map((call) => call[0].host);
+    expect(targets.slice(0, 4)).toEqual([
+      'buy.itunes.apple.com',
+      'auth.itunes.apple.com',
+      'buy.itunes.apple.com',
+      'auth.itunes.apple.com',
+    ]);
+  });
+
+  // A refusal that carries no Apple service header never reached the service
+  // that checks credentials, which is different advice from a service that
+  // answered badly.
+  it('tells an edge refusal apart from a service answering badly', async () => {
+    vi.mocked(appleRequest).mockResolvedValue(transientReply(404, { 'content-type': 'text/html' }));
+
+    const edge = login();
+    const edgeAssertion = expect(edge).rejects.toThrow(
+      i18n.t('errors.auth.edgeRefused', { attempts: 8, statuses: Array(8).fill('404').join(', ') }),
+    );
+    await vi.advanceTimersByTimeAsync(30_000);
+    await edgeAssertion;
+
+    vi.mocked(appleRequest).mockResolvedValue(transientReply(503, { 'x-responding-instance': 'MZFinance:9180028:::' }));
+
+    const service = login();
+    const serviceAssertion = expect(service).rejects.toThrow(
+      i18n.t('errors.auth.transientFailure', { attempts: 8, statuses: Array(8).fill('503').join(', ') }),
+    );
+    await vi.advanceTimersByTimeAsync(30_000);
+    await serviceAssertion;
   });
 
   it('waits as long as Retry-After asks, within 30s', async () => {

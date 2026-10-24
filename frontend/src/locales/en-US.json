@@ -458,6 +458,7 @@
       "missingAddress": "Missing address in response",
       "unknownReason": "Authentication failed for an unknown reason",
       "transientFailure": "Authentication failed: Apple did not respond after {{attempts}} attempts (HTTP {{statuses}}). Please try again later.",
+      "edgeRefused": "Authentication failed: all {{attempts}} attempts were refused by Apple's edge before reaching the sign-in service (HTTP {{statuses}}). Apple sheds load on this endpoint at random — please try again later.",
       "retryLater": "Authentication failed: Apple asked to wait {{seconds}} seconds before trying again. Please try again later."
     }
   },

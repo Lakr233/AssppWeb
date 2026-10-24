@@ -458,6 +458,7 @@
       "missingAddress": "응답에 address가 없습니다",
       "unknownReason": "알 수 없는 이유로 인증에 실패했습니다",
       "transientFailure": "인증 실패: {{attempts}}번 시도했지만 Apple이 응답하지 않았습니다(HTTP {{statuses}}). 잠시 후 다시 시도해 주세요.",
+      "edgeRefused": "인증 실패: {{attempts}}번의 시도가 모두 로그인 서버스에 도달하기 전에 Apple 엗지에서 거부됐습니다 (HTTP {{statuses}}). Apple은 이 엔드토인트에 무작위로 부하 제한을 걸었습니다. 잠시 후 다시 시도하세요.",
       "retryLater": "인증 실패: Apple이 {{seconds}}초 후에 다시 시도하라고 요청했습니다. 잠시 후 다시 시도해 주세요."
     }
   },

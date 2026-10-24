@@ -458,6 +458,7 @@
       "missingAddress": "回應中缺少 address",
       "unknownReason": "未知原因導致認證失敗",
       "transientFailure": "認證失敗：嘗試 {{attempts}} 次後 Apple 仍未回應（HTTP {{statuses}}），請稍後再試。",
+      "edgeRefused": "認証失敗：{{attempts}} 次嘗試全部被 Apple 的邊縁節點在抵達登入服務前拒絕（HTTP {{statuses}}）。Apple 會隨機對這個接口做降載，請稍後再試。",
       "retryLater": "認證失敗：Apple 要求等待 {{seconds}} 秒後再試，請稍後再試。"
     }
   },

@@ -58,7 +58,7 @@ export default function AccountDetail() {
 
     try {
       if (!needsCode || !authenticator.current)
-        authenticator.current = new Authenticator(account.deviceIdentifier, account.cookies);
+        authenticator.current = new Authenticator(account.deviceIdentifier, account.cookies, account);
       const updated = await authenticator.current.authenticate(
         account.email,
         account.password,

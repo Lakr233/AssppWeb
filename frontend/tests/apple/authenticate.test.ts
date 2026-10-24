@@ -23,6 +23,69 @@ describe('apple/authenticate', () => {
     vi.clearAllMocks();
   });
 
+  // A renewal replaces the stored account wholesale, and Apple sends these
+  // headers on some responses only. Without a fallback the storefront blanks,
+  // which hides the account from every region filter, and the pod is lost.
+  it('keeps the previous storefront and pod when the response omits them', async () => {
+    vi.mocked(fetchBag).mockResolvedValue({
+      authURL: 'https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate',
+    });
+    vi.mocked(appleRequest).mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      rawHeaders: [],
+      body: buildPlist({
+        accountInfo: { appleId: 'test@example.com', address: {} },
+        passwordToken: 'token',
+        dsPersonId: '123',
+      }),
+    });
+
+    const account = await authenticate(
+      'test@example.com',
+      'password',
+      undefined,
+      undefined,
+      'aabbccddeeff',
+      undefined,
+      { store: '143460', pod: '7' },
+    );
+
+    expect(account.store).toBe('143460');
+    expect(account.pod).toBe('7');
+  });
+
+  it('prefers the storefront and pod the response does send', async () => {
+    vi.mocked(fetchBag).mockResolvedValue({
+      authURL: 'https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate',
+    });
+    vi.mocked(appleRequest).mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+      headers: { 'x-set-apple-store-front': '143441-1,29', pod: '25' },
+      rawHeaders: [],
+      body: buildPlist({
+        accountInfo: { appleId: 'test@example.com', address: {} },
+        passwordToken: 'token',
+        dsPersonId: '123',
+      }),
+    });
+
+    const account = await authenticate(
+      'test@example.com',
+      'password',
+      undefined,
+      undefined,
+      'aabbccddeeff',
+      undefined,
+      { store: '143460', pod: '7' },
+    );
+
+    expect(account.store).toBe('143441');
+    expect(account.pod).toBe('25');
+  });
+
   it('sets guid query exactly once from bag endpoint', async () => {
     vi.mocked(fetchBag).mockResolvedValue({
       authURL: 'https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?foo=1&guid=old-value',

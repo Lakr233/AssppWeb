@@ -458,6 +458,7 @@
       "missingAddress": "レスポンスに address がありません",
       "unknownReason": "不明な理由により認証に失敗しました",
       "transientFailure": "認証に失敗しました：{{attempts}} 回試行しましたが Apple から応答がありません（HTTP {{statuses}}）。しばらくしてから再度お試しください。",
+      "edgeRefused": "認証に失敗しました: {{attempts}} 回の試行すべてが、サインインサービスに到達する前に Apple のエッジで拒否されました (HTTP {{statuses}})。Apple はこのエンドポイントをランダムに負荷制限します。しばらくしてから再試行してください。",
       "retryLater": "認証に失敗しました：Apple から {{seconds}} 秒待つよう求められました。しばらくしてから再度お試しください。"
     }
   },
