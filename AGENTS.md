@@ -99,6 +99,25 @@ After authentication, Apple returns a `pod` header:
 - Pod is stored on the Account object and used for all subsequent API calls
 - Functions: `storeAPIHost(pod?)` and `purchaseAPIHost(pod?)` in `frontend/src/apple/config.ts`
 
+## Apple's Edge Sheds This Route
+
+Apple's edge refuses a share of the requests to the authenticate route before they reach the service that checks credentials. Measured from a clean residential network, fifteen identical POSTs to the legacy endpoint came back:
+
+```
+503 204 403 403 403 204 404 403 500 403 301 301 503 404 403
+```
+
+Only the 403s carried `x-responding-instance` and `apple-timing-app`, so only about 40% reached MZFinance. A bogus path on the same host answered a stable 404 throughout and the bag host a stable 200, so the shedding is per route — not per request shape, and not the client. Body, `Content-Type`, method, User-Agent and the presence of `X-Apple-ActionSignature` make no difference. The reach rate also varies by outbound IP and over time; a second network measured 15–20%, and one exit measured 0% for an hour while the bag host stayed at 200.
+
+Two consequences in `authenticate.ts`:
+
+- **Eight attempts, 2s apart.** At a 40% reach rate three attempts miss the service outright 22% of the time and eight miss 2%. The refusals come back in milliseconds, so there is no overload to back off from — only another draw to take. A `Retry-After` is still honored.
+- **Each retry goes to the next endpoint.** `authEndpoints()` builds the rotation from the bag endpoint, the legacy `MZFinance` endpoint and the native `/auth/v1/native/fast/` one, deduplicated; today the bag advertises the legacy one, so that is two distinct targets. Replaying a single endpoint draws from the same pool each time. The bag URL itself is still validated rather than skipped, so a bag pointing somewhere unapproved fails the sign-in.
+
+One signature serves every attempt: all three candidates are in Apple's SAP-signed list, take the same body, and a signature covers the body alone. `ipatool#513` reports the legacy endpoint answering 302 to a `p{pod}-buy` host where reposting the body returns 200, which the redirect handling already follows with the POST and body intact.
+
+Neither ipatool nor this project can fix the shedding itself; ipatool 2.5.0 still reports it. A failure whose statuses carried no Apple service header is reported as `errors.auth.edgeRefused`, separately from `errors.auth.transientFailure`, because the advice differs: one is Apple's edge, the other a service that answered badly. Every refusal logs the response headers to the console under `[Auth]` — they ride the wisp tunnel, so devtools cannot show them.
+
 ## Dynamic Host Validation (Backend)
 
 The Wisp server validates target hosts via `hostname_whitelist` in `backend/src/services/wsProxy.ts`:
@@ -144,7 +163,8 @@ The backend proxies the bag endpoint via `GET /api/bag?guid=<deviceId>` using No
 - `libcurl.js` (WASM) for browser-side TLS 1.3 via Mbed TLS — connects through Wisp protocol
 - `appleRequest()` in `frontend/src/apple/request.ts` wraps `libcurl.fetch` for all Apple API calls and forces HTTP/1.1 (`_libcurl_http_version: 1.1`)
 - Bag endpoint (`frontend/src/apple/bag.ts`) uses backend proxy (`/api/bag`) and falls back to `https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate` when `authenticateAccount` is missing or bag fetch fails
-- Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters. Transient responses (204, 404, 429, 5xx) are replayed up to three attempts, 10s then 20s apart, honoring a `Retry-After` of up to 30s (ipatool parity); the optional `onRetry` callback lets the sign-in screens show the wait
+- Authentication (`frontend/src/apple/authenticate.ts`) resolves bag endpoint, then sets `guid` via URL query manipulation to avoid duplicate/malformed query parameters. Transient responses (204, 404, 429, 5xx) are replayed up to eight attempts, 2s apart, each on the next candidate endpoint, honoring a `Retry-After` of up to 30s; the optional `onRetry` callback lets the sign-in screens show the wait. See **Apple's Edge Sheds This Route** below
+- The `Authenticator` takes the previously stored `store` and `pod` so a renewal whose response omits those headers does not blank them. A blank `store` hides the account from every region filter, and a lost `pod` sends later calls to the wrong host
 - SAP signing (`frontend/src/apple/sap/`) is a direct browser implementation ported from ApplePackage. Fresh setup and `X-Apple-ActionSignature` are mandatory for authentication. Sign the exact UTF-8 body on every retry/redirect; retain the `Authenticator` across verification-code submissions. Never send credentials or SAP session material to backend HTTP endpoints, persist signer state, or fall back to unsigned authentication.
 - Plist build/parse (`frontend/src/apple/plist.ts`) uses native XML builder and browser-native `DOMParser`
 - Cookie helper (`frontend/src/apple/cookies.ts`) — `extractAndMergeCookies(rawHeaders, existingCookies)` replaces the repeated extract-and-merge pattern across all Apple protocol files

@@ -70,19 +70,27 @@ export function useDownloadAction() {
     // Silently renew the password token before purchasing.
     // This prevents "token expired" (2034/2042) errors that would
     // otherwise require the user to manually re-authenticate.
+    //
+    // Only worth attempting when there is a password to renew against. An
+    // account imported as a token bundle carries none, and trying anyway
+    // establishes a SAP session the request cannot use.
     let currentAccount = account;
-    try {
-      const renewed = await authenticate(
-        account.email,
-        account.password,
-        undefined,
-        account.cookies,
-        account.deviceIdentifier,
-      );
-      await updateAccount(renewed);
-      currentAccount = renewed;
-    } catch {
-      // Ignore — proceed with existing token
+    if (account.password) {
+      try {
+        const renewed = await authenticate(
+          account.email,
+          account.password,
+          undefined,
+          account.cookies,
+          account.deviceIdentifier,
+          undefined,
+          account,
+        );
+        await updateAccount(renewed);
+        currentAccount = renewed;
+      } catch {
+        // Ignore — proceed with existing token
+      }
     }
 
     const result = await purchaseApp(currentAccount, app);
