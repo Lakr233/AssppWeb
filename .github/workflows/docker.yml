@@ -2,8 +2,9 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'fix/**', 'feat/**']
     tags: ['v*']
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -20,8 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # The arm64 runtime layer compiles bufferutil from source (no musl
+      # arm64 prebuild), so it runs gcc under emulation. binfmt's floating
+      # `latest` shipped a QEMU that kills alpine's gcc 15.2 with SIGILL,
+      # so the emulator is pinned rather than tracking that tag.
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:qemu-v8.1.5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -40,6 +47,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
@@ -48,6 +56,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          # linux/386 is not published by the official node images and the
+          # napi binaries (@node-rs/crc32 via yauzl-promise) have no
+          # linux-ia32 build.
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

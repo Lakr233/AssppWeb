@@ -263,6 +263,19 @@ E2E tests cover:
 
 Test credentials are stored in environment variables (`TEST_EMAIL`, `TEST_PASSWORD`, `TEST_DEVICE_ID`, `TEST_BUNDLE_ID`) and must never be committed to the repository.
 
+## Container Builds
+
+Build stages run on `$BUILDPLATFORM` because the JS artifacts are platform-independent; only the runtime layer is built per target platform. The runtime layer therefore installs production deps itself rather than copying the build stage's `node_modules`: `yauzl-promise` → `@node-rs/crc32` ships prebuilt napi binaries per arch, and `bufferutil` (via wisp-js) has no linux-arm64-musl prebuild and compiles from source. The toolchain is added and removed inside one layer so it never bloats the image.
+
+That compile runs under QEMU for the arm64 image, so `.github/workflows/docker.yml` pins `tonistiigi/binfmt:qemu-v8.1.5`. The floating `latest` tag shipped an emulator that kills alpine's gcc 15.2:
+
+```
+qemu: uncaught target signal 4 (Illegal instruction) - core dumped
+ERROR: process "/bin/sh -c apk add ... && npm ci --omit=dev ..." did not complete successfully: exit code: 132
+```
+
+**linux/386 is out**: the official node images dropped it and `@node-rs/crc32` has no linux-ia32 build.
+
 ## Deployment
 
 ```bash
